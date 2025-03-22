@@ -1,0 +1,4 @@
+
+---- REACT NATIVE + EXPO (wooseeandy) -----
+-layout.tsx : gerer - les navigation avec expo-router
+		    - header
