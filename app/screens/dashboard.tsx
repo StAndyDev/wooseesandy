@@ -3,6 +3,7 @@ import globalStyles from '../styles';
 import DashboardElement from '../../components/dashboardElement';
 import ViewChartElement from '../../components/viewChartElement';
 import ProgressRing from '../../components/viewProgressElement';
+import MapElement from '@/components/viewMapElement';
 
 import {
   ScrollView ,
@@ -27,8 +28,7 @@ export default function Dashboard() {
       <View style={styles.parent}>
         <ViewChartElement/>
         <ProgressRing/>
-      </View>
-      
+      </View>      
     </ScrollView>
   );
 }
@@ -41,12 +41,10 @@ const styles = StyleSheet.create({
   parent: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     margin: 10,
     columnGap: 15,
     rowGap: 15,
-    // borderWidth: 2,
-    // borderColor: 'red',
   },
 });

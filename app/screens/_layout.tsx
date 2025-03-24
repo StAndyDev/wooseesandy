@@ -1,41 +1,55 @@
-import { Stack } from 'expo-router';
-import { View, Text, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Header } from '@react-navigation/elements';
+import { Stack, useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
 import globalStyles from '../styles';
 import { useState } from 'react';
 
 export default function Layout() {
+    const router = useRouter();
     const [nbrNotif, setNbrNotif] = useState(3);
+
     return (
         <Stack
             screenOptions={{
-                headerStyle: { backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor },
-                headerTintColor: globalStyles.primaryText.color, // Texte blanc
-                headerTitleAlign: "left",
+                header: ({ options }) => (
+                    <Header
+                        {...options}
+                        headerStyle={{
+                            height: 100, // Définissez ici la hauteur du header
+                            backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
+                        }}
+                        title="WooSeeAndy" // Définissez explicitement le titre ici
+                    />
+                ),
+                headerTintColor: globalStyles.primaryText.color,
+                headerTitleAlign: 'left',
                 headerTitle: () => (
-                    <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <View style={{ alignItems: "flex-start" }}>
-                            <View style={{ flexDirection: "row", alignItems: "center" }}>
-                                <Text style={{ fontSize: 18, fontWeight: "bold", color: globalStyles.primaryText.color }}>WooSeeAndy</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ alignItems: 'flex-start' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 18, fontWeight: 'bold', color: globalStyles.primaryText.color }}>
+                                    WooSeeAndy
+                                </Text>
                                 {nbrNotif > 0 && (
-                                    <TouchableOpacity onPress={() => alert(nbrNotif)}>
+                                    <TouchableOpacity onPress={() => router.push('/notification')}>
                                         <Text style={styles.notif}>{nbrNotif}</Text>
                                     </TouchableOpacity>
                                 )}
-
                             </View>
-                            <Text style={{ fontSize: 10, fontWeight: "bold", maxWidth: 190, color: globalStyles.secondaryText.color }}>View analytics from sitraka andy's portfolio</Text>
+                            <Text style={{ fontSize: 10, fontWeight: 'bold', maxWidth: 190, color: globalStyles.secondaryText.color }}>
+                                View analytics from sitraka andy's portfolio
+                            </Text>
                         </View>
                     </View>
                 ),
-
                 headerRight: () => (
                     <View>
                         <TouchableOpacity
                             style={{
-                                flexDirection: "row",
-                                alignItems: "center",
+                                flexDirection: 'row',
+                                alignItems: 'center',
                                 backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
                                 marginRight: 5,
                                 paddingLeft: 10,
@@ -46,7 +60,7 @@ export default function Layout() {
                                 borderWidth: 1,
                                 borderColor: globalStyles.primaryColor.color,
                             }}
-                            onPress={() => alert("Paramètres")}
+                            onPress={() => alert('refresh')}
                         >
                             <Ionicons name="sync" size={16} color={globalStyles.primaryColor.color} style={{ marginRight: 5 }} />
                             <Text style={{ color: globalStyles.primaryColor.color, fontSize: 16 }}>Refresh Data</Text>
@@ -76,7 +90,7 @@ export default function Layout() {
                 //         </TouchableOpacity>
                 //     </View>
                 // ), // Icône de paramètres à droite
-
+                
             }}
         >
             <Stack.Screen name="dashboard" />
