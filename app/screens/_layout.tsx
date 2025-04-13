@@ -17,7 +17,7 @@ export default function Layout() {
                     <Header
                         {...options}
                         headerStyle={{
-                            height: 100, // Définissez ici la hauteur du header
+                            height: 80, // Définissez ici la hauteur du header
                             backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
                         }}
                         title="WooSeeAndy" // Définissez explicitement le titre ici
@@ -29,11 +29,11 @@ export default function Layout() {
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ alignItems: 'flex-start' }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold', color: globalStyles.primaryText.color }}>
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color: globalStyles.primaryText.color }}>
                                     WooSeeAndy
                                 </Text>
                                 {nbrNotif > 0 && (
-                                    <TouchableOpacity onPress={() => router.push('/notification')}>
+                                    <TouchableOpacity onPress={() => router.push('/Notification')}>
                                         <Text style={styles.notif}>{nbrNotif}</Text>
                                     </TouchableOpacity>
                                 )}

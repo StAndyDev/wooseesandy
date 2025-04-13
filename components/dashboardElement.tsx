@@ -4,7 +4,7 @@ import globalStyles from '../app/styles';
 import { Ionicons } from "@expo/vector-icons";
 import { View, Text } from 'react-native';
 
-interface DashboardElement {
+interface MyDashboard {
     title: string;
     ioniconsElementName: string;
     numbers: number;
@@ -14,7 +14,7 @@ interface DashboardElement {
     textPercentage?: string;
 }
 
-const DashboardElement: React.FC<DashboardElement> = ({ title, ioniconsElementName, numbers, content, ioniconsName, percentage, textPercentage }) => {
+const DashboardElement: React.FC<MyDashboard> = ({ title, ioniconsElementName, numbers, content, ioniconsName, percentage, textPercentage }) => {
     return (
         <View style={styles.element}>
           <View style={styles.child}>

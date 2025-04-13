@@ -2,6 +2,8 @@ import React from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import globalStyles from "./styles";
+import { TextSize } from "victory";
 
 const notifications = [
   { id: "1", message: "Nouveau visiteur détecté", time: "Il y a 2 min" },
@@ -19,9 +21,9 @@ const NotificationsScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={28} color="#fff" />
+          <Ionicons name="arrow-back" size={16} color={globalStyles.primaryColor.color} />
         </TouchableOpacity>
-        <Text style={styles.title}>Notifications</Text>
+        <Text style={styles.title}>Notifications <Text>(3)</Text></Text>
       </View>
       
       {/* Description */}
@@ -47,9 +49,9 @@ const NotificationsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
-    paddingHorizontal: 20,
-    paddingTop: 50,
+    backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
+    paddingHorizontal: globalStyles.boxPadding.padding,
+    paddingTop: 20,
   },
   header: {
     flexDirection: "row",
@@ -57,20 +59,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: {
-    color: "#fff",
-    fontSize: 24,
+    color: globalStyles.primaryText.color,
+    fontSize: 20,
     fontWeight: "bold",
     marginLeft: 15,
   },
   description: {
-    color: "#bbb",
+    color: globalStyles.secondaryText.color,
     fontSize: 14,
     marginBottom: 20,
   },
   notificationCard: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: globalStyles.backgroundColorSecondary.backgroundColor,
     padding: 15,
     borderRadius: 10,
+    borderWidth: 1,
     marginBottom: 10,
   },
   message: {

@@ -5,7 +5,7 @@ import globalStyles from "@/app/styles";
 
 
 
-const ViewChartElement = () => {
+const Chart = () => {
   const { width } = useWindowDimensions();
   return (
     <View style={styles.container}>
@@ -91,5 +91,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ViewChartElement;
-
+export default Chart;

@@ -12,9 +12,10 @@
       "supportsTablet": true
     },
     "android": {
+      "permissions": ["NOTIFICATIONS"],
       "config": {
         "googleMaps": {
-          "apiKey": "VOTRE_CLE_API_GOOGLE_MAPS"
+          "apiKey": "CLE_API_GOOGLE_MAPS"
         }
       },
       "adaptiveIcon": {

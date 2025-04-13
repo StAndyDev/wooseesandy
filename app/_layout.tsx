@@ -11,7 +11,7 @@ export default function Layout() {
       <Stack.Screen name="index" options={{
           animation: 'fade_from_bottom',
         }}/>
-      <Stack.Screen name="notification" options={{
+      <Stack.Screen name="Notification" options={{
           animation: 'ios_from_right',
         }}/>
     </Stack>

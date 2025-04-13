@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
-const MapElement = () => {
+const Map = () => {
   // Liste de points à afficher (latitude, longitude)
   const markers = [
     {
@@ -28,6 +28,7 @@ const MapElement = () => {
   return (
     <View style={styles.container}>
       <MapView
+      
         style={styles.map}
         initialRegion={{
           latitude: 46.2276, // Centre sur la France
@@ -61,4 +62,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MapElement;
+export default Map;
