@@ -11,15 +11,15 @@ const Chart = () => {
     <View style={styles.container}>
       <View style={styles.chartElementHeader}>
         <View style={{ alignItems: "flex-start" }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold", color: globalStyles.primaryText.color }}>Page View</Text>
-          <Text style={{ fontSize: 10, fontWeight: "bold", maxWidth: 190, color: globalStyles.secondaryText.color }}>Last 30 days of portfolio trafic</Text>
+          <Text style={{ fontSize: 18, fontWeight: "bold", color: globalStyles.primaryText.color }}>Visiteurs</Text>
+          <Text style={{ fontSize: 10, fontWeight: "bold", maxWidth: 190, color: globalStyles.secondaryText.color }}>Trafic des 7 derniers mois</Text>
         </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button}>
-            <Text style={{ fontSize: 10, fontWeight: "bold", color: globalStyles.backgroundColorSecondary.backgroundColor }}>All</Text>
+            <Text style={{ fontSize: 10, fontWeight: "bold", color: globalStyles.backgroundColorSecondary.backgroundColor }}>Année</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}>
-            <Text style={{ fontSize: 10, fontWeight: "bold", color: globalStyles.backgroundColorSecondary.backgroundColor }}>Unique</Text>
+            <Text style={{ fontSize: 10, fontWeight: "bold", color: globalStyles.backgroundColorSecondary.backgroundColor }}>Mois</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -30,13 +30,13 @@ const Chart = () => {
           datasets: [
             {
               data: [20, 45, 28, 80, 99, 120], // Première courbe
-              color: () => globalStyles.primaryColor.color, // Rouge
+              color: () => globalStyles.primaryColor.color,
               strokeWidth: 4, // Épaisseur de la courbe
               
             },
             {
               data: [30, 60, 35, 90, 120], // Deuxième courbe
-              color: (opacity = 0.8) => `rgba(54, 162, 235, ${opacity})`, // Bleu
+              color: () => globalStyles.secondaryText.color,
               strokeWidth: 4, // Épaisseur de la courbe
             },
           ],

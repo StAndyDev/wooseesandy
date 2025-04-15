@@ -39,7 +39,7 @@ export default function Layout() {
                                 )}
                             </View>
                             <Text style={{ fontSize: 10, fontWeight: 'bold', maxWidth: 190, color: globalStyles.secondaryText.color }}>
-                                View analytics from sitraka andy's portfolio
+                                Voir les statistiques du portfolio de Sitraka Andy
                             </Text>
                         </View>
                     </View>
@@ -63,7 +63,7 @@ export default function Layout() {
                             onPress={() => alert('refresh')}
                         >
                             <Ionicons name="sync" size={16} color={globalStyles.primaryColor.color} style={{ marginRight: 5 }} />
-                            <Text style={{ color: globalStyles.primaryColor.color, fontSize: 16 }}>Refresh Data</Text>
+                            <Text style={{ color: globalStyles.primaryColor.color, fontSize: 16 }}>Rafraîchir</Text>
                         </TouchableOpacity>
                     </View>
                 ),
@@ -93,7 +93,7 @@ export default function Layout() {
                 
             }}
         >
-            <Stack.Screen name="dashboard" />
+            <Stack.Screen name="Dashboard" />
         </Stack>
     );
 }

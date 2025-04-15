@@ -23,6 +23,9 @@ const globalStyles = StyleSheet.create({
     secondaryColor: {
         color: "rgb(100, 250, 126)",
     },
+    secondaryColorWithOpacity: {
+        color: "rgba(100, 250, 126, 0.4)",
+    },
     tertiaryColor: {
         color: "rgb(50, 120, 80)",
     },

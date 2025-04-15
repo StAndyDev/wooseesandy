@@ -3,7 +3,12 @@ import globalStyles from '../styles';
 import MyDashboard from '../../components/DashboardElement';
 import Chart from '../../components/ChartElement';
 import ProgressRing from '../../components/ProgressElement';
-import Map from '@/components/MapElement';
+import Histogram from '@/components/HistogramElement';
+// redux
+import { RootState } from '@/store/store';
+import { useSelector, useDispatch } from 'react-redux'
+// hooks
+import { useOnlineSocket } from '@/hooks/useOnlineSocket';
 
 import {
   ScrollView ,
@@ -11,24 +16,49 @@ import {
   View,
 } from 'react-native';
 
+const histogramData = [
+  { page: "Home", visites: 100 },
+  { page: "About", visites: 80 },
+  { page: "Contact", visites: 50 },
+  { page: "Blog", visites: 30 },
+  { page: "Portfolio", visites: 20 },
+  { page: "Services", visites: 10 },
+  { page: "Testimonials", visites: 5 },
+  { page: "FAQ", visites: 2 },
+  { page: "Privacy Policy", visites: 1 },
+  { page: "Terms of Service", visites: 1 },
+  { page: "Sitemap", visites: 1 },
+  { page: "Careers", visites: 1 },
+  { page: "", visites: 1 },
+  { page: "", visites: 1 },
+  { page: "", visites: 1 },
+];
+
 export default function Dashboard() {
+  
+  useOnlineSocket()
+
   const [message, setMessage] = useState(''); // Message à envoyer
   const [messages, setMessages] = useState(["azieee", "aranommez", "ranoel", "setkle"]); // Liste des messages reçus
   const [socket, setSocket] = useState(null); // WebSocket instance
 
+  
+  const registeredOnlineVisitor = useSelector((state: RootState) => state.online.registered_visitor)
+  const newOnlineVisitor = useSelector((state: RootState) => state.online.new_visitor)
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.parent}>
-        <MyDashboard title="Active Now" ioniconsElementName="information-circle-outline" numbers={3} content="1 Current visitos and 2 new Visitors" />
-        <MyDashboard title="Total Visitors" ioniconsElementName="people" numbers={1208} content="Unique visitors to you portfolio" ioniconsName="arrow-up" percentage="12,5%" textPercentage="from last week" />
-        <MyDashboard title="Page Views" ioniconsElementName="eye" numbers={35473} content="Total page views across all sections" ioniconsName="arrow-down" percentage="2,9%" textPercentage="from last week" />
-        <MyDashboard title="Interactions" ioniconsElementName="book" numbers={453002} content="Cliks scrolls, and forum submissions" ioniconsName="arrow-up" percentage="23%" textPercentage="from last week" />
+        <MyDashboard title="En ligne" ioniconsElementName="information-circle-outline" numbers={registeredOnlineVisitor+newOnlineVisitor} content={registeredOnlineVisitor+' anciens et '+newOnlineVisitor+' nouveaux visiteurs connectés'} />
+        <MyDashboard title="Total visiteurs" ioniconsElementName="people" numbers={108} content="Nombre de visiteurs accumulés" ioniconsName="arrow-up" percentage="12,5%" textPercentage="dépuis la semaine dernière" />
+        <MyDashboard title="Vues du portfolio" ioniconsElementName="eye" numbers={373} content="Total des vues de pages sur le portfolio" ioniconsName="arrow-down" percentage="2,9%" textPercentage="dépuis la semaine dernière" />
+        <MyDashboard title="CV Download" ioniconsElementName="book" numbers={42} content="Nombre de CV téléchargés" ioniconsName="arrow-up" percentage="23%" textPercentage="dépuis la semaine dernière" />
       </View>
-      <View style={styles.parent}>
+      {/* <View style={styles.parent}>
         <Chart/>
+        <Histogram data={histogramData}/>
         <ProgressRing/>
-      </View>      
+      </View>       */}
     </ScrollView>
   );
 }
