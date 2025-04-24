@@ -8,7 +8,7 @@ interface MyDashboard {
     title: string;
     ioniconsElementName: string;
     numbers: number;
-    content: string;
+    content: React.ReactNode; // car content est un composant
     ioniconsName?: "arrow-up" | "arrow-down";
     percentage?: string;
     textPercentage?: string;

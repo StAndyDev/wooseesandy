@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useOnlineSocket } from '@/hooks/useOnlineSocket';
 
 import {
-  ScrollView ,
+  ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
@@ -35,21 +35,64 @@ const histogramData = [
 ];
 
 export default function Dashboard() {
-  
+
   useOnlineSocket()
 
   const [message, setMessage] = useState(''); // Message à envoyer
   const [messages, setMessages] = useState(["azieee", "aranommez", "ranoel", "setkle"]); // Liste des messages reçus
   const [socket, setSocket] = useState(null); // WebSocket instance
 
-  
+
   const registeredOnlineVisitor = useSelector((state: RootState) => state.online.registered_visitor)
   const newOnlineVisitor = useSelector((state: RootState) => state.online.new_visitor)
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.parent}>
-        <MyDashboard title="En ligne" ioniconsElementName="information-circle-outline" numbers={registeredOnlineVisitor+newOnlineVisitor} content={registeredOnlineVisitor+' anciens et '+newOnlineVisitor+' nouveaux visiteurs connectés'} />
+
+        {registeredOnlineVisitor > 0 && newOnlineVisitor > 0 ? (
+          <MyDashboard
+            title="En ligne"
+            ioniconsElementName="information-circle-outline"
+            numbers={registeredOnlineVisitor + newOnlineVisitor}
+            content={
+              <>
+                <strong style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</strong> récurrent(s) et 
+                <strong style={{ color: globalStyles.primaryColor.color }}>{newOnlineVisitor}</strong> nouveau(x) visiteur(s) connecté(s)
+              </>
+            }
+          />
+        ) : registeredOnlineVisitor > 0 && newOnlineVisitor === 0 ? (
+          <MyDashboard
+            title="En ligne"
+            ioniconsElementName="information-circle-outline"
+            numbers={registeredOnlineVisitor}
+            content={
+              <>
+              <strong style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</strong> récurrent(s) visiteur(s) connecté(s)
+              </>
+            }
+          />
+        ) : registeredOnlineVisitor === 0 && newOnlineVisitor > 0 ? (
+          <MyDashboard
+            title="En ligne"
+            ioniconsElementName="information-circle-outline"
+            numbers={newOnlineVisitor}
+            content={
+              <>
+              <strong style={{ color: globalStyles.primaryColor.color }}>{newOnlineVisitor}</strong> nouveau(x) visiteur(s) connecté(s)
+              </>
+            }
+          />
+        ) : (
+          <MyDashboard
+            title="En ligne"
+            ioniconsElementName="information-circle-outline"
+            numbers={0}
+            content="Aucun visiteur connecté pour le moment"
+          />
+        )}
+
         <MyDashboard title="Total visiteurs" ioniconsElementName="people" numbers={108} content="Nombre de visiteurs accumulés" ioniconsName="arrow-up" percentage="12,5%" textPercentage="dépuis la semaine dernière" />
         <MyDashboard title="Vues du portfolio" ioniconsElementName="eye" numbers={373} content="Total des vues de pages sur le portfolio" ioniconsName="arrow-down" percentage="2,9%" textPercentage="dépuis la semaine dernière" />
         <MyDashboard title="CV Download" ioniconsElementName="book" numbers={42} content="Nombre de CV téléchargés" ioniconsName="arrow-up" percentage="23%" textPercentage="dépuis la semaine dernière" />

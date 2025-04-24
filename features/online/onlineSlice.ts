@@ -14,6 +14,10 @@ const onlineSlice = createSlice({
   name: 'online',
   initialState,
   reducers: {
+    resetOnlineVisitor: (state) => {
+        state.registered_visitor = 0
+        state.new_visitor = 0
+    },
     addRegisteredVisitorOnline: (state, action: PayloadAction<number>) => {
         state.registered_visitor += action.payload
     },
@@ -30,5 +34,5 @@ const onlineSlice = createSlice({
   },
 })
 
-export const { addRegisteredVisitorOnline, removeRegisteredVisitorOnline, addNewVisitorOnline, removeNewVisitorOnline } = onlineSlice.actions    // exporter les "Actions"
+export const { addRegisteredVisitorOnline, removeRegisteredVisitorOnline, addNewVisitorOnline, removeNewVisitorOnline, resetOnlineVisitor } = onlineSlice.actions    // exporter les "Actions"
 export default onlineSlice.reducer // exporter le "Reducer"
