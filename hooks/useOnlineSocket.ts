@@ -11,7 +11,8 @@ export const useOnlineSocket = () => {
     let socket = null
     console.log("anaty socket!!!")
     try {
-      socket = new WebSocket('ws://127.0.0.1:8000/ws/visitor-tracker/?token=' + wooseeandy_token)
+      // socket = new WebSocket('ws://127.0.0.1:8000/ws/visitor-tracker/?token=' + wooseeandy_token) 
+      socket = new WebSocket('ws://192.168.137.1:8000/ws/visitor-tracker/?token=' + wooseeandy_token)
       console.log("SOCKET : " + socket)
     }
     catch (error) {

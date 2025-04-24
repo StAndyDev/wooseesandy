@@ -14,6 +14,7 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  Text
 } from 'react-native';
 
 const histogramData = [
@@ -56,10 +57,10 @@ export default function Dashboard() {
             ioniconsElementName="information-circle-outline"
             numbers={registeredOnlineVisitor + newOnlineVisitor}
             content={
-              <>
-                <strong style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</strong> récurrent(s) et 
-                <strong style={{ color: globalStyles.primaryColor.color }}>{newOnlineVisitor}</strong> nouveau(x) visiteur(s) connecté(s)
-              </>
+              <Text>
+                <Text style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</Text> récurrent(s) et 
+                <Text style={{ color: globalStyles.primaryColor.color }}>{newOnlineVisitor}</Text> nouveau(x) visiteur(s) connecté(s)
+              </Text>
             }
           />
         ) : registeredOnlineVisitor > 0 && newOnlineVisitor === 0 ? (
@@ -69,7 +70,7 @@ export default function Dashboard() {
             numbers={registeredOnlineVisitor}
             content={
               <>
-              <strong style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</strong> récurrent(s) visiteur(s) connecté(s)
+              <Text style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</Text> récurrent(s) visiteur(s) connecté(s)
               </>
             }
           />
@@ -80,7 +81,7 @@ export default function Dashboard() {
             numbers={newOnlineVisitor}
             content={
               <>
-              <strong style={{ color: globalStyles.primaryColor.color }}>{newOnlineVisitor}</strong> nouveau(x) visiteur(s) connecté(s)
+              <Text style={{ color: globalStyles.primaryColor.color }}>{newOnlineVisitor}</Text> nouveau(x) visiteur(s) connecté(s)
               </>
             }
           />
@@ -92,7 +93,6 @@ export default function Dashboard() {
             content="Aucun visiteur connecté pour le moment"
           />
         )}
-
         <MyDashboard title="Total visiteurs" ioniconsElementName="people" numbers={108} content="Nombre de visiteurs accumulés" ioniconsName="arrow-up" percentage="12,5%" textPercentage="dépuis la semaine dernière" />
         <MyDashboard title="Vues du portfolio" ioniconsElementName="eye" numbers={373} content="Total des vues de pages sur le portfolio" ioniconsName="arrow-down" percentage="2,9%" textPercentage="dépuis la semaine dernière" />
         <MyDashboard title="CV Download" ioniconsElementName="book" numbers={42} content="Nombre de CV téléchargés" ioniconsName="arrow-up" percentage="23%" textPercentage="dépuis la semaine dernière" />
