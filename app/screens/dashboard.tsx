@@ -95,13 +95,13 @@ export default function Dashboard() {
         )}
         <MyDashboard title="Total visiteurs" ioniconsElementName="people" numbers={108} content="Nombre de visiteurs accumulés" ioniconsName="arrow-up" percentage="12,5%" textPercentage="dépuis la semaine dernière" />
         <MyDashboard title="Vues du portfolio" ioniconsElementName="eye" numbers={373} content="Total des vues de pages sur le portfolio" ioniconsName="arrow-down" percentage="2,9%" textPercentage="dépuis la semaine dernière" />
-        <MyDashboard title="CV Download" ioniconsElementName="book" numbers={42} content="Nombre de CV téléchargés" ioniconsName="arrow-up" percentage="23%" textPercentage="dépuis la semaine dernière" />
+        <MyDashboard title="CV download" ioniconsElementName="book" numbers={42} content="Nombre de CV téléchargés" ioniconsName="arrow-up" percentage="23%" textPercentage="dépuis la semaine dernière" />
       </View>
       {/* <View style={styles.parent}>
         <Chart/>
         <Histogram data={histogramData}/>
         <ProgressRing/>
-      </View>       */}
+      </View> */}
     </ScrollView>
   );
 }

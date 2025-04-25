@@ -6,11 +6,13 @@ import { StyleSheet } from 'react-native';
 import globalStyles from '../styles';
 import { useState } from 'react';
 
+
 export default function Layout() {
     const router = useRouter();
     const [nbrNotif, setNbrNotif] = useState(3);
 
     return (
+
         <Stack
             screenOptions={{
                 header: ({ options }) => (
@@ -67,34 +69,13 @@ export default function Layout() {
                         </TouchableOpacity>
                     </View>
                 ),
-                // ITY ILAY MISY ERREUR
-                // headerRight: () => (
-                //     <View >
-                //         <TouchableOpacity
-
-                //             style={{
-                //                 flexDirection: "row",
-                //                 alignItems: "center",
-                //                 backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
-                //                 paddingLeft: 10,
-                //                 paddingRight: 10,
-                //                 paddingTop: 5,
-                //                 paddingBottom: 5,
-                //                 borderRadius: 5,
-                //                 borderWidth: 1,
-                //                 borderColor: 'white',
-                //             }}
-                //             onPress={() => alert("Paramètres")}
-                //         >   <Ionicons name="settings-outline" size={12} color="white" style={{ marginRight: 14 }} />
-                //             <Text style={{ color: 'white', fontSize: 16 }}>Refresh Data</Text>
-                //         </TouchableOpacity>
-                //     </View>
-                // ), // Icône de paramètres à droite
                 
             }}
         >
             <Stack.Screen name="Dashboard" />
         </Stack>
+        
+        
     );
 }
 
