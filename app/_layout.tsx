@@ -8,7 +8,7 @@ import globalStyles from '../app/styles';
 export default function Layout() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor }}>
-    <StatusBar style="light" backgroundColor={globalStyles.quaternaryColor.color} />
+    <StatusBar style="light" backgroundColor={globalStyles.backgroundColorPrimary.backgroundColor} />
     <Provider store={store}>
     <Stack 
     initialRouteName="index"

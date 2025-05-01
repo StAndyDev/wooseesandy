@@ -1,9 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
-import onlineReducer from '../features/online/onlineSlice'
+import numberOnlineReducer from '../features/numberOnlineSlice'
+import visitorsDataReducer from '../features/visitorsDataSlice'
+import visitorDataApiOffsetReducer from '../features/apiOffset'
 
 export const store = configureStore({
   reducer: {
-    online: onlineReducer,
+    number_online: numberOnlineReducer,
+    visitors_data: visitorsDataReducer,
+    visitor_data_api_offset: visitorDataApiOffsetReducer,
   },
 })
 

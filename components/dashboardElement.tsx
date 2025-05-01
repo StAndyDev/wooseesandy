@@ -34,10 +34,14 @@ const DashboardElement: React.FC<MyDashboard> = ({ title, ioniconsElementName, n
                     <Ionicons name={ioniconsName as any} size={16} color={globalStyles.primaryColor.color} style={{ marginRight: 5 }} />
                     <Text style={{color: globalStyles.primaryColor.color, fontWeight: 'bold'}}>{percentage}</Text> {textPercentage}
                 </Text>
-              ) : (
+              ) : ioniconsName === "arrow-down" ? (
                 <Text style={{color: globalStyles.secondaryText.color, display: 'flex',alignItems: 'center'}}>
                     <Ionicons name={ioniconsName as any} size={16} color={globalStyles.dangerColor.color} style={{ marginRight: 5 }} />
                     <Text style={{color: globalStyles.dangerColor.color, fontWeight: 'bold'}}>{percentage}</Text>{" "}{textPercentage}
+                </Text>
+              ) : (
+                <Text style={{color: globalStyles.secondaryText.color, display: 'flex',alignItems: 'center'}}>
+                    <Text style={{color: globalStyles.secondaryText.color, fontWeight: 'bold'}}>{percentage}</Text>{" "}{textPercentage}
                 </Text>
               )}
               

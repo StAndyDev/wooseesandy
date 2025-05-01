@@ -6,7 +6,7 @@ import ProgressRing from '../../components/ProgressElement';
 import Histogram from '@/components/HistogramElement';
 // redux
 import { RootState } from '@/store/store';
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 // hooks
 import { useOnlineSocket } from '@/hooks/useOnlineSocket';
 
@@ -44,8 +44,8 @@ export default function Dashboard() {
   const [socket, setSocket] = useState(null); // WebSocket instance
 
 
-  const registeredOnlineVisitor = useSelector((state: RootState) => state.online.registered_visitor)
-  const newOnlineVisitor = useSelector((state: RootState) => state.online.new_visitor)
+  const registeredOnlineVisitor = useSelector((state: RootState) => state.number_online.registered_visitor)
+  const newOnlineVisitor = useSelector((state: RootState) => state.number_online.new_visitor)
 
   return (
     <ScrollView style={styles.container}>
@@ -58,8 +58,8 @@ export default function Dashboard() {
             numbers={registeredOnlineVisitor + newOnlineVisitor}
             content={
               <Text>
-                <Text style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</Text> récurrent(s) et 
-                <Text style={{ color: globalStyles.primaryColor.color }}>{newOnlineVisitor}</Text> nouveau(x) visiteur(s) connecté(s)
+                <Text style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</Text> récurrent(s) et
+                <Text style={{ color: globalStyles.primaryColor.color }}> {newOnlineVisitor}</Text> nouveau(x) visiteur(s) connecté(s)
               </Text>
             }
           />
@@ -93,9 +93,9 @@ export default function Dashboard() {
             content="Aucun visiteur connecté pour le moment"
           />
         )}
-        <MyDashboard title="Total visiteurs" ioniconsElementName="people" numbers={108} content="Nombre de visiteurs accumulés" ioniconsName="arrow-up" percentage="12,5%" textPercentage="dépuis la semaine dernière" />
-        <MyDashboard title="Vues du portfolio" ioniconsElementName="eye" numbers={373} content="Total des vues de pages sur le portfolio" ioniconsName="arrow-down" percentage="2,9%" textPercentage="dépuis la semaine dernière" />
-        <MyDashboard title="CV download" ioniconsElementName="book" numbers={42} content="Nombre de CV téléchargés" ioniconsName="arrow-up" percentage="23%" textPercentage="dépuis la semaine dernière" />
+        <MyDashboard title="Métriques de visites" ioniconsElementName="people" numbers={0} content="Nombre total de visites accumulés" percentage="0%" textPercentage=" depuis le mois dernier" />
+        <MyDashboard title="Vues du portfolio" ioniconsElementName="eye" numbers={373} content="Total des vues de pages sur le portfolio" ioniconsName="arrow-down" percentage="2,9%" textPercentage=" depuis le mois dernier" />
+        <MyDashboard title="CV download" ioniconsElementName="download" numbers={42} content="Nombre de CV téléchargés" ioniconsName="arrow-up" percentage="23%" textPercentage=" depuis le mois dernier" />
       </View>
       {/* <View style={styles.parent}>
         <Chart/>

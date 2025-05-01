@@ -1,17 +1,17 @@
-import { createSlice, current, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-interface OnlineState {
+interface NumberOnlineState {
     registered_visitor: number,
     new_visitor: number,
 }
 
-const initialState: OnlineState = {
+const initialState: NumberOnlineState = {
     registered_visitor: 0,
     new_visitor: 0,
 }
 
-const onlineSlice = createSlice({
-  name: 'online',
+const numberOnlineSlice = createSlice({
+  name: 'number_online',
   initialState,
   reducers: {
     resetOnlineVisitor: (state) => {
@@ -34,5 +34,5 @@ const onlineSlice = createSlice({
   },
 })
 
-export const { addRegisteredVisitorOnline, removeRegisteredVisitorOnline, addNewVisitorOnline, removeNewVisitorOnline, resetOnlineVisitor } = onlineSlice.actions    // exporter les "Actions"
-export default onlineSlice.reducer // exporter le "Reducer"
+export const { addRegisteredVisitorOnline, removeRegisteredVisitorOnline, addNewVisitorOnline, removeNewVisitorOnline, resetOnlineVisitor } = numberOnlineSlice.actions    // exporter les "Actions"
+export default numberOnlineSlice.reducer // exporter le "Reducer"
