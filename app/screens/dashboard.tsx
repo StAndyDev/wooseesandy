@@ -7,8 +7,6 @@ import Histogram from '@/components/HistogramElement';
 // redux
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux'
-// hooks
-import { useOnlineSocket } from '@/hooks/useOnlineSocket';
 
 import {
   ScrollView,
@@ -36,13 +34,6 @@ const histogramData = [
 ];
 
 export default function Dashboard() {
-
-  useOnlineSocket()
-
-  const [message, setMessage] = useState(''); // Message à envoyer
-  const [messages, setMessages] = useState(["azieee", "aranommez", "ranoel", "setkle"]); // Liste des messages reçus
-  const [socket, setSocket] = useState(null); // WebSocket instance
-
 
   const registeredOnlineVisitor = useSelector((state: RootState) => state.number_online.registered_visitor)
   const newOnlineVisitor = useSelector((state: RootState) => state.number_online.new_visitor)
@@ -94,7 +85,7 @@ export default function Dashboard() {
           />
         )}
         <MyDashboard title="Métriques de visites" ioniconsElementName="people" numbers={0} content="Nombre total de visites accumulés" percentage="0%" textPercentage=" depuis le mois dernier" />
-        <MyDashboard title="Vues du portfolio" ioniconsElementName="eye" numbers={373} content="Total des vues de pages sur le portfolio" ioniconsName="arrow-down" percentage="2,9%" textPercentage=" depuis le mois dernier" />
+        <MyDashboard title="Vues du portfolio-détails" ioniconsElementName="eye" numbers={373} content="Total des vues de pages sur le portfolio" ioniconsName="arrow-down" percentage="2,9%" textPercentage=" depuis le mois dernier" />
         <MyDashboard title="CV download" ioniconsElementName="download" numbers={42} content="Nombre de CV téléchargés" ioniconsName="arrow-up" percentage="23%" textPercentage=" depuis le mois dernier" />
       </View>
       {/* <View style={styles.parent}>
