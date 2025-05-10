@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import globalStyles from "./styles";
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { fetchCVDownloadsData, fetchPortfolioDetailsViewData, fetchVisitorsData } from "../api/visitorsDataApi"; // api
 import CollapsibleSection from "../components/CollapsedComponent";
-import { formatDateInterval, formatDurationISO, formatDateHeureFr } from "./utils/timeUtils";
-import { fetchVisitorsData, fetchCVDownloadsData, fetchPortfolioDetailsViewData } from "../api/visitorsDataApi"; // api
+import globalStyles from "./styles";
+import { formatDateHeureFr, formatDateInterval, formatDurationISO } from "./utils/timeUtils";
 // redux
 import { RootState } from '@/store/store';
-import { useSelector } from 'react-redux'
+import { useSelector } from 'react-redux';
 
-import { useDispatch } from 'react-redux'
-import { addDataAtBeginning, addDataAtEnd, sortDataByDateDesc } from '../features/visitorsDataSlice'
+import { useDispatch } from 'react-redux';
+import { addDataAtBeginning, addDataAtEnd, sortDataByDateDesc } from '../features/visitorsDataSlice';
 
-import { setVisitorDataApiOffset, setCVDownloadsApiOffset, setPortfolioDetailsViewApiOffset } from '../features/apiOffset' // set offset
+import Checkbox from 'expo-checkbox';
+import { MotiView } from 'moti'; // animation
+import { setCVDownloadsApiOffset, setPortfolioDetailsViewApiOffset, setVisitorDataApiOffset } from '../features/apiOffset'; // set offset
 
 const NotificationsScreen = () => {
   const registeredOnlineVisitor = useSelector((state: RootState) => state.number_online.registered_visitor)
@@ -35,8 +37,13 @@ const NotificationsScreen = () => {
   const [hasMoreVisitorData, setHasMoreVisitorData] = useState(true); // pour savoir s'il y a plus de données à charger
   const [hasMoreCVDownloadsData, setHasMoreCVDownloadsData] = useState(true);
   const [hasMorePortfolioDetailsViewData, setHasMorePortfolioDetailsViewData] = useState(true);
+  // long press
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  // ************ useEffect ***********
+  /* ************
+   USE EFFECT
+  *****************/
   useEffect(() => {
     // set date now
     const intervalId = setInterval(() => {
@@ -51,7 +58,10 @@ const NotificationsScreen = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // ************ fonction ************
+  /************
+  FONCTION 
+  ************/
+
   // function loadVisitorData
   const loadVisitorData = async () => {
     if (!hasMoreVisitorData || isLoading) return;
@@ -191,6 +201,18 @@ const NotificationsScreen = () => {
       loadPortfolioDetailsViewData();
     }, 1500);
   }
+
+// handleLongPress
+const handleLongPress = (id: string, message_type: string) => {
+  console.log("Long press on item with id:", id);
+  setIsSelectionMode(true);
+};
+
+
+/****************
+ RENDER FUNCTION
+ **************/
+
   // render footer
   const renderFooter = () => {
     return (
@@ -200,30 +222,48 @@ const NotificationsScreen = () => {
       </>
     )
   }
+
   // render item
-  const renderItem = ({ item }: { item: any }) => {
+  const renderItem = ({ item, index }: { item: any; index: number }) => {
 
     if (item.message_type === "portfolio_details_view_alert") {
       return (
-        <View key={item.unique_key} style={[styles.notificationCard, item.is_read == true? styles.viewCard : null]}>
-          <CollapsibleSection title={"Un visiteur voir votre projet"} id_key={item.unique_key} is_read={item.is_read} notif_type={"portfolio_details_view_alert"}>
-            <Text style={styles.message}>project_name : {item.project_name}</Text>
-            <Text style={styles.message}>project_type : {item.project_type}</Text>
-          </CollapsibleSection>
-          <Text style={styles.status}>view_datetime : {formatDateHeureFr(item.view_datetime)}</Text>
-        </View>
+        
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ delay: index * 100 }}
+        >
+
+            <View key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}>
+              <CollapsibleSection title={"Un visiteur voir votre projet"} id_key={item.unique_key} is_read={item.is_read} notif_type={"portfolio_details_view_alert"}>
+                <Text style={styles.message}>unique key: {item.unique_key}</Text>
+                <Text style={styles.message}>project_name : {item.project_name}</Text>
+                <Text style={styles.message}>project_type : {item.project_type}</Text>
+              </CollapsibleSection>
+              <Text style={styles.status}>view_datetime : {formatDateHeureFr(item.view_datetime)}</Text>
+            </View>
+          
+        </MotiView>
       );
     }
 
     else if (item.message_type === "cv_download_alert") {
       return (
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ delay: index * 100 }}
+        >
         <View key={item.unique_key} style={[styles.notificationCard, item.is_read == true? styles.viewCard : null]}>
           <CollapsibleSection title={"Un visiteur a téléchargé votre CV"} id_key={item.unique_key} is_read={item.is_read} notif_type={"cv_download_alert"}>
+            <Text style={styles.message}>unique key: {item.unique_key}</Text>
             <Text style={styles.message}>visitor id : {item.visitor_uuid}</Text>
             <Text style={styles.message}>download_datetime : {item.download_datetime}</Text>
           </CollapsibleSection>
           <Text style={styles.status}>download_datetime : {formatDateHeureFr(item.download_datetime)}</Text>
         </View>
+        </MotiView>
       );
     }
     else if (
@@ -232,7 +272,14 @@ const NotificationsScreen = () => {
       item.message_type === "disconnected_alert"
     ) {
       return (
+        <MotiView
+        from={{ opacity: 0, translateY: 20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ delay: index * 100 }}
+      >
+        
         <View key={item.unique_key} style={[styles.notificationCard, item.is_read == true? styles.viewCard : null]}>
+
           <CollapsibleSection
             title={
               item.alert_new_visitor === ""
@@ -242,7 +289,17 @@ const NotificationsScreen = () => {
             id_key={item.unique_key}
             is_read={item.is_read}
             notif_type={"data_api"}
+            onLongPress={() => handleLongPress(item.unique_key, item.message_type)} // handle long press
           >
+              {isSelectionMode && (
+                <Checkbox
+                  value={selectedItems.includes(item.id)}
+                  // onValueChange={() => toggleSelection(item.id)}
+                  onValueChange={() => console.log("value change")}
+                  style={{ marginRight: 10}}
+                />
+              )}
+            <Text style={styles.message}>unique key: {item.unique_key}</Text>
             <Text style={styles.message}>visitor id : {item.visitor_uuid}</Text>
             <Text style={styles.message}>uuid de la visite : {item.visit_info_uuid}</Text>
             <Text style={styles.message}>adresse ip : {item.ip_address}</Text>
@@ -269,6 +326,8 @@ const NotificationsScreen = () => {
             </Text>
           )}
         </View>
+        
+        </MotiView>
       );
     }
 

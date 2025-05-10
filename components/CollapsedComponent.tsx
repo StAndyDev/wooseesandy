@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Ionicons } from '@expo/vector-icons';
 import globalStyles from '../app/styles';
@@ -8,10 +8,11 @@ import { useDispatch } from 'react-redux'
 import { markAsRead } from '../features/visitorsDataSlice'
 import { useSendMessageToServer } from '@/hooks/useWebSocket';
 
-const CollapsibleSection = ({ title, id_key, is_read, notif_type, children }: { title: string; id_key: any; is_read: boolean; notif_type: string; children: React.ReactNode }) => {
+const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, children }: { title: string; id_key: any; is_read: boolean; notif_type: string; onLongPress?: () => void  ;children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(true);
   const dispatch = useDispatch()
   const sendMessage = useSendMessageToServer();
+
   const markAsReadBlock = async (id: any, notif: string) => {
     if (collapsed) {
 
@@ -61,7 +62,7 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, children }: { 
   };
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <Pressable 
         onPress={() => {
           setCollapsed(!collapsed);
           if (is_read === false) {
@@ -69,14 +70,19 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, children }: { 
           }
         }}
         style={styles.header}
+        onLongPress={onLongPress}
+        delayLongPress={400}
+        android_ripple={{ color: '#ddd' }}
       >
+      
         <Text style={styles.title}>{title}</Text>
         <Ionicons
           name={collapsed ? 'chevron-down' : 'chevron-up'}
           size={20}
           color="gray"
         />
-      </TouchableOpacity>
+      
+      </Pressable >
 
       <Collapsible collapsed={collapsed}>
         <View style={styles.content}>

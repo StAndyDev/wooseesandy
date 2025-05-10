@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000/api'; // URL de base
-// const BASE_URL = 'http://192.168.137.1:8000/api';
+// const BASE_URL = 'http://localhost:8000/api'; // URL de base
+const BASE_URL = 'http://192.168.137.1:8000/api';
 
 // list api view
 export const fetchVisitorsData = async (limit: number, offset: number) => {
