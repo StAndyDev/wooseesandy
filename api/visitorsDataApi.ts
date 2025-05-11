@@ -43,3 +43,28 @@ export const markPortfolioDetailViewAsRead = async (id: string) => {
     status: res.status,
   };
 }
+// ------- delete api -------
+// VisitInfo
+export const deleteVisitInfo = async (id: string) => {
+  const res = await axios.delete(`${BASE_URL}/delete-visit-info/${id}/`);
+  return {
+    data: res.data,
+    status: res.status,
+  };
+}
+// CVDownload
+export const deleteCVDownload = async (id: string) => {
+  const res = await axios.delete(`${BASE_URL}/delete-cv-download/${id}/`);
+  return {
+    data: res.data,
+    status: res.status,
+  };
+}
+// PortfolioDetailView
+export const deletePortfolioDetailView = async (id: string) => {
+  const res = await axios.delete(`${BASE_URL}/delete-portfolio-detail-view/${id}/`);
+  return {
+    data: res.data,
+    status: res.status,
+  };
+}

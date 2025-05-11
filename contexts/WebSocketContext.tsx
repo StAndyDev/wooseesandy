@@ -8,15 +8,15 @@ import React, {
 } from 'react'
 import { useDispatch } from 'react-redux'
 import {
-  addRegisteredVisitorOnline,
-  removeRegisteredVisitorOnline,
   addNewVisitorOnline,
-  removeNewVisitorOnline
+  addRegisteredVisitorOnline,
+  removeNewVisitorOnline,
+  removeRegisteredVisitorOnline
 } from '../features/numberOnlineSlice'
 import {
   addDataAtBeginning,
-  updateVisitEndDatetime,
-  updateVisitDuration
+  updateVisitDuration,
+  updateVisitEndDatetime
 } from '../features/visitorsDataSlice'
 
 // Crée un contexte pour stocker l'instance WebSocket

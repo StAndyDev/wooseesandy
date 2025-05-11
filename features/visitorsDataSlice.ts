@@ -90,10 +90,32 @@ const visitorsDataSlice = createSlice({
             if (visitor_info) {
             visitor_info.is_read = true;
             }
-        }
+        },
+        // Supprimer un élément de formData
+        deleteVisitInfoEE(state, action: PayloadAction<{ unique_key: string }>) {
+            const { unique_key } = action.payload;
+            const index = state.formData.findIndex(i => i.unique_key === unique_key);
+            if (index !== -1) {
+                state.formData.splice(index, 1); // Supprime l'élément à l'index trouvé
+            }
+        },
+        deleteCVDownloadEE(state, action: PayloadAction<{ unique_key: string }>) {
+            const { unique_key } = action.payload;
+            const index = state.formData.findIndex(i => i.unique_key === unique_key);
+            if (index !== -1) {
+                state.formData.splice(index, 1);
+            }
+        },
+        deletePortfolioDetailViewEE(state, action: PayloadAction<{ unique_key: string }>) {
+            const { unique_key } = action.payload;
+            const index = state.formData.findIndex(i => i.unique_key === unique_key);
+            if (index !== -1) {
+                state.formData.splice(index, 1);
+            }
+        },
     }
 });
 
 // Export des actions et du reducer
-export const { addDataAtBeginning, addDataAtEnd, updateVisitEndDatetime, updateVisitDuration, sortDataByDateDesc, markAsRead } = visitorsDataSlice.actions;
+export const { addDataAtBeginning, addDataAtEnd, updateVisitEndDatetime, updateVisitDuration, sortDataByDateDesc, markAsRead, deleteVisitInfoEE, deleteCVDownloadEE, deletePortfolioDetailViewEE } = visitorsDataSlice.actions;
 export default visitorsDataSlice.reducer;

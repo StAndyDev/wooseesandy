@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import Collapsible from 'react-native-collapsible';
-import { Ionicons } from '@expo/vector-icons';
-import globalStyles from '../app/styles';
-import { markVisitInfoAsRead, markCVDownloadAsRead, markPortfolioDetailViewAsRead } from '../api/visitorsDataApi'
-import { useDispatch } from 'react-redux'
-import { markAsRead } from '../features/visitorsDataSlice'
 import { useSendMessageToServer } from '@/hooks/useWebSocket';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Collapsible from 'react-native-collapsible';
+import { useDispatch } from 'react-redux';
+import { markCVDownloadAsRead, markPortfolioDetailViewAsRead, markVisitInfoAsRead } from '../api/visitorsDataApi';
+import globalStyles from '../app/styles';
+import { markAsRead } from '../features/visitorsDataSlice';
 
-const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, children }: { title: string; id_key: any; is_read: boolean; notif_type: string; onLongPress?: () => void  ;children: React.ReactNode }) => {
+const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, icon_notif_name, children }: { title: string; id_key: any; is_read: boolean; notif_type: string; onLongPress?: () => void  ;  icon_notif_name: any; children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(true);
   const dispatch = useDispatch()
   const sendMessage = useSendMessageToServer();
@@ -72,10 +72,18 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, c
         style={styles.header}
         onLongPress={onLongPress}
         delayLongPress={400}
-        android_ripple={{ color: '#ddd' }}
+        // android_ripple={{ color: '#ddd' }}
       >
-      
-        <Text style={styles.title}>{title}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Ionicons
+            style={styles.iconNotifContent}
+            name={icon_notif_name}
+            size={18}
+            color="gray"
+          />
+          <Text style={styles.title}>{title}</Text>
+        </View>
+        
         <Ionicons
           name={collapsed ? 'chevron-down' : 'chevron-up'}
           size={20}
@@ -106,11 +114,18 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: globalStyles.primaryText.color,
   },
   content: {
     paddingVertical: 10,
+  },
+  iconNotifContent: {
+    borderWidth: 1,
+    padding: 4,
+    borderRadius: 5,
+    borderColor: globalStyles.primaryColor.color,
+    // borderColor: "#888",
   }
 });
