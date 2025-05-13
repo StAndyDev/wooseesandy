@@ -1,28 +1,34 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, BackHandler, FlatList, Modal, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, BackHandler, FlatList, Modal, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { deleteCVDownload, deletePortfolioDetailView, deleteVisitInfo, fetchCVDownloadsData, fetchPortfolioDetailsViewData, fetchVisitorsData } from "../api/visitorsDataApi"; // api
 import CollapsibleSection from "../components/CollapsedComponent";
 import globalStyles from "./styles";
 import { formatDateHeureFr, formatDateInterval, formatDurationISO } from "./utils/timeUtils";
 // redux
 import { RootState } from '@/store/store';
-import { useSelector } from 'react-redux';
-
-import { useDispatch } from 'react-redux';
-import { addDataAtBeginning, addDataAtEnd, deleteCVDownloadEE, deletePortfolioDetailViewEE, deleteVisitInfoEE, sortDataByDateDesc } from '../features/visitorsDataSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeNewVisitorOnline, removeRegisteredVisitorOnline } from '../features/numberOnlineSlice';
+import { addDataAtBeginning, addDataAtEnd, deleteCVDownloadEE, deletePortfolioDetailViewEE, deleteVisitInfoEE, sortDataByDateDesc, } from '../features/visitorsDataSlice';
 
 import Checkbox from 'expo-checkbox';
 import { MotiView } from 'moti'; // animationd
 import { setCVDownloadsApiOffset, setPortfolioDetailsViewApiOffset, setVisitorDataApiOffset } from '../features/apiOffset'; // set offset
 
 const NotificationsScreen = () => {
+  /* --- store ---*/
+  // notification data
+  const notification_data = useSelector((state: RootState) => state.visitors_data.formData);
+  // online nbr
   const registeredOnlineVisitor = useSelector((state: RootState) => state.number_online.registered_visitor)
   const newOnlineVisitor = useSelector((state: RootState) => state.number_online.new_visitor)
-
+  // notif non lu
+  const visitinfo_unred_count = useSelector((state: RootState) => state.number_notification.unread.visitinfo_count)
+  const cvdownload_unred_count = useSelector((state: RootState) => state.number_notification.unread.cvdownload_count)
+  const portfoliodetailview_unred_count = useSelector((state: RootState) => state.number_notification.unread.portfoliodetailview_count)
+  
   const navigation = useNavigation();
-  const notification_data = useSelector((state: RootState) => state.visitors_data.formData);
   const [date_now, setDateNow] = useState(new Date().toISOString());
 
   const dispatch = useDispatch()
@@ -39,8 +45,9 @@ const NotificationsScreen = () => {
   const [hasMorePortfolioDetailsViewData, setHasMorePortfolioDetailsViewData] = useState(true);
   // long press, selection multiple
   const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<{ message_type: string; unique_key: string }[]>([]);
-
+  const [selectedItems, setSelectedItems] = useState<{ message_type: string; unique_key: string; is_new_visitor: boolean; is_online: boolean }[]>([]);
+  // btn suppr
+  const [isDelDisabled, setIsDelDisabled] = useState(true);
   // floating modal
   const [visibleModal, setVisibleModal] = useState(false);
 
@@ -51,7 +58,7 @@ const NotificationsScreen = () => {
     // set date now
     const intervalId = setInterval(() => {
       setDateNow(new Date().toISOString());
-    }, 1000);
+    }, 400);
     // request api
     if (notification_data.length === 0) {
       loadVisitorData();
@@ -80,6 +87,15 @@ const NotificationsScreen = () => {
     return () => backHandler.remove();
   }, [isSelectionMode]);
 
+  // met à jour le selectedItems après le set.., pour le btn suppr
+  useEffect(() => {
+    if (selectedItems.length === 0) {
+      setIsDelDisabled(true);
+    } else {
+      setIsDelDisabled(false);
+    }
+  }, [selectedItems]);
+  
 
   /************
   FONCTION 
@@ -226,12 +242,12 @@ const NotificationsScreen = () => {
   }
 
   // handleLongPress
-  const handleLongPress = (id: string, message_type: string) => {
+  const handleLongPress = (id: string, message_type: string, is_new_visitor: boolean, is_online: boolean) => {
     setIsSelectionMode(true);
-    toggleSelection({ message_type, unique_key: id }); // toggle selection
+    toggleSelection({ message_type, unique_key: id, is_new_visitor: is_new_visitor, is_online }); // toggle selection
   };
   // selectionnement
-  const toggleSelection = (item: { message_type: string; unique_key: string }) => {
+  const toggleSelection = (item: { message_type: string; unique_key: string; is_new_visitor: boolean; is_online: boolean }) => {
     setSelectedItems(prev => {
       const isAlreadySelected = prev.some(i => i.unique_key === item.unique_key);
       if (isAlreadySelected) {
@@ -240,14 +256,22 @@ const NotificationsScreen = () => {
         return [...prev, item];
       }
     });
-    console.log("Selected items:", selectedItems);
   };
   // clear selection
   const clearSelection = () => {
     setSelectedItems([]);
     setIsSelectionMode(false);
   };
-
+  // show delete alert
+    const showDeletedAlert = () => {
+      Alert.alert(
+        'Notification',
+        'Notification supprimée avec succès.',
+        [{ text: 'OK', style: 'default' }],
+        { cancelable: true }
+      );
+    };
+    
   // suppression
   const handleDelete = () => {
     selectedItems.forEach(async item => {
@@ -256,16 +280,30 @@ const NotificationsScreen = () => {
         item.message_type === "disconnected_alert") 
         {
         const response = await deleteVisitInfo(item.unique_key);
-        (response.status === 200) ? dispatch(deleteVisitInfoEE({ unique_key: item.unique_key })) 
-        :(response.status === 404) ? alert("Not Found") 
-        : null
-
+        if (response.status === 200) {
+          dispatch(deleteVisitInfoEE({ unique_key: item.unique_key }));
+          if(item.is_online){
+            (item.is_new_visitor) ? dispatch(removeNewVisitorOnline(1)) : dispatch(removeRegisteredVisitorOnline(1));
+          }
+          showDeletedAlert();
+          setVisibleModal(false);
+        } else if(response.status === 404){
+          alert("Not Found")
+        }
       } else if (item.message_type === "cv_download_alert") {
         const response = await deleteCVDownload(item.unique_key);
-        (response.status === 200) ? dispatch(deleteCVDownloadEE({ unique_key: item.unique_key })) : null;
+        if (response.status === 200) {
+          dispatch(deleteCVDownloadEE({ unique_key: item.unique_key }))
+          showDeletedAlert();
+          setVisibleModal(false);
+        }
       } else if (item.message_type === "portfolio_details_view_alert") {
         const response = await deletePortfolioDetailView(item.unique_key);
-        (response.status === 200) ? dispatch(deletePortfolioDetailViewEE({ unique_key: item.unique_key })) : null;
+        if (response.status === 200) {
+          dispatch(deletePortfolioDetailViewEE({ unique_key: item.unique_key }));
+          showDeletedAlert();
+          setVisibleModal(false);
+        }
       }
     });
 
@@ -291,16 +329,29 @@ const NotificationsScreen = () => {
             onPressOut={() => setVisibleModal(false)}
           >
             <View style={styles.dialogBox}>
-              <TouchableOpacity style={styles.menuItem} onPress={() => handleDelete()} >
-                <Ionicons name="trash-outline" size={20} color={globalStyles.backgroundColorPrimary.backgroundColor} />
-                <Text style={{ color: globalStyles.backgroundColorPrimary.backgroundColor }}>Supprimer</Text>
-              </TouchableOpacity>
+              {!isDelDisabled && (
+                <TouchableOpacity style={styles.menuItem} onPress={ () => handleDelete()} >
+                  <Ionicons name="trash-outline" size={20} color={globalStyles.backgroundColorPrimary.backgroundColor} />
+                  <Text style={{ color: globalStyles.backgroundColorPrimary.backgroundColor }}>Supprimer</Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity style={styles.menuItem}
                 onPress={() => {
                   if (selectedItems.length === notification_data.length) {
                     setSelectedItems([]);
+                    setIsDelDisabled(true);
                   } else {
-                    setSelectedItems(notification_data.map(item => ({ message_type: item.message_type, unique_key: item.unique_key })));
+                    setSelectedItems(
+                      notification_data.map(
+                        item => (
+                          { message_type: item.message_type, 
+                            unique_key: item.unique_key, 
+                            is_new_visitor: (item.alert_new_visitor != "")? true : false,
+                            is_online: (item.visit_duration != "")? true : false,
+                           }
+                          )));
+                    setIsDelDisabled(false);
                   }
                 }}>
                 
@@ -345,12 +396,12 @@ const NotificationsScreen = () => {
           transition={{ delay: index * 100 }}
         >
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type)}
+          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, )}
           >
           {isSelectionMode && (
             <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -361,7 +412,7 @@ const NotificationsScreen = () => {
               is_read={item.is_read}
               notif_type={"portfolio_details_view_alert"}
               icon_notif_name="information-circle-outline"
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)} // handle long press
             >
               <Text style={styles.message}>unique key: {item.unique_key}</Text>
               <Text style={styles.message}>project_name : {item.project_name}</Text>
@@ -382,12 +433,12 @@ const NotificationsScreen = () => {
           transition={{ delay: index * 100 }}
         >
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type)}
+          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)}
           >
             {isSelectionMode && (
               <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -398,7 +449,7 @@ const NotificationsScreen = () => {
               is_read={item.is_read}
               notif_type={"cv_download_alert"}
               icon_notif_name="download-outline"
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)} // handle long press
             >
               <Text style={styles.message}>unique key: {item.unique_key}</Text>
               <Text style={styles.message}>visitor id : {item.visitor_uuid}</Text>
@@ -422,12 +473,12 @@ const NotificationsScreen = () => {
         >
 
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type)}
+          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)}
           >
             {isSelectionMode && (
               <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -441,7 +492,7 @@ const NotificationsScreen = () => {
               id_key={item.unique_key}
               is_read={item.is_read}
               notif_type={"data_api"}
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)} // handle long press
               icon_notif_name="eye-outline"
             >
 
@@ -495,7 +546,7 @@ const NotificationsScreen = () => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons name="arrow-back" size={20} color={globalStyles.primaryColor.color} />
             </TouchableOpacity>
-            <Text style={styles.title}>Notifications <Text>(3)</Text></Text>
+            <Text style={styles.title}>Notifications <Text>({visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count})</Text></Text>
           </View>
           {/* Selection mode */}
           

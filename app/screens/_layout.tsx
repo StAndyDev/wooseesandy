@@ -1,15 +1,18 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Header } from '@react-navigation/elements';
 import { Stack, useRouter } from 'expo-router';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import globalStyles from '../styles';
-import { useState } from 'react';
-
+// redux
+import { RootState } from '@/store/store';
+import { useSelector } from 'react-redux';
 
 export default function Layout() {
     const router = useRouter();
-    const [nbrNotif, setNbrNotif] = useState(3);
+
+    const visitinfo_unred_count = useSelector((state: RootState) => state.number_notification.unread.visitinfo_count)
+    const cvdownload_unred_count = useSelector((state: RootState) => state.number_notification.unread.cvdownload_count)
+    const portfoliodetailview_unred_count = useSelector((state: RootState) => state.number_notification.unread.portfoliodetailview_count)  
 
     return (
 
@@ -34,9 +37,9 @@ export default function Layout() {
                                 <Text style={{ fontSize: 20, fontWeight: 'bold', color: globalStyles.primaryText.color }}>
                                     WooSeeAndy
                                 </Text>
-                                {nbrNotif > 0 && (
+                                {(visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count) > 0 && (
                                     <TouchableOpacity onPress={() => router.push('/Notification')}>
-                                        <Text style={styles.notif}>{nbrNotif}</Text>
+                                        <Text style={styles.notif}>{visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count}</Text>
                                     </TouchableOpacity>
                                 )}
                             </View>

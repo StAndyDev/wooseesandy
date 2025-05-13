@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import globalStyles from '../styles';
+import React, { useEffect } from 'react';
 import MyDashboard from '../../components/DashboardElement';
-import Chart from '../../components/ChartElement';
-import ProgressRing from '../../components/ProgressElement';
-import Histogram from '@/components/HistogramElement';
+import globalStyles from '../styles';
 // redux
 import { RootState } from '@/store/store';
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux';
+// recuder
+import { setUnreadNotificationCount } from '../../features/numberNotificationSlice';
+// api
+import { fetchNotificationCount } from '../../api/visitorsDataApi';
 
 import {
   ScrollView,
   StyleSheet,
-  View,
-  Text
+  Text,
+  View
 } from 'react-native';
 
 const histogramData = [
@@ -37,6 +38,29 @@ export default function Dashboard() {
 
   const registeredOnlineVisitor = useSelector((state: RootState) => state.number_online.registered_visitor)
   const newOnlineVisitor = useSelector((state: RootState) => state.number_online.new_visitor)
+  // reducers
+
+  // notif non lu
+  const visitinfo_unred_count = useSelector((state: RootState) => state.number_notification.unread.visitinfo_count)
+  const cvdownload_unred_count = useSelector((state: RootState) => state.number_notification.unread.cvdownload_count)
+  const portfoliodetailview_unred_count = useSelector((state: RootState) => state.number_notification.unread.portfoliodetailview_count)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    const loadNumberNotification = async () => {
+      const res = await fetchNotificationCount(false); // nbr notif non lu
+      if (res.status === 200) {
+        // charger en Redux
+        const data_unred = {
+          visitinfo_count: visitinfo_unred_count + res.data.visitinfo_count,
+          cvdownload_count: cvdownload_unred_count + res.data.cvdownload_count,
+          portfoliodetailview_count: portfoliodetailview_unred_count + res.data.portfoliodetailview_count,
+        }
+        dispatch(setUnreadNotificationCount(data_unred))
+      }
+    }
+    loadNumberNotification();
+  }, []);
 
   return (
     <ScrollView style={styles.container}>

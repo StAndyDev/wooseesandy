@@ -8,11 +8,47 @@ import { markCVDownloadAsRead, markPortfolioDetailViewAsRead, markVisitInfoAsRea
 import globalStyles from '../app/styles';
 import { markAsRead } from '../features/visitorsDataSlice';
 
+// reducers
+import { setUnreadNotificationCount } from '../features/numberNotificationSlice';
+// redux
+import { RootState } from '@/store/store';
+import { useSelector } from 'react-redux';
+
 const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, icon_notif_name, children }: { title: string; id_key: any; is_read: boolean; notif_type: string; onLongPress?: () => void  ;  icon_notif_name: any; children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(true);
   const dispatch = useDispatch()
   const sendMessage = useSendMessageToServer();
+  // root state : notif count
+  const visitinfo_unred_count = useSelector((state: RootState) => state.number_notification.unread.visitinfo_count)
+  const cvdownload_unred_count = useSelector((state: RootState) => state.number_notification.unread.cvdownload_count)
+  const portfoliodetailview_unred_count = useSelector((state: RootState) => state.number_notification.unread.portfoliodetailview_count)
+  
+  // update notification number
+  const updateNotificationCount = (notif_type: string) => {
+    if (notif_type === "data_api" ) {
+      dispatch(setUnreadNotificationCount({
+        visitinfo_count: visitinfo_unred_count -1,
+        cvdownload_count: cvdownload_unred_count,
+        portfoliodetailview_count: portfoliodetailview_unred_count,
+      }))
+    }
+    else if (notif_type === "cv_download_alert") {
+      dispatch(setUnreadNotificationCount({
+        visitinfo_count: visitinfo_unred_count,
+        cvdownload_count: cvdownload_unred_count -1,
+        portfoliodetailview_count: portfoliodetailview_unred_count,
+      }))
+    }else if (notif_type === "portfolio_details_view_alert") {
+      dispatch(setUnreadNotificationCount({
+        visitinfo_count: visitinfo_unred_count,
+        cvdownload_count: cvdownload_unred_count,
+        portfoliodetailview_count: portfoliodetailview_unred_count -1,
+      }))
+    }
+    
+  }
 
+  // mark block as read
   const markAsReadBlock = async (id: any, notif: string) => {
     if (collapsed) {
 
@@ -57,6 +93,8 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
           },
         });
       }
+      // update state
+      updateNotificationCount(notif);
 
     }
   };
