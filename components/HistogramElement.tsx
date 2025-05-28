@@ -1,7 +1,7 @@
-import React from "react";
-import { View, Text, Dimensions, StyleSheet, useWindowDimensions } from "react-native";
-import { BarChart } from "react-native-chart-kit";
 import globalStyles from "@/app/styles";
+import React from "react";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { BarChart } from "react-native-chart-kit";
 
 interface HistogramProps {
     data: {

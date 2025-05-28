@@ -2,20 +2,41 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, BackHandler, FlatList, Modal, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { deleteCVDownload, deletePortfolioDetailView, deleteVisitInfo, fetchCVDownloadsData, fetchPortfolioDetailsViewData, fetchVisitorsData } from "../api/visitorsDataApi"; // api
+import {
+  deleteCVDownload,
+  deletePortfolioDetailView,
+  deleteVisitInfo,
+  fetchCvDownloadMonthly,
+  fetchCVDownloadsData,
+  fetchPortfolioDetailMonthly,
+  fetchPortfolioDetailsViewData,
+  fetchVisitInfoStatsMonthly,
+  fetchVisitorsData
+} from "../api/visitorsDataApi"; // api
 import CollapsibleSection from "../components/CollapsedComponent";
 import globalStyles from "./styles";
 import { formatDateHeureFr, formatDateInterval, formatDurationISO } from "./utils/timeUtils";
 // redux
 import { RootState } from '@/store/store';
 import { useDispatch, useSelector } from 'react-redux';
+import {
+  setCurrentMonthCvDownload,
+  setCurrentMonthPortfolioDetail,
+  setCurrentMonthVisits,
+  setCvDownloadPercentageMonthly,
+  setLastMonthCvDownload,
+  setLastMonthVisits,
+  setPortfolioDetailPercentageMonthly,
+  setVisitInfoPercentageMonthly
+} from '../features/counterSlice';
+import { removeUnreadCvDownload, removeUnreadPortfolioDetailView, removeUnreadVisitorInfo } from "../features/numberNotificationSlice";
 import { removeNewVisitorOnline, removeRegisteredVisitorOnline } from '../features/numberOnlineSlice';
 import { addDataAtBeginning, addDataAtEnd, deleteCVDownloadEE, deletePortfolioDetailViewEE, deleteVisitInfoEE, sortDataByDateDesc, } from '../features/visitorsDataSlice';
 
 import Checkbox from 'expo-checkbox';
 import { MotiView } from 'moti'; // animationd
 import { setCVDownloadsApiOffset, setPortfolioDetailsViewApiOffset, setVisitorDataApiOffset } from '../features/apiOffset'; // set offset
-
+import { calculateChangePercentage } from './utils/stats';
 const NotificationsScreen = () => {
   /* --- store ---*/
   // notification data
@@ -45,7 +66,7 @@ const NotificationsScreen = () => {
   const [hasMorePortfolioDetailsViewData, setHasMorePortfolioDetailsViewData] = useState(true);
   // long press, selection multiple
   const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<{ message_type: string; unique_key: string; is_new_visitor: boolean; is_online: boolean }[]>([]);
+  const [selectedItems, setSelectedItems] = useState<{ message_type: string; unique_key: string; is_new_visitor: boolean; is_online: boolean; is_read: boolean }[]>([]);
   // btn suppr
   const [isDelDisabled, setIsDelDisabled] = useState(true);
   // floating modal
@@ -242,12 +263,12 @@ const NotificationsScreen = () => {
   }
 
   // handleLongPress
-  const handleLongPress = (id: string, message_type: string, is_new_visitor: boolean, is_online: boolean) => {
+  const handleLongPress = (id: string, message_type: string, is_new_visitor: boolean, is_online: boolean, is_read: boolean ) => {
     setIsSelectionMode(true);
-    toggleSelection({ message_type, unique_key: id, is_new_visitor: is_new_visitor, is_online }); // toggle selection
+    toggleSelection({ message_type, unique_key: id, is_new_visitor: is_new_visitor, is_online, is_read }); // toggle selection
   };
   // selectionnement
-  const toggleSelection = (item: { message_type: string; unique_key: string; is_new_visitor: boolean; is_online: boolean }) => {
+  const toggleSelection = (item: { message_type: string; unique_key: string; is_new_visitor: boolean; is_online: boolean; is_read: boolean }) => {
     setSelectedItems(prev => {
       const isAlreadySelected = prev.some(i => i.unique_key === item.unique_key);
       if (isAlreadySelected) {
@@ -285,23 +306,64 @@ const NotificationsScreen = () => {
           if(item.is_online){
             (item.is_new_visitor) ? dispatch(removeNewVisitorOnline(1)) : dispatch(removeRegisteredVisitorOnline(1));
           }
-          showDeletedAlert();
+          if(item.is_read == false){
+            dispatch(removeUnreadVisitorInfo(1));
+          }
+          // maj redux via api
+          // fetch visit info stat monthly
+          const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly();
+          if (visit_info_stat_monthly.status === 200) {
+            const current_month_nbr = visit_info_stat_monthly.data.current_month;
+            const last_month_nbr = visit_info_stat_monthly.data.last_month;
+            const visitInfoMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+            dispatch(setVisitInfoPercentageMonthly(visitInfoMonthlyPercentage));
+            dispatch(setCurrentMonthVisits(current_month_nbr));
+            dispatch(setLastMonthVisits(last_month_nbr));
+          }
+          // showDeletedAlert();
           setVisibleModal(false);
         } else if(response.status === 404){
           alert("Not Found")
         }
+        
       } else if (item.message_type === "cv_download_alert") {
         const response = await deleteCVDownload(item.unique_key);
         if (response.status === 200) {
           dispatch(deleteCVDownloadEE({ unique_key: item.unique_key }))
-          showDeletedAlert();
+          if(item.is_read == false){
+            dispatch(removeUnreadCvDownload(1));
+          }
+          // fetch cv download stat monthly
+          const cv_download_stat_monthly = await fetchCvDownloadMonthly();
+          if (cv_download_stat_monthly.status === 200) {
+            const current_month_nbr = cv_download_stat_monthly.data.current_month;
+            const last_month_nbr = cv_download_stat_monthly.data.last_month;
+            const cvDownloadMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+            dispatch(setCvDownloadPercentageMonthly(cvDownloadMonthlyPercentage));
+            dispatch(setCurrentMonthCvDownload(current_month_nbr));
+            dispatch(setLastMonthCvDownload(last_month_nbr));
+          }
+          // showDeletedAlert();
           setVisibleModal(false);
         }
       } else if (item.message_type === "portfolio_details_view_alert") {
         const response = await deletePortfolioDetailView(item.unique_key);
         if (response.status === 200) {
           dispatch(deletePortfolioDetailViewEE({ unique_key: item.unique_key }));
-          showDeletedAlert();
+          if(item.is_read == false){
+            dispatch(removeUnreadPortfolioDetailView(1));
+          }
+          // fetch portfolio detail stat monthly
+          const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly();
+          if (portfolio_detail_stat_monthly.status === 200) {
+            const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
+            const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;
+            const portfolioDetailMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+            dispatch(setPortfolioDetailPercentageMonthly(portfolioDetailMonthlyPercentage));
+            dispatch(setCurrentMonthPortfolioDetail(current_month_nbr));
+            dispatch(setCurrentMonthPortfolioDetail(last_month_nbr));
+          }
+          // showDeletedAlert();
           setVisibleModal(false);
         }
       }
@@ -349,6 +411,7 @@ const NotificationsScreen = () => {
                             unique_key: item.unique_key, 
                             is_new_visitor: (item.alert_new_visitor != "")? true : false,
                             is_online: (item.visit_duration != "")? true : false,
+                            is_read: item.is_read,
                            }
                           )));
                     setIsDelDisabled(false);
@@ -396,12 +459,12 @@ const NotificationsScreen = () => {
           transition={{ delay: index * 100 }}
         >
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, )}
+          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)}
           >
           {isSelectionMode && (
             <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false, is_read : item.is_read })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -412,7 +475,7 @@ const NotificationsScreen = () => {
               is_read={item.is_read}
               notif_type={"portfolio_details_view_alert"}
               icon_notif_name="information-circle-outline"
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)} // handle long press
             >
               <Text style={styles.message}>unique key: {item.unique_key}</Text>
               <Text style={styles.message}>project_name : {item.project_name}</Text>
@@ -433,12 +496,12 @@ const NotificationsScreen = () => {
           transition={{ delay: index * 100 }}
         >
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)}
+          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)}
           >
             {isSelectionMode && (
               <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false, is_read: item.is_read })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -449,7 +512,7 @@ const NotificationsScreen = () => {
               is_read={item.is_read}
               notif_type={"cv_download_alert"}
               icon_notif_name="download-outline"
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)} // handle long press
             >
               <Text style={styles.message}>unique key: {item.unique_key}</Text>
               <Text style={styles.message}>visitor id : {item.visitor_uuid}</Text>
@@ -473,12 +536,12 @@ const NotificationsScreen = () => {
         >
 
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)}
+          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)}
           >
             {isSelectionMode && (
               <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false, is_read: item.is_read })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -492,7 +555,7 @@ const NotificationsScreen = () => {
               id_key={item.unique_key}
               is_read={item.is_read}
               notif_type={"data_api"}
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false,)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)} // handle long press
               icon_notif_name="eye-outline"
             >
 

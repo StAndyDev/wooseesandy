@@ -1,15 +1,14 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import globalStyles from '../app/styles';
 import { Ionicons } from "@expo/vector-icons";
-import { View, Text } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import globalStyles from '../app/styles';
 
 interface MyDashboard {
     title: string;
     ioniconsElementName: string;
     numbers: number;
     content: React.ReactNode; // car content est un composant
-    ioniconsName?: "arrow-up" | "arrow-down";
+    ioniconsName?: "arrow-up" | "arrow-down" | "remove";
     percentage?: string;
     textPercentage?: string;
 }
@@ -18,14 +17,14 @@ const DashboardElement: React.FC<MyDashboard> = ({ title, ioniconsElementName, n
     return (
         <View style={styles.element}>
           <View style={styles.child}>
-            <Text style={{color: globalStyles.secondaryText.color}}>{title}</Text>
+            <Text style={styles.titleElement}>{title}</Text>
             <Ionicons name={ioniconsElementName as any} size={16} color={globalStyles.primaryColor.color} style={{ marginRight: 5 }} />
           </View>
           <View style={styles.child}>
             <Text style={{color: globalStyles.primaryText.color, fontSize: 20, fontWeight: 'bold'}}>{numbers}</Text>
           </View>
           <View style={styles.child}>
-            <Text style={{color: globalStyles.secondaryText.color}}>{content}</Text>
+            <Text style={styles.contentElement}>{content}</Text>
           </View>
           <View style={styles.child}>
         
@@ -65,6 +64,13 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: globalStyles.backgroundColorSecondary.backgroundColor,
+    },
+    titleElement: {
+      color: globalStyles.secondaryText.color,
+      fontWeight: 'bold',
+    },
+    contentElement: {
+      color: globalStyles.secondaryText.color,
     },
     child: {
       width: '100%',

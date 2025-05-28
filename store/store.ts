@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import apiOffsetReducer from '../features/apiOffset'
+import countReducer from '../features/counterSlice'
 import numberNotificationReducer from '../features/numberNotificationSlice'
 import numberOnlineReducer from '../features/numberOnlineSlice'
 import visitorsDataReducer from '../features/visitorsDataSlice'
@@ -10,6 +11,7 @@ export const store = configureStore({
     visitors_data: visitorsDataReducer,
     api_offset: apiOffsetReducer,
     number_notification: numberNotificationReducer,
+    counter: countReducer,
   },
 })
 

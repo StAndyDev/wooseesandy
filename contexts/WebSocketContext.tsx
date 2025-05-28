@@ -8,6 +8,17 @@ import React, {
 } from 'react';
 import { useDispatch } from 'react-redux';
 import {
+  addCurrentMonthCvDownload,
+  addCurrentMonthPortfolioDetail,
+  addCurrentMonthVisits,
+  addCvDownloadCount,
+  addVisitorCount,
+  addVuesPortfolioDetailsCount,
+  setCvDownloadPercentageMonthly,
+  setPortfolioDetailPercentageMonthly,
+  setVisitInfoPercentageMonthly
+} from '../features/counterSlice';
+import {
   addNewVisitorOnline,
   addRegisteredVisitorOnline,
   removeNewVisitorOnline,
@@ -18,11 +29,14 @@ import {
   updateVisitDuration,
   updateVisitEndDatetime
 } from '../features/visitorsDataSlice';
+
 // reducers
-import { setUnreadNotificationCount } from '../features/numberNotificationSlice';
+import { setReadNotificationCount, setUnreadNotificationCount } from '../features/numberNotificationSlice';
 // redux
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
+// utils
+import { calculateChangePercentage } from '../app/utils/stats';
 
 // Crée un contexte pour stocker l'instance WebSocket
 const WebSocketContext = createContext<WebSocket | null>(null)
@@ -34,26 +48,70 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   const socketRef = useRef<WebSocket | null>(null)
   const [socketInstance, setSocketInstance] = useState<WebSocket | null>(null)
 
-  // etat
-  const visitinfo_unred_count = useSelector((state: RootState) => state.number_notification.unread.visitinfo_count)
-  const cvdownload_unred_count = useSelector((state: RootState) => state.number_notification.unread.cvdownload_count)
-  const portfoliodetailview_unred_count = useSelector((state: RootState) => state.number_notification.unread.portfoliodetailview_count)
-  // ref de cette etat
-  const visitinfoUnredRef = useRef(visitinfo_unred_count)
-  const cvdownloadUnredRef = useRef(cvdownload_unred_count)
-  const portfolioUnredRef = useRef(portfoliodetailview_unred_count)
+  // count
+  const visitinfo_unread_count = useSelector((state: RootState) => state.number_notification.unread.visitinfo_count)
+  const cvdownload_unread_count = useSelector((state: RootState) => state.number_notification.unread.cvdownload_count)
+  const portfoliodetailview_unread_count = useSelector((state: RootState) => state.number_notification.unread.portfoliodetailview_count)
+  const visitinfo_read_count = useSelector((state: RootState) => state.number_notification.read.visitinfo_count)
+  const cvdownload_read_count = useSelector((state: RootState) => state.number_notification.read.cvdownload_count)
+  const portfoliodetailview_read_count = useSelector((state: RootState) => state.number_notification.read.portfoliodetailview_count)
+  // count per month
+  const current_month_visits = useSelector((state: RootState) => state.counter.current_month_visits )
+  const last_month_visits = useSelector((state: RootState) => state.counter.last_month_visits )
+  const current_month_cv_download = useSelector((state: RootState) => state.counter.current_month_cv_download)
+  const last_month_cv_download = useSelector((state: RootState) => state.counter.last_month_cv_download )
+  const current_month_portfolio_detail = useSelector ((state: RootState) => state.counter.current_month_portfolio_detail )
+  const last_month_portfolio_detail = useSelector ((state: RootState) => state.counter.last_month_portfolio_detail )
+
+  // ref de cette count
+  const visitinfoUnreadRef = useRef(visitinfo_unread_count)
+  const cvdownloadUnreadRef = useRef(cvdownload_unread_count)
+  const portfolioUnreadRef = useRef(portfoliodetailview_unread_count)
+  const visitinfoReadRef = useRef(visitinfo_read_count)
+  const cvdownloadReadRef = useRef(cvdownload_read_count)
+  const portfolioReadRef = useRef(portfoliodetailview_read_count)
+  // ref count per month
+  const currentMonthVisitsRef = useRef(current_month_visits)
+  const lastMonthVisitsRef = useRef(last_month_visits)
+  const currentMonthCvDownloadRef = useRef(current_month_cv_download)
+  const lastMonthCvDownloadRef = useRef(last_month_cv_download)
+  const currentMonthPortfolioDetailRef = useRef(current_month_portfolio_detail)
+  const lastMonthPortfolioDetailRef = useRef(last_month_portfolio_detail)
   
   // Mettre à jour les refs à chaque changement
   useEffect(() => {
-    visitinfoUnredRef.current = visitinfo_unred_count;
-    cvdownloadUnredRef.current = cvdownload_unred_count;
-    portfolioUnredRef.current = portfoliodetailview_unred_count;
-  }, [visitinfo_unred_count, cvdownload_unred_count, portfoliodetailview_unred_count]);
+    visitinfoUnreadRef.current = visitinfo_unread_count;
+    cvdownloadUnreadRef.current = cvdownload_unread_count;
+    portfolioUnreadRef.current = portfoliodetailview_unread_count;
+    visitinfoReadRef.current = visitinfo_read_count;
+    cvdownloadReadRef.current = cvdownload_read_count;
+    portfolioReadRef.current = portfoliodetailview_read_count;
+    currentMonthVisitsRef.current = current_month_visits;
+    lastMonthVisitsRef.current = last_month_visits;
+    currentMonthCvDownloadRef.current = current_month_cv_download;
+    lastMonthCvDownloadRef.current = last_month_cv_download;
+    currentMonthPortfolioDetailRef.current = current_month_portfolio_detail;
+    lastMonthPortfolioDetailRef.current = last_month_portfolio_detail;
+  }, 
+  [
+    visitinfo_unread_count, 
+    cvdownload_unread_count, 
+    portfoliodetailview_unread_count, 
+    visitinfo_read_count, 
+    cvdownload_read_count, 
+    portfoliodetailview_read_count, 
+    current_month_visits, 
+    last_month_visits,
+    current_month_cv_download,
+    last_month_cv_download,
+    current_month_portfolio_detail,
+    last_month_portfolio_detail
+  ]);
 
   useEffect(() => {
     const wooseeandy_token = 'a3b7e8f9c2d4g5h6j0k1l2m3n9p8q7r'
-    // const wsUrl = `ws://127.0.0.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
-    const wsUrl = `ws://192.168.137.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
+    const wsUrl = `ws://127.0.0.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
+    // const wsUrl = `ws://192.168.137.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
 
     const socket = new WebSocket(wsUrl)
     socketRef.current = socket
@@ -97,15 +155,31 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
         // maj du redux state via socket
         // charger en Redux , visitInfo
         if (data.is_read == false){
-          const data_unred = {
-            visitinfo_count: visitinfoUnredRef.current + 1,
-            cvdownload_count: cvdownloadUnredRef.current,
-            portfoliodetailview_count: portfolioUnredRef.current,
+          const data_unread = {
+            visitinfo_count: visitinfoUnreadRef.current + 1,
+            cvdownload_count: cvdownloadUnreadRef.current,
+            portfoliodetailview_count: portfolioUnreadRef.current,
           }
-          dispatch(setUnreadNotificationCount(data_unred))
+          dispatch(setUnreadNotificationCount(data_unread))
+        }else {
+          const data_read = {
+            visitinfo_count: visitinfoReadRef.current + 1,
+            cvdownload_count: cvdownloadReadRef.current,
+            portfoliodetailview_count: portfolioReadRef.current,
+          }
+          dispatch(setReadNotificationCount(data_read));
         }
-
+        // maj visitor counter
+        if(data.alert_new_visitor.trim() !== "") {
+          dispatch(addVisitorCount(1));
+        }
+        // maj counter per month
+        const visitInfoMonthPercentage = calculateChangePercentage(currentMonthVisitsRef.current + 1, lastMonthVisitsRef.current);
+        dispatch(addCurrentMonthVisits(1));
+        dispatch(setVisitInfoPercentageMonthly(visitInfoMonthPercentage));
+        
       
+      /******* DISCONNECTED ALERT *******/
       } else if (data.alert_type === 'disconnected_alert' && data.is_new_visitor !== undefined) {
         if (data.is_new_visitor) {
           dispatch(removeNewVisitorOnline(1))
@@ -130,7 +204,8 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
             })
           )
         }
-      } 
+      }
+
       // cv download alert
       else if (data.alert_type === 'cv_download_alert') {
         dispatch(
@@ -147,13 +222,27 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
         // maj du redux state via socket
         // charger en Redux , cvDownload
         if (data.is_read == false){
-          const data_unred = {
-            visitinfo_count: visitinfoUnredRef.current,
-            cvdownload_count: cvdownloadUnredRef.current + 1,
-            portfoliodetailview_count: portfolioUnredRef.current,
+          const data_unread = {
+            visitinfo_count: visitinfoUnreadRef.current,
+            cvdownload_count: cvdownloadUnreadRef.current + 1,
+            portfoliodetailview_count: portfolioUnreadRef.current,
           }
-          dispatch(setUnreadNotificationCount(data_unred))
+          dispatch(setUnreadNotificationCount(data_unread))
+        } else {
+          const data_read = {
+            visitinfo_count: visitinfoReadRef.current,
+            cvdownload_count: cvdownloadReadRef.current + 1,
+            portfoliodetailview_count: portfolioReadRef.current,
+          }
+          dispatch(setReadNotificationCount(data_read))
         }
+        // maj cvdownload count
+        dispatch(addCvDownloadCount(1))
+        // maj counter per month
+        const cvDownloadMonthPercentage = calculateChangePercentage(currentMonthCvDownloadRef.current + 1, lastMonthCvDownloadRef.current);
+        dispatch(addCurrentMonthCvDownload(1));
+        dispatch(setCvDownloadPercentageMonthly(cvDownloadMonthPercentage));
+        
       }
       // portfolio details view alert
       else if (data.alert_type === 'portfolio_details_view_alert') {
@@ -173,13 +262,26 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
         // maj du redux state via socket
         // charger en Redux , portfolioDetailsView
         if (data.is_read == false){
-          const data_unred = {
-            visitinfo_count: visitinfoUnredRef.current,
-            cvdownload_count: cvdownloadUnredRef.current,
-            portfoliodetailview_count: portfolioUnredRef.current + 1,
+          const data_unread = {
+            visitinfo_count: visitinfoUnreadRef.current,
+            cvdownload_count: cvdownloadUnreadRef.current,
+            portfoliodetailview_count: portfolioUnreadRef.current + 1,
           }
-          dispatch(setUnreadNotificationCount(data_unred))
+          dispatch(setUnreadNotificationCount(data_unread))
+        }else {
+          const data_read = {
+            visitinfo_count: visitinfoReadRef.current,
+            cvdownload_count: cvdownloadReadRef.current,
+            portfoliodetailview_count: portfolioReadRef.current + 1,
+          }
+          dispatch(setUnreadNotificationCount(data_read))
         }
+        // portfoliodetailsview count
+        dispatch(addVuesPortfolioDetailsCount(1))
+        // maj counter per month
+        const portfolioDetailMonthPercentage = calculateChangePercentage(currentMonthPortfolioDetailRef.current + 1, lastMonthPortfolioDetailRef.current);
+                dispatch(addCurrentMonthPortfolioDetail(1));
+                dispatch(setPortfolioDetailPercentageMonthly(portfolioDetailMonthPercentage));
       }
     }
 
