@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import globalStyles from '../app/styles';
 
 interface MyDashboard {
@@ -11,18 +11,26 @@ interface MyDashboard {
     ioniconsName?: "arrow-up" | "arrow-down" | "remove";
     percentage?: string;
     textPercentage?: string;
+    loadingNumbers?: boolean; // pour gérer le chargement si nécessaire
 }
 
-const DashboardElement: React.FC<MyDashboard> = ({ title, ioniconsElementName, numbers, content, ioniconsName, percentage, textPercentage }) => {
-    return (
+const DashboardElement: React.FC<MyDashboard> = ({ title, ioniconsElementName, numbers, loadingNumbers, content, ioniconsName, percentage, textPercentage }) => {
+  console.log("loadingNumbers:", loadingNumbers);
+  return (
         <View style={styles.element}>
           <View style={styles.child}>
             <Text style={styles.titleElement}>{title}</Text>
             <Ionicons name={ioniconsElementName as any} size={16} color={globalStyles.primaryColor.color} style={{ marginRight: 5 }} />
           </View>
-          <View style={styles.child}>
-            <Text style={{color: globalStyles.primaryText.color, fontSize: 20, fontWeight: 'bold'}}>{numbers}</Text>
-          </View>
+        <View style={styles.child}>
+          {loadingNumbers === true ? (
+            <ActivityIndicator color={globalStyles.primaryColor.color} size="small" />
+          ) : (
+            <Text style={{ color: globalStyles.primaryText.color, fontSize: 25, fontWeight: 'bold' }}>
+              {numbers}
+            </Text>
+          )}
+        </View>
           <View style={styles.child}>
             <Text style={styles.contentElement}>{content}</Text>
           </View>

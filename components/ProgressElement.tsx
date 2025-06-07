@@ -1,20 +1,54 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import CircularProgress from "react-native-circular-progress-indicator";
 import globalStyles from "@/app/styles";
-
-const visitorData = [
-  { browser: "Chrome", percentage: 50, color: globalStyles.primaryColor.color },
-  { browser: "Firefox", percentage: 20, color: globalStyles.secondaryColor.color },
-  { browser: "Safari", percentage: 15, color: globalStyles.tertiaryColor.color },
-  { browser: "Edge", percentage: 10, color: globalStyles.quaternaryColor.color },
-  { browser: "Autres", percentage: 5, color: "#888888" },
-];
+import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import CircularProgress from "react-native-circular-progress-indicator";
+import { getBrowserStats } from "../api/visitorsDataApi";
 
 const ProgressRing = () => {
+
+  const [visitorData, setVisitorData] = useState([
+    { browser: "Chrome", percentage: 0, color: globalStyles.primaryColor.color },
+    { browser: "Firefox", percentage: 0, color: globalStyles.secondaryColor.color },
+    { browser: "Safari", percentage: 0, color: globalStyles.tertiaryColor.color },
+    { browser: "Edge", percentage: 0, color: globalStyles.quaternaryColor.color },
+    { browser: "Autres", percentage: 0, color: "#888888" },
+  ]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // permet de refraichir les données manuellement
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchBrowserData = async () => {
+      setLoading(true);
+      try {
+        const response = await getBrowserStats();
+        if (response.status === 200) {
+          setVisitorData(prevData =>
+            prevData.map(item => {
+              const key = item.browser.toLowerCase();
+              const newPercentage = response.data[key] !== undefined ? response.data[key] : 0;
+              return { ...item, percentage: newPercentage };
+            })
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching browser stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchBrowserData();
+  }, [refreshTrigger]);
+
   return (
     <View style={[styles.container, { alignItems: "center"}]}>
-      <Text style={{ fontSize: 10, fontWeight: "bold", maxWidth: 190, color: globalStyles.secondaryText.color }}>Visiteurs par navigateur</Text>
+      <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 5 }}>
+        <Text style={{ fontSize: 10, fontWeight: "bold", maxWidth: 190, color: globalStyles.secondaryText.color }}>Visiteurs par navigateur</Text>
+
+        {loading ? <ActivityIndicator color={globalStyles.primaryColor.color} size="small" /> : <TouchableOpacity onPress={() => setRefreshTrigger(prev => prev + 1)}>
+          <Ionicons name="sync" size={16} color={globalStyles.primaryColor.color} style={{ marginRight: 5 }} />
+        </TouchableOpacity>}
+      </View>
 
       <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginTop: 20 }}>
         {visitorData.map((item, index) => (

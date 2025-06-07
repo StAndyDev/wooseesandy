@@ -1,42 +1,40 @@
 import globalStyles from "@/app/styles";
-import React, { useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import { getSevenLastCVDownloadStats, getSevenLastPortfolioDetailViewStats, getSevenLastVisitInfoStats } from "../api/visitorsDataApi";
 
 const Chart = () => {
   const { width } = useWindowDimensions();
-  const [timeFrame, setTimeFrame] = React.useState<'month' | 'week'>('month');
-  const [chartData, setChartData] = React.useState({
+  const [timeFrame, setTimeFrame] = useState<'month' | 'week'>('month');
+  const [chartData, setChartData] = useState({
     labels: [''],
-    visitInfoData: [20, 45, 28, 80, 99, 120],
-    cvDownloadData: [30, 60, 35, 90, 120],
-    portfolioDetailsData: [10, 50, 40, 70, 110],
+    visitInfoData: [0],
+    cvDownloadData: [0],
+    portfolioDetailsData: [0],
   });
+  const [loadingChartData, setLoadingChartData] = useState(true);
 
   useEffect(() =>{
-    const BASE_URL = 'http://localhost:8000/api';
     const fetchData = async () => {
       try {
-        const [visitInfoResponse, cvDownloadResponse, portfolioDetailsResponse] = await Promise.all([
-          fetch(`${BASE_URL}/seven-last-visit-info/stats/?mode=${timeFrame}`),
-          fetch(`${BASE_URL}/seven-last-cv-download/stats/?mode=${timeFrame}`),
-          fetch(`${BASE_URL}/seven-last-portfolio-detail/stats/?mode=${timeFrame}`),
-        ]);
+        setLoadingChartData(true);
+        const visitInfoResponse = await getSevenLastVisitInfoStats(timeFrame);
+        const cvDownloadResponse = await getSevenLastCVDownloadStats(timeFrame);
+        const portfolioDetailsResponse = await getSevenLastPortfolioDetailViewStats(timeFrame);
 
-        const visitInfoJson = await visitInfoResponse.json();
-        // const visitInfoData = visitInfoJson.data.map((item: { count: number }) => item.count);
-        console.log("XXXXXXXXXXXXXX :"+visitInfoJson.data);
-        // const cvDownloadData = await cvDownloadResponse.json();
-        // const portfolioDetailsData = await portfolioDetailsResponse.json();
-
-        // setChartData({
-        //   labels: timeFrame === "month"? chartData.labels : ['s1', 's2', 's3', 's4', 's5', 's6', 's7'],
-        //   visitInfoData: visitInfoData.data,
-        //   cvDownloadData: cvDownloadData.data,
-        //   portfolioDetailsData: portfolioDetailsData.data,
-        // });
+        if(visitInfoResponse.status === 200 || cvDownloadResponse.status === 200 || portfolioDetailsResponse.status === 200) {
+          setChartData({
+            labels: visitInfoResponse.data.labels,
+            visitInfoData: visitInfoResponse.data.visit_info,
+            cvDownloadData: cvDownloadResponse.data.cv_download,
+            portfolioDetailsData: portfolioDetailsResponse.data.portfolio_detail_view,
+          });
+          setLoadingChartData(false);
+        }
       } catch (error) {
         console.error("Error fetching chart data:", error);
+        return;
       }
     };
 
@@ -51,6 +49,7 @@ const Chart = () => {
           <Text style={{ fontSize: 10, fontWeight: "bold", maxWidth: 190, color: globalStyles.secondaryText.color }}>Trafic des 7 derniers {timeFrame === "month"? "mois" : "semaine" }</Text>
         </View>
         <View style={styles.buttonContainer}>
+          {loadingChartData && <ActivityIndicator color={globalStyles.secondaryText.color} size="small" />}
           <TouchableOpacity style={timeFrame === "month"? styles.buttonActive : styles.button} onPress={() => setTimeFrame("month")}>
             <Text 
             style={{ 
@@ -73,7 +72,6 @@ const Chart = () => {
       <LineChart
         data={{
           labels: chartData.labels,
-          legend: ['Visites', 'Téléchargements', 'Consultations'],
           datasets: [
             {
               data: chartData.visitInfoData, // Première courbe : visit info
@@ -106,6 +104,9 @@ const Chart = () => {
           color: (opacity = 1) => `rgba(250, 240, 250, ${opacity})`,
           strokeWidth: 2, // Épaisseur de la ligne des axes
           decimalPlaces: 0, // Pas de décimales
+          propsForLabels: {
+            fontSize: 8 // labels size
+          }
         }}
         style={{
           marginVertical: 10,
@@ -113,6 +114,22 @@ const Chart = () => {
           padding: 5,
         }}
       />
+
+      {/* legende */}
+      <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 8 }}>
+          <View style={{ width: 10, height: 10, backgroundColor: globalStyles.primaryColor.color, marginRight: 4 }} />
+          <Text style={{ fontSize: 10, color: 'white' }}>Visites</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 8 }}>
+          <View style={{ width: 10, height: 10, backgroundColor: globalStyles.secondaryText.color, marginRight: 4 }} />
+          <Text style={{ fontSize: 10, color: 'white' }}>Téléchargements</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 8 }}>
+          <View style={{ width: 10, height: 10, backgroundColor: globalStyles.tertiaryColor.color, marginRight: 4 }} />
+          <Text style={{ fontSize: 10, color: 'white' }}>Portfolio view</Text>
+        </View>
+      </View>
     </View>
   );
 };

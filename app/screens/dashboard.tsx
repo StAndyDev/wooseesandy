@@ -1,5 +1,6 @@
 import ProgressRing from '@/components/ProgressElement';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import Chart from '../../components/ChartElement';
 import MyDashboard from '../../components/DashboardElement';
 import globalStyles from '../styles';
@@ -57,7 +58,10 @@ const histogramData = [
 
 export default function Dashboard() {
   /***** state *****/
-  
+  const [loadingVisitsCount, setLoadingVisitsCount] = useState(true);
+  const [loadingPortfolioViews, setLoadingPortfolioViews] = useState(true);
+  const [loadingCvDownloads, setLoadingCvDownloads] = useState(true);
+  const [loadingVisitorCount, setLoadingVisitorCount] = useState(true);
   // visitinfo change percentage monthly
 
   const registeredOnlineVisitor = useSelector((state: RootState) => state.number_online.registered_visitor)
@@ -94,6 +98,7 @@ export default function Dashboard() {
           portfoliodetailview_count: portfoliodetailview_unread_count + res_unread.data.portfoliodetailview_count,
         }
         dispatch(setUnreadNotificationCount(data_unread));
+        setLoadingVisitsCount(false);
       }
       // fetch read notif
       const res_read = await fetchNotificationCount(true); // nbr notif lu
@@ -109,14 +114,19 @@ export default function Dashboard() {
       const visitor_nbr = await fetchVisitorCount();
       if (visitor_nbr.status === 200) {
         dispatch(addVisitorCount(visitor_nbr.data.visitor_count));
+        setLoadingVisitorCount(false);
       }
+      // fetch cv download count
       const cv_download_nbr = await fetchCVDownloadsCount();
       if (cv_download_nbr.status === 200) {
         dispatch(addCvDownloadCount(cv_download_nbr.data.cv_download_count));
+        setLoadingCvDownloads(false);
       }
+      // fetch portfolio details view count
       const portfolio_details_view_nbr = await fetchPortfolioDetailsViewCount();
       if (portfolio_details_view_nbr.status === 200) {
         dispatch(addVuesPortfolioDetailsCount(portfolio_details_view_nbr.data.portfolio_details_view_count));
+        setLoadingPortfolioViews(false);
       }
       // fetch visit info stat monthly
       const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly();
@@ -204,6 +214,7 @@ export default function Dashboard() {
         title="Métriques de visites" 
         ioniconsElementName="people" 
         numbers={visitinfo_unread_count + visitinfo_read_count}
+        loadingNumbers={loadingVisitsCount}
         // content="Nombre total de visites accumulés" 
         ioniconsName={(visit_info_per_month_percentage > 0)
           ? "arrow-up"
@@ -215,7 +226,14 @@ export default function Dashboard() {
         content={
           <Text>
             <Text>Pour </Text>
-            <Text style={{ color: globalStyles.primaryColor.color }}>{visitor_count}</Text> visites au total
+              {
+                loadingVisitorCount ? (<ActivityIndicator color={globalStyles.secondaryText.color} size="small" />) : (
+                  <Text style={{ color: globalStyles.primaryColor.color }}>
+                    {visitor_count}
+                  </Text>
+                )
+              }
+            <Text> visites au total</Text>
         </Text>
         }
         />
@@ -224,8 +242,9 @@ export default function Dashboard() {
         <MyDashboard 
         title="Vues du portfolio-détails" 
         ioniconsElementName="eye" 
-        numbers={portfolio_details_view_count} 
-        content="Total des vues de pages sur le portfolio" 
+        numbers={portfolio_details_view_count}
+        loadingNumbers={loadingPortfolioViews}
+        content="Total des vues de pages sur le portfolio"
         ioniconsName={(portfolio_detail_per_month_percentage > 0)
           ? "arrow-up"
           : (portfolio_detail_per_month_percentage === 0)
@@ -238,7 +257,8 @@ export default function Dashboard() {
         <MyDashboard 
         title="CV download" 
         ioniconsElementName="download" 
-        numbers={cv_download_count} 
+        numbers={cv_download_count}
+        loadingNumbers={loadingCvDownloads}
         content="Nombre de CV téléchargés" 
         ioniconsName={(cv_download_per_month_percentage > 0)
           ? "arrow-up"

@@ -110,8 +110,8 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
 
   useEffect(() => {
     const wooseeandy_token = 'a3b7e8f9c2d4g5h6j0k1l2m3n9p8q7r'
-    const wsUrl = `ws://127.0.0.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
-    // const wsUrl = `ws://192.168.137.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
+    // const wsUrl = `ws://127.0.0.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
+    const wsUrl = `ws://192.168.137.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
 
     const socket = new WebSocket(wsUrl)
     socketRef.current = socket

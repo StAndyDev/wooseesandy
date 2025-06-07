@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import LogoSitrakaAndy from '@/components/logoStk';
 import { Header } from '@react-navigation/elements';
 import { Stack, useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -6,6 +6,8 @@ import globalStyles from '../styles';
 // redux
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
+//
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
 export default function Layout() {
     const router = useRouter();
@@ -15,7 +17,6 @@ export default function Layout() {
     const portfoliodetailview_unred_count = useSelector((state: RootState) => state.number_notification.unread.portfoliodetailview_count)  
 
     return (
-
         <Stack
             screenOptions={{
                 header: ({ options }) => (
@@ -34,41 +35,33 @@ export default function Layout() {
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ alignItems: 'flex-start' }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={styles.logoContent}><LogoSitrakaAndy width={80} height={20} /></View>
                                 <Text style={{ fontSize: 20, fontWeight: 'bold', color: globalStyles.primaryText.color }}>
                                     WooSeeAndy
                                 </Text>
-                                {(visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count) > 0 && (
-                                    <TouchableOpacity onPress={() => router.push('/Notification')}>
-                                        <Text style={styles.notif}>{visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count}</Text>
-                                    </TouchableOpacity>
-                                )}
                             </View>
                             <Text style={{ fontSize: 10, fontWeight: 'bold', maxWidth: 190, color: globalStyles.secondaryText.color }}>
-                                Voir les statistiques du portfolio de Sitraka Andy
+                                statistiques détaillées en temps réel sur les visiteurs et de leurs interactions
                             </Text>
                         </View>
                     </View>
                 ),
                 headerRight: () => (
-                    <View>
-                        <TouchableOpacity
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
-                                marginRight: 5,
-                                paddingLeft: 10,
-                                paddingRight: 10,
-                                paddingTop: 5,
-                                paddingBottom: 5,
-                                borderRadius: 5,
-                                borderWidth: 1,
-                                borderColor: globalStyles.primaryColor.color,
-                            }}
-                            onPress={() => alert('refresh')}
-                        >
-                            <Ionicons name="sync" size={16} color={globalStyles.primaryColor.color} style={{ marginRight: 5 }} />
-                            <Text style={{ color: globalStyles.primaryColor.color, fontSize: 16 }}>Rafraîchir</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 15 }}>
+                        <TouchableOpacity onPress={() => router.push('/Notification')}>
+                            <View style={styles.container}>
+                                <FontAwesome name="bell-o" size={22} color={globalStyles.secondaryText.color} />
+                                {visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count > 0 && (
+                                    <View style={styles.badge}>
+                                        <Text style={styles.badgeText}>
+                                            {visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count > 99 ? '99+' : visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.push('/Settings')}>
+                            <Ionicons name="settings-outline" size={22} color={globalStyles.secondaryText.color} />
                         </TouchableOpacity>
                     </View>
                 ),
@@ -78,21 +71,39 @@ export default function Layout() {
             <Stack.Screen name="Dashboard" />
         </Stack>
         
-        
     );
 }
 
 const styles = StyleSheet.create({
-    notif: {
-        marginLeft: 2,
-        marginBottom: 14,
-        paddingLeft: 6,
-        paddingRight: 6,
-        paddingTop: 2,
-        paddingBottom: 2,
-        borderRadius: 50,
-        fontSize: 10,
-        color: 'white',
+    container: {
+        padding: 5,
+    },
+    logoContent: {
+        backgroundColor: globalStyles.tertiaryColor.color,
+        borderRadius: 25,
+        borderWidth: 2,
+        marginRight: 2,
+        width: 30,
+        height: 30,
+        display: "flex",
+        alignItems: "center",   
+        justifyContent: "center",
+    },
+    badge: {
+        position: 'absolute',
+        right: 0,
+        top: -2,
         backgroundColor: 'rgb(230, 11, 122)',
+        borderRadius: 10,
+        minWidth: 18,
+        height: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 3,
+    },
+    badgeText: {
+        color: 'white',
+        fontSize: 10,
+        fontWeight: 'bold',
     },
 });

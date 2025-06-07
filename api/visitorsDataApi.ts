@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000/api'; // URL de base
-// const BASE_URL = 'http://192.168.137.1:8000/api';
+// const BASE_URL = 'http://localhost:8000/api'; // URL de base
+const BASE_URL = 'http://192.168.137.1:8000/api';
 
 // --------------------- list api view -------------------
 export const fetchVisitorsData = async (limit: number, offset: number) => {
@@ -173,4 +173,12 @@ export async function getSevenLastPortfolioDetailViewStats(mode = 'month') {
       data: response.data,
       status: response.status,
     };
+}
+// browser stats
+export async function getBrowserStats() {
+  const response = await axios.get(`${BASE_URL}/browser-stats/`);
+  return {
+    data: response.data,
+    status: response.status,
+  };
 }

@@ -16,6 +16,9 @@ const globalStyles = StyleSheet.create({
     secondaryText: {
         color: "rgb(143, 158, 178)",
     },
+    secondaryTextWithOpacity: {
+        color: "rgba(143, 158, 178, 0.4)",
+    },
     // color
     primaryColor: {
         color: "rgb(69, 194, 138)",
