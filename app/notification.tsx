@@ -52,7 +52,7 @@ const NotificationsScreen = () => {
   const navigation = useNavigation();
   const [date_now, setDateNow] = useState(new Date().toISOString());
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   // api
   const [isLoading, setIsLoading] = useState(false);
   // limit & offset
@@ -81,11 +81,23 @@ const NotificationsScreen = () => {
       setDateNow(new Date().toISOString());
     }, 400);
     // request api
-    if (notification_data.length === 0) {
-      loadVisitorData();
-      loadCVDownloadData();
-      loadPortfolioDetailsViewData();
-    }
+    // fonction async dans useEffect
+    const fetchData = async () => {
+      if (notification_data.length === 0) {
+        setIsLoading(true);
+        try {
+          await loadVisitorData();
+          await loadCVDownloadData();
+          await loadPortfolioDetailsViewData();
+        } catch (error) {
+          console.error("Erreur lors du chargement des données :", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
     return () => clearInterval(intervalId);
   }, []);
 
@@ -124,8 +136,7 @@ const NotificationsScreen = () => {
 
   // function loadVisitorData
   const loadVisitorData = async () => {
-    if (!hasMoreVisitorData || isLoading) return;
-    setIsLoading(true);
+    if (!hasMoreVisitorData) return;
     try {
       const data = await fetchVisitorsData(limit, visitor_data_offset);
       if (data.results.length === 0) {
@@ -163,16 +174,13 @@ const NotificationsScreen = () => {
       dispatch(sortDataByDateDesc()); // trier les données par date
     } catch (error) {
       console.error('Erreur lors du chargement des visiteurs:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
 
   // function loadCVDownloadData
   const loadCVDownloadData = async () => {
-    if (!hasMoreCVDownloadsData || isLoading) return;
-    setIsLoading(true);
+    if (!hasMoreCVDownloadsData) return;
     try {
       const data = await fetchCVDownloadsData(limit, cv_downloads_offset);
       if (data.results.length === 0) {
@@ -201,14 +209,11 @@ const NotificationsScreen = () => {
       dispatch(sortDataByDateDesc()); // trier les données par date
     } catch (error) {
       console.error('Erreur lors du chargement des cvdowloader list:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
   // function loadPortfolioDetailsViewData
   const loadPortfolioDetailsViewData = async () => {
-    if (!hasMorePortfolioDetailsViewData || isLoading) return;
-    setIsLoading(true);
+    if (!hasMorePortfolioDetailsViewData) return;
     try {
       const data = await fetchPortfolioDetailsViewData(limit, portfolio_details_view_offset);
       if (data.results.length === 0) {
@@ -239,8 +244,6 @@ const NotificationsScreen = () => {
       dispatch(sortDataByDateDesc()); // trier les données par date
     } catch (error) {
       console.error('Erreur lors du chargement des portfoliodataview list:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 

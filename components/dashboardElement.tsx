@@ -15,7 +15,6 @@ interface MyDashboard {
 }
 
 const DashboardElement: React.FC<MyDashboard> = ({ title, ioniconsElementName, numbers, loadingNumbers, content, ioniconsName, percentage, textPercentage }) => {
-  console.log("loadingNumbers:", loadingNumbers);
   return (
         <View style={styles.element}>
           <View style={styles.child}>
