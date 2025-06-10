@@ -41,6 +41,9 @@ const globalStyles = StyleSheet.create({
     dangerColor: {
         color: "rgb(114, 12, 16)",
     },
+    blueColor: {
+        color: "rgb(50, 130, 242)",
+    },
     // *** LAYOUT ****
     boxPadding : {
         padding: 10,
@@ -50,6 +53,9 @@ const globalStyles = StyleSheet.create({
     },
     boxBorderWidth : {
         borderWidth: 1,
+    },
+    headerPadding : {
+        padding: 15,
     }
 });
 

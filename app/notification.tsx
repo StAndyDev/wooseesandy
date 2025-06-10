@@ -81,7 +81,6 @@ const NotificationsScreen = () => {
       setDateNow(new Date().toISOString());
     }, 400);
     // request api
-    // fonction async dans useEffect
     const fetchData = async () => {
       if (notification_data.length === 0) {
         setIsLoading(true);
@@ -252,17 +251,17 @@ const NotificationsScreen = () => {
   const loadMoreVisitorData = () => {
     setTimeout(() => {
       loadVisitorData();
-    }, 1500);
+    }, 1000);
   }
   const loadMoreCVDownloadData = () => {
     setTimeout(() => {
       loadCVDownloadData();
-    }, 1500);
+    }, 1000);
   }
   const loadMorePortfolioDetailsViewData = () => {
     setTimeout(() => {
       loadPortfolioDetailsViewData();
-    }, 1500);
+    }, 1000);
   }
 
   // handleLongPress
@@ -679,8 +678,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "column",
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 10,
+    paddingVertical: globalStyles.headerPadding.padding,
     gap: 10,
   },
   first_header: {

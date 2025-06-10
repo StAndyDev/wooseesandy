@@ -25,7 +25,7 @@ const DashboardElement: React.FC<MyDashboard> = ({ title, ioniconsElementName, n
           {loadingNumbers === true ? (
             <ActivityIndicator color={globalStyles.primaryColor.color} size="small" />
           ) : (
-            <Text style={{ color: globalStyles.primaryText.color, fontSize: 25, fontWeight: 'bold' }}>
+            <Text style={{ color: globalStyles.primaryText.color, fontSize: 20, fontWeight: 'bold' }}>
               {numbers}
             </Text>
           )}
