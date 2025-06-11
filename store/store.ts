@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import apiOffsetReducer from '../features/apiOffset'
+import baseUrlSlice from '../features/baseUrlConfigSlice'
 import countReducer from '../features/counterSlice'
 import numberNotificationReducer from '../features/numberNotificationSlice'
 import numberOnlineReducer from '../features/numberOnlineSlice'
 import visitorsDataReducer from '../features/visitorsDataSlice'
+
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +14,7 @@ export const store = configureStore({
     api_offset: apiOffsetReducer,
     number_notification: numberNotificationReducer,
     counter: countReducer,
+    base_url: baseUrlSlice,
   },
 })
 

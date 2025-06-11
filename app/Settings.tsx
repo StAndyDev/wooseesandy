@@ -6,26 +6,49 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import Modal from 'react-native-modal';
 import { RadioButton } from 'react-native-paper';
 import globalStyles from "./styles";
+// redux
+import { RootState } from '@/store/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { addUrl } from '../features/baseUrlConfigSlice';
+// local storage
+import AsyncStorage from '@react-native-async-storage/async-storage'; // storage asynchrone
 
 const Settings = () => {
-    const [baseUrl, setBaseUrl] = useState('');
-    const [webSocketUrl, setWebSocketUrl] = useState('');
-    const navigation = useNavigation();
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [baseURLValue, setBaseURLValue] = React.useState('192.123.32.0');
 
-    // form in modal
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState([
+    // State variables
+    const baseUrlData = useSelector((state: RootState) => state.base_url.urls);
+    const baseUrlCount = baseUrlData?.length ?? 0;
+
+    const activeApiUrl = useSelector((state: RootState) => 
+        state.base_url?.urls?.find(url => url.isActiveForApi) || null
+    )
+    const activeWsUrl = useSelector((state: RootState) => 
+        state.base_url?.urls?.find(url => url.isActiveForWs) || null
+    )
+    const navigation = useNavigation();
+    const dispatch = useDispatch();
+
+    const [selectedModal, setSelectedModal] = useState<"api" | "websocket">("api");
+    const [isBtnSaveDisabled, setIsBtnSaveDisabled] = useState(true) // desactiver/activer le bouton de sauvegarde
+    const [btnMode, setBtnMode] = useState<'add' | 'edit'>('add'); // mode du bouton (ajouter ou modifier)
+    const [btnModeColor, setBtnModeColor] = useState<'add' | 'edit' | 'none'>('none'); // couleur du bordure du header de Modal en fonction du mode du bouton (ajouter ou modifier)
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [apiURLValue, setApiURLValue] = React.useState('192.123.32.0'); // temporairement pour le radio
+    // forms
+    const [openPicker, setOpenPicker] = useState(false);
+    const [pickerItems, setPickerItems] = useState([
         { label: 'HTTP', value: 'http://' },
         { label: 'HTTPS', value: 'https://' },
         { label: 'WebSocket', value: 'ws://' },
         { label: 'WebSocket(TLS)', value: 'wss://' },
     ]);
-    const [textInput, setTextInput] = useState('');
+    // value in form modal
+    const [pickerValue, setPickerValue] = useState(null);
+    const [hostTextInput, setHostTextInput] = useState('');
+    const [portTextInput, setPortTextInput] = useState('');
 
 
+    // ---------------- UseEffect -----------------
     // Gérer le bouton retour Android
     useEffect(() => {
         const backAction = () => {
@@ -40,20 +63,53 @@ const Settings = () => {
             'hardwareBackPress',
             backAction
         );
-
         return () => backHandler.remove(); // Nettoyage à la fermeture du composant
     }, [isModalVisible]);
 
+    useEffect(() => {
+        // Vérifier si le nombre d'URL de base dépasse 4
+        if(baseUrlCount > 3){
+            setIsBtnSaveDisabled(true);
+        }else{
+            setIsBtnSaveDisabled(false);
+        }
+    }, [baseUrlData]);
+    
+    // ------------- End UseEffect ----------
+
+    // ------------- function -------------
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
 
-    const handleSave = () => {
-        // Save settings logic here
-        console.log('Base URL:', baseUrl);
-        console.log('WebSocket URL:', webSocketUrl);
-        alert('Settings saved successfully!');
+    const handleSave = async () => {
+        console.log('\n ------handleSave called-------');
+        try {
+            // maj state
+            const newUrl = {
+                protocole: pickerValue,
+                host: hostTextInput,
+                port: portTextInput,
+            };
+            const updatedUrls = [...baseUrlData, {
+                id: Date.now(),
+                isActiveForApi: false,
+                isActiveForWs: false,
+                ...newUrl
+            }];
+            dispatch(addUrl(newUrl));
+            // maj storage
+            await AsyncStorage.setItem("base_urls", JSON.stringify(updatedUrls));
+            console.log('Donnée mise à jour avec succès');
+          } catch (e) {
+            console.error('Erreur lors de la mise à jour', e);
+            throw e;
+          }
     };
+    const handleUpdate = () => {
+    
+    };
+
 
     return (
         <View style={styles.container}>
@@ -75,11 +131,14 @@ const Settings = () => {
                             <Ionicons name="cloud-done" size={30} color={globalStyles.tertiaryColor.color} />
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={{ color: globalStyles.primaryText.color }}>Base URL</Text>
+                            <Text style={{ color: globalStyles.primaryText.color }}>Serveur d'API</Text>
                             <Text style={{ color: globalStyles.secondaryText.color }}>https://example.com</Text>
                         </View>
                         <View>
-                            <TouchableOpacity onPress={toggleModal}>
+                            <TouchableOpacity onPress={() => {
+                                toggleModal();
+                                setSelectedModal("api");
+                            }}>
                                 <Ionicons name="ellipsis-horizontal" size={25} color={globalStyles.secondaryText.color} />
                             </TouchableOpacity>
                         </View>
@@ -90,11 +149,14 @@ const Settings = () => {
                             <Ionicons name="sync" size={30} color={globalStyles.tertiaryColor.color} />
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={{ color: globalStyles.primaryText.color }}>WebSocket URL</Text>
+                            <Text style={{ color: globalStyles.primaryText.color }}>Serveur WebSocket</Text>
                             <Text style={{ color: globalStyles.secondaryText.color }}>wss://example.com</Text>
                         </View>
                         <View>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => {
+                                toggleModal();
+                                setSelectedModal("websocket");
+                            }}>
                                 <Ionicons name="ellipsis-horizontal" size={25} color={globalStyles.secondaryText.color} />
                             </TouchableOpacity>
                         </View>
@@ -125,12 +187,21 @@ const Settings = () => {
                     <View style={styles.headerModal}>
                         <View style={styles.modalHandler}></View>
                         <Ionicons name="cloud-done" size={30} color={globalStyles.tertiaryColor.color} style={{ alignSelf: "center" }} />
-                        <Text style={styles.modalTitle}>URL de base</Text>
+                        <Text style={styles.modalTitle}>{(selectedModal === 'api')?"Serveur d'API": "Serveur Websocket"}</Text>
                         <View>
-                            <Text style={{ alignSelf: "center", color: globalStyles.primaryColor.color, marginBottom: 2 }}>Connecté à l'adresse</Text>
+                            { baseUrlData && (<Text style={{ alignSelf: "center", color: globalStyles.primaryColor.color, marginBottom: 2 }}>Connecté à l'adresse</Text>)}
+                            
                             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5 }}>
-                                <View style={styles.point}></View>
-                                <Text style={{ color: globalStyles.secondaryText.color, letterSpacing: 0.5 }}>192.129.02.23</Text>
+                                {activeApiUrl && (<View style={styles.point}></View>)}
+                                <Text style={{ color: globalStyles.secondaryText.color, letterSpacing: 0.5 }}>
+                                    {selectedModal === 'api'
+                                        ? activeApiUrl
+                                            ? `${activeApiUrl.protocole}://${activeApiUrl.host}:${activeApiUrl.port}:/api`
+                                            : 'Aucune URL API active'
+                                        : activeWsUrl
+                                            ? `${activeWsUrl.protocole}://${activeWsUrl.host}:${activeWsUrl.port}:/ws/visitor-tracker/`
+                                            : 'Aucune URL WS active'}
+                                </Text>
                             </View>
                         </View>
                     </View>
@@ -140,16 +211,27 @@ const Settings = () => {
                     <View style={styles.bodyModal}>
                         {/* row 1 */}
                         <Text style={styles.bodyTitle}>Ajouter un URL</Text>
-                        <View style={[styles.row_body, { marginBottom: 20 }]}>
+                        <View 
+                        style={
+                            [styles.row_body, 
+                            { marginBottom: 20 },
+                            btnModeColor === 'add' ? { borderColor: "#3498db" } : btnModeColor === 'edit' ? { borderColor: globalStyles.primaryColor.color } : null
+                            ]} >
                             <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 }}>
                                 <Text style={styles.label}>Protocole :</Text>
                                 <DropDownPicker
-                                    open={open}
-                                    value={value}
-                                    items={items}
-                                    setOpen={setOpen}
-                                    setValue={setValue}
-                                    setItems={setItems}
+                                    open={openPicker}
+                                    setOpen={setOpenPicker}
+                                    value={pickerValue}
+                                    setValue={setPickerValue}
+                                    items={pickerItems}
+                                    setItems={setPickerItems}
+                                    onOpen={() => {
+                                        setBtnModeColor('none')
+                                    }}
+                                    onClose={() => {
+                                        setBtnModeColor('none')
+                                    }}
                                     listItemLabelStyle={{
                                         color: globalStyles.primaryText.color,
                                         fontWeight: 'bold',
@@ -189,38 +271,46 @@ const Settings = () => {
                             </View>
                             
                             <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                                <Text style={styles.label}>Adresse du serveur :</Text>
+                                <Text style={styles.label}>Serveur hôte :</Text>
                                 <TextInput
                                     style={styles.input}
                                     placeholder="IP ou domaine"
                                     placeholderTextColor={globalStyles.secondaryTextWithOpacity.color}
                                     cursorColor={globalStyles.primaryColor.color}
-                                    value={textInput}
-                                    onChangeText={setTextInput}
+                                    value={hostTextInput}
+                                    onChangeText={setHostTextInput}
+                                    onFocus={() => setBtnModeColor('none')}
+                                    onChange={() => setBtnModeColor('none')}
                                 />
                             </View>
 
                             <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 }}>
                                 <Text style={styles.label}>Port :</Text>
                                 <TextInput
+                                    keyboardType="numeric"
                                     style={styles.input}
                                     placeholder="Ex : 8080"
                                     placeholderTextColor={globalStyles.secondaryTextWithOpacity.color}
                                     cursorColor={globalStyles.primaryColor.color}
-                                    value={textInput}
-                                    onChangeText={setTextInput}
+                                    value={portTextInput}
+                                    onChangeText={setPortTextInput}
+                                    onFocus={() => setBtnModeColor('none')}
+                                    onChange={() => setBtnModeColor('none')}
                                 />
                             </View>
 
-                            <TouchableOpacity style={styles.button}>
+                            <TouchableOpacity onPress={btnMode === "add"? handleSave : handleUpdate} style={[styles.button, isBtnSaveDisabled && { opacity: 0.2 }]}  disabled={isBtnSaveDisabled}>
                                 <Text style={styles.buttonText}>SAUVEGARDER</Text>
                             </TouchableOpacity>
                         </View>
+                        
                         {/* row 2 */}
-                        <Text style={styles.bodyTitle}>Liste des URL</Text>
+                        <Text style={styles.bodyTitle}>Sélectionner un URL</Text>
                         <View style={[styles.row_body, { padding: 0 }]}>
-                            {/* child 1 */}
-                            <View style={styles.list_child}>
+
+                            {baseUrlData && baseUrlData.map(item => (
+                                <View key={item.id} style={styles.list_child}>
+                                    {/* Ton rendu pour chaque item ici */}
                                 <Ionicons name="unlink-outline" size={20} color={globalStyles.secondaryText.color} />
                                 <View>
                                     <Text style={{ color: globalStyles.primaryText.color }}>Serveur : HTTP</Text>
@@ -235,51 +325,36 @@ const Settings = () => {
                                     </TouchableOpacity>
                                 </View>
                                 <View>
-                                    <RadioButton.Group onValueChange={newValue => setBaseURLValue(newValue)} value={baseURLValue}>
+                                    <RadioButton.Group onValueChange={newValue => setApiURLValue(newValue)} value={apiURLValue}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <RadioButton value="first" color={globalStyles.primaryColor.color} uncheckedColor={globalStyles.secondaryTextWithOpacity.color} />
                                         </View>
                                     </RadioButton.Group>
                                 </View>
+                                </View>
+                            ))}
 
-                            </View>
-                            {/* child 2 */}
-                            <View style={styles.list_child}>
-                                <Ionicons name="link-outline" size={20} color={globalStyles.secondaryText.color} />
-                                <View>
-                                    <Text style={{ color: globalStyles.primaryText.color }}>Serveur : HTTPS</Text>
-                                    <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12, letterSpacing: 0.5 }}>127.0.0.1:8000</Text>
-                                </View>
-                                <View style={{ flexDirection: "row", gap: 10, marginLeft: "auto" }}>
-                                    <TouchableOpacity style={{ borderWidth: 1, borderColor: globalStyles.primaryColor.color, padding: 5, borderRadius: 5 }}>
-                                        <Ionicons name="pencil" size={15} color={globalStyles.secondaryText.color} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity style={{ borderWidth: 1, borderColor: globalStyles.primaryColor.color, padding: 5, borderRadius: 5 }}>
-                                        <Ionicons name="trash" size={15} color={globalStyles.secondaryText.color} />
-                                    </TouchableOpacity>
-                                </View>
-                                <View>
-                                    <RadioButton.Group onValueChange={newValue => setBaseURLValue(newValue)} value={baseURLValue} >
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <RadioButton value="second" color={globalStyles.primaryColor.color} uncheckedColor={globalStyles.secondaryTextWithOpacity.color} />
-                                        </View>
-                                    </RadioButton.Group>
-                                </View>
-                            </View>
-                            {/* child 3 */}
-                            <View style={[styles.list_child, { justifyContent: "center", alignItems: "center" }]}>
-                                <TouchableOpacity>
-                                    <Ionicons name="add-circle-outline" size={32} color={globalStyles.secondaryTextWithOpacity.color} />
-                                </TouchableOpacity>
-                            </View>
-                            {/* child 4 */}
-                            <View style={[styles.list_child, { justifyContent: "center", alignItems: "center" }]}>
-                                <TouchableOpacity>
-                                    <Ionicons name="add-circle-outline" size={32} color={globalStyles.secondaryTextWithOpacity.color} />
-                                </TouchableOpacity>
-                            </View>
-
+                            {baseUrlCount < 4 &&
+                                Array.from({ length: 4 - baseUrlCount }).map((_, index) => (
+                                    <View
+                                        key={`placeholder-${index}`}
+                                        style={[styles.list_child, { justifyContent: 'center', alignItems: 'center' }]}
+                                    >
+                                        <TouchableOpacity 
+                                        onPress ={() => {
+                                            setBtnModeColor('add');
+                                            setBtnMode('add');
+                                            }}>
+                                            <Ionicons
+                                                name="add-circle-outline"
+                                                size={32}
+                                                color={globalStyles.secondaryTextWithOpacity.color}
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
                         </View>
+
 
                     </View>
                 </View>
