@@ -28,10 +28,8 @@ export default function Index() {
       try {
         const jsonValue = await AsyncStorage.getItem(key)
         if (jsonValue != null) {
-          console.log("\n--------NAHITA CLE---------", JSON.parse(jsonValue))
           return JSON.parse(jsonValue)
         } else {
-          console.log("\n--------TSY NAHITA CLEEEE---------")
           await AsyncStorage.setItem(key, JSON.stringify([]))
           return []
         }
@@ -45,7 +43,6 @@ export default function Index() {
     const fetchBaseUrl = async () => {
       const data = await loadBaseUrlData('base_urls');
       if (data) dispatch(setUrl(data));
-      console.log('-------- Base URLs chargées et stockées dans Redux:', data);
     }
 
     fetchBaseUrl()
