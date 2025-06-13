@@ -39,7 +39,7 @@ const globalStyles = StyleSheet.create({
         color: "rgba(30, 80, 50, 0.4)",
     },
     dangerColor: {
-        color: "rgb(114, 12, 16)",
+        color: "rgb(230, 11, 66)",
     },
     blueColor: {
         color: "rgb(50, 130, 242)",

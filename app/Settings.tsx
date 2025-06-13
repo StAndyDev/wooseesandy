@@ -164,13 +164,18 @@ const Settings = () => {
             {/* Confirm Dialog */}
             <MyDialog
                 dialogType="confirm"
-                title="Confirmer la suppression"
+                title="Confirmation"
+                dialogText="Confirmer la suppression?"
+                successTitle="Succès"
+                failedTitle="Echec"
+                hideDialogWithSuccès={false}
                 onConfirm={() => {
+                    setIsVisibleConfirmDialog(false);
                     clearForms();
                 }}
+                onCancel={() => setIsVisibleConfirmDialog(false)}
                 onBackButtonPress={() => setIsVisibleConfirmDialog(false)}
                 onBackdropPress={() => setIsVisibleConfirmDialog(false)}
-                onCancel={() => setIsVisibleConfirmDialog(false)}
                 show={isVisibleConfirmDialog}
             />
 
@@ -297,7 +302,22 @@ const Settings = () => {
                             style={
                                 [styles.row_body,
                                 { marginBottom: 20 },
-                                btnModeColor === 'add' ? { borderColor: globalStyles.primaryColor.color } : btnModeColor === 'edit' ? { borderColor: globalStyles.blueColor.color } : null
+                                btnModeColor === 'add' 
+                                ? { borderColor: globalStyles.primaryColor.color } 
+                                : btnModeColor === 'edit' 
+                                ? { 
+                                    borderColor: globalStyles.blueColor.color,
+                                    // Styles iOS
+                                    shadowColor: 'white',
+                                    shadowOffset: {
+                                      width: 0,
+                                      height: 2,
+                                    },
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 3.84,
+                                    // Styles Android
+                                    elevation: 5, // Élévation pour Android
+                                } : null
                                 ]} >
                             <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 }}>
                                 <Text style={styles.label}>Protocole :</Text>

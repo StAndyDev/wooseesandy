@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         top: -2,
-        backgroundColor: 'rgb(230, 11, 122)',
+        backgroundColor: globalStyles.dangerColor.color,
         borderRadius: 10,
         minWidth: 18,
         height: 18,
