@@ -6,20 +6,22 @@ import Modal from 'react-native-modal';
 import globalStyles from '../../app/styles';
 
 type Props = {
-    dialogType: 'confirm' | 'info'
+    dialogType: 'confirm' | 'info' | 'error' | 'success'
     title?: string
     dialogText: string
     successTitle?: string
     failedTitle?: string
     onConfirm: () => void
     onCancel?: () => void
+    confirmBtnText?: string
+    cancelBtnText?: string
     onBackButtonPress: () => void
     onBackdropPress: () => void
     show: boolean
     hideDialogWithSuccès?: boolean
 }
 
-const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onConfirm, onCancel, onBackButtonPress, onBackdropPress, show = false, hideDialogWithSuccès }: Props) => {
+const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onConfirm, onCancel, confirmBtnText = "OK", cancelBtnText = "Annuler", onBackButtonPress, onBackdropPress, show = false, hideDialogWithSuccès }: Props) => {
 
     const [changeIconToSucces, setChangeIconToSucces] = useState(false);
     const [changeIconToFailed, setChangeIconToFailed] = useState(false);
@@ -131,6 +133,20 @@ const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onC
                         />) : null
                         }
                     </Animated.View>)
+
+                     : dialogType === "error" ? (
+                        <Ionicons
+                            name="close"
+                            size={30}
+                            color={globalStyles.dangerColor.color}
+                        />
+                    ) : dialogType === "success" ? (
+                        <Ionicons
+                            name="checkmark"
+                            size={30}
+                            color={globalStyles.primaryColor.color}
+                        />
+                    )
                     : (<Ionicons
                         name="alert"
                         size={30}
@@ -164,14 +180,14 @@ const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onC
                         onPress={handlePressConfirm}
                         disabled={disableConfirmBtn}
                     >
-                        <Text style={{ color: globalStyles.primaryColor.color }}>OK</Text>
+                        <Text style={{ color: globalStyles.primaryColor.color }}>{confirmBtnText}</Text>
                     </TouchableOpacity>
                     {(dialogType === "confirm") && (
                     <TouchableOpacity
                         style={styles.btn}
                         onPress={handlePressCancel}
                     >
-                        <Text style={{ color: globalStyles.primaryColor.color }}>Annuler</Text>
+                        <Text style={{ color: globalStyles.primaryColor.color }}>{cancelBtnText}</Text>
                     </TouchableOpacity>)}
                 </View>
 

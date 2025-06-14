@@ -34,9 +34,12 @@ const Settings = () => {
     const [btnMode, setBtnMode] = useState<'add' | 'edit'>('add'); // mode du bouton (ajouter ou modifier)
     const [btnModeColor, setBtnModeColor] = useState<'add' | 'edit' | 'none'>('none'); // couleur du bordure du header de Modal en fonction du mode du bouton (ajouter ou modifier)
     const [isModalVisible, setModalVisible] = useState(false);
-    const [dataToEdit, setDataToEdit] = useState<{id: number, isActiveForApi: boolean, isActiveForWs: boolean } | null>(null); // pour modifier les données d'une URL existante
-    
-    const [isVisibleConfirmDialog, setIsVisibleConfirmDialog] = useState(false);
+    const [dataToEdit, setDataToEdit] = useState<{ id: number, isActiveForApi: boolean, isActiveForWs: boolean } | null>(null); // pour modifier les données d'une URL existante
+
+    const [isVisibleSupprDialog, setIsVisibleSupprDialog] = useState(false); // pour le dialog de confirmation de suppression d'une URL
+    const [idToDelete, setIdToDelete] = useState<number | null>(null);  // pour stocker l'ID de l'URL à supprimer
+    const [isVisibleEmptyDialog, setIsVisibleEmptyDialog] = useState(false); // pour le dialog d'erreur si les champs sont vides
+    const [isVisibleMajDialog, setIsVisibleMajDialog] = useState(false); // pour le dialog de mise à jour des données
 
     // forms
     const [openPicker, setOpenPicker] = useState(false);
@@ -69,6 +72,10 @@ const Settings = () => {
     };
 
     const handleSave = async () => {
+        if (!pickerValue || !hostTextInput || !portTextInput) {
+            setIsVisibleEmptyDialog(true);
+            return;
+        }
         console.log('\n ------handleSave called-------');
         try {
             // maj state
@@ -90,13 +97,17 @@ const Settings = () => {
             setPickerValue('');
             setHostTextInput('');
             setPortTextInput('');
-            console.log('Donnée mise à jour avec succès');
+            console.log('Donnée ajouté avec succès');
         } catch (e) {
-            console.error('Erreur lors de la mise à jour', e);
+            console.error('Impossible d"ajouter un url', e);
             throw e;
         }
     };
     const handleUpdate = () => {
+        if (!pickerValue || !hostTextInput || !portTextInput) {
+            setIsVisibleEmptyDialog(true);
+            return;
+        }
         if (dataToEdit) {
             // Mise à jour des données de l'URL
             const updatedUrls = baseUrlData.map(url => {
@@ -114,11 +125,12 @@ const Settings = () => {
             });
             dispatch(setUrl(updatedUrls));
             AsyncStorage.setItem("base_urls", JSON.stringify(updatedUrls));
+            setIsVisibleMajDialog(true); // Afficher le dialog de succès de mise à jour
             // Clear form inputs
             clearForms();
             setBtnMode('add');
             setBtnModeColor('none');
-            
+
         }
     };
     // clear forms
@@ -129,12 +141,14 @@ const Settings = () => {
         setDataToEdit(null);
     }
     // delete btn
-    const handleDelete = (id: number) => {
-        console.log(`Delete URL with ID: ${id}`);
+    const handleDelete = () => {
+        console.log(`Delete URL with ID: ${idToDelete}`);
         // Filtrer l'URL à supprimer
-        const updatedUrls = baseUrlData.filter(url => url.id !== id);
+        const updatedUrls = baseUrlData.filter(url => url.id !== idToDelete);
         dispatch(setUrl(updatedUrls)); // Mise à jour dans Redux
         AsyncStorage.setItem("base_urls", JSON.stringify(updatedUrls)); // Mise à jour dans AsyncStorage
+        setIsVisibleSupprDialog(false);
+        clearForms();
     }
     // radio buttons action
     const activeForApiUrl = (id: number) => {
@@ -159,24 +173,50 @@ const Settings = () => {
     }
 
     return (
-       <View style={styles.container}>
+        <View style={styles.container}>
+            {/* Mise à jour Dialog */}
+            <MyDialog
+                dialogType="success"
+                title="Mis à jour effectuée"
+                dialogText="l'adresse a été mise à jour avec succès"
+                onConfirm={() => {
+                    setIsVisibleMajDialog(false);
+                }}
+                onBackButtonPress={() => setIsVisibleMajDialog(false)}
+                onBackdropPress={() => setIsVisibleMajDialog(false)}
+                show={isVisibleMajDialog}
+            />
 
-            {/* Confirm Dialog */}
+            {/* Champ vide Dialog */}
+            <MyDialog
+                dialogType="info"
+                title="Infos"
+                dialogText="les champs ne doivent pas être vides"
+                confirmBtnText="OK"
+                onConfirm={() => {
+                    setIsVisibleEmptyDialog(false);
+                }}
+                onBackButtonPress={() => setIsVisibleEmptyDialog(false)}
+                onBackdropPress={() => setIsVisibleEmptyDialog(false)}
+                show={isVisibleEmptyDialog}
+            />
+            {/* Suppr Dialog */}
             <MyDialog
                 dialogType="confirm"
-                title="Confirmation"
-                dialogText="Confirmer la suppression?"
-                successTitle="Succès"
+                title="Supprimer l'URL"
+                dialogText="êtes-vous sûr ?"
+                successTitle="Suppression effectuée"
                 failedTitle="Echec"
-                hideDialogWithSuccès={false}
+                hideDialogWithSuccès={true}
+                confirmBtnText="Oui"
+                cancelBtnText="Non"
                 onConfirm={() => {
-                    setIsVisibleConfirmDialog(false);
-                    clearForms();
+                    handleDelete();
                 }}
-                onCancel={() => setIsVisibleConfirmDialog(false)}
-                onBackButtonPress={() => setIsVisibleConfirmDialog(false)}
-                onBackdropPress={() => setIsVisibleConfirmDialog(false)}
-                show={isVisibleConfirmDialog}
+                onCancel={() => setIsVisibleSupprDialog(false)}
+                onBackButtonPress={() => setIsVisibleSupprDialog(false)}
+                onBackdropPress={() => setIsVisibleSupprDialog(false)}
+                show={isVisibleSupprDialog}
             />
 
             {/* Header */}
@@ -261,13 +301,27 @@ const Settings = () => {
                     {/* HEADER MODAL */}
                     <View style={styles.headerModal}>
                         <View style={styles.modalHandler}></View>
-                        <Ionicons name="cloud-done" size={30} color={globalStyles.tertiaryColor.color} style={{ alignSelf: "center" }} />
+                        <Ionicons name={selectedModal === "api" ? "cloud-done" : "sync"} size={30} color={globalStyles.tertiaryColor.color} style={{ alignSelf: "center" }} />
                         <Text style={styles.modalTitle}>{(selectedModal === 'api') ? "Serveur d'API" : "Serveur Websocket"}</Text>
                         <View>
-                            {(<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.primaryColor.color }}>Connecté à l'adresse</Text>)}
+                            {
+                                selectedModal === "api" ?
+                                    (activeApiUrl
+                                        ? (<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.primaryColor.color }}>Connecté à l'adresse</Text>)
+                                        : (<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.dangerColor.color }}>Non Connecté</Text>)
+                                    )
+                                    : (activeWsUrl
+                                        ? (<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.primaryColor.color }}>Connecté à l'adresse</Text>)
+                                        : (<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.dangerColor.color }}>Non Connecté</Text>)
+                                    )
+                            }
 
                             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5 }}>
-                                {(activeApiUrl || activeWsUrl) && (<View style={styles.point}></View>)}
+                                {
+                                    selectedModal === "api" ?
+                                        (activeApiUrl && (<View style={styles.point}></View>))
+                                        : (activeWsUrl && (<View style={styles.point}></View>))
+                                }
                                 <Text style={{ color: globalStyles.secondaryText.color, letterSpacing: 0.5 }}>
                                     {selectedModal === 'api'
                                         ? activeApiUrl
@@ -286,7 +340,7 @@ const Settings = () => {
                     <View style={styles.bodyModal}>
                         {/* row 1 */}
                         <View style={styles.bodyTitle}>
-                            <Text style={{color: globalStyles.secondaryText.color, fontSize: 12}}>{btnMode === "add" ? "Ajouter un URL" : "Modifier un URL"}</Text>
+                            <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12 }}>{btnMode === "add" ? "Ajouter un URL" : "Modifier un URL"}</Text>
                             {(btnMode === "edit") && (
                                 <TouchableOpacity onPress={() => {
                                     setBtnMode('add')
@@ -302,22 +356,22 @@ const Settings = () => {
                             style={
                                 [styles.row_body,
                                 { marginBottom: 20 },
-                                btnModeColor === 'add' 
-                                ? { borderColor: globalStyles.primaryColor.color } 
-                                : btnModeColor === 'edit' 
-                                ? { 
-                                    borderColor: globalStyles.blueColor.color,
-                                    // Styles iOS
-                                    shadowColor: 'white',
-                                    shadowOffset: {
-                                      width: 0,
-                                      height: 2,
-                                    },
-                                    shadowOpacity: 0.25,
-                                    shadowRadius: 3.84,
-                                    // Styles Android
-                                    elevation: 5, // Élévation pour Android
-                                } : null
+                                btnModeColor === 'add'
+                                    ? { borderColor: globalStyles.primaryColor.color }
+                                    : btnModeColor === 'edit'
+                                        ? {
+                                            borderColor: globalStyles.blueColor.color,
+                                            // Styles iOS
+                                            shadowColor: 'white',
+                                            shadowOffset: {
+                                                width: 0,
+                                                height: 2,
+                                            },
+                                            shadowOpacity: 0.25,
+                                            shadowRadius: 3.84,
+                                            // Styles Android
+                                            elevation: 5, // Élévation pour Android
+                                        } : null
                                 ]} >
                             <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 }}>
                                 <Text style={styles.label}>Protocole :</Text>
@@ -329,10 +383,10 @@ const Settings = () => {
                                     items={pickerItems}
                                     setItems={setPickerItems}
                                     onOpen={() => {
-                                        setBtnModeColor('none')
+                                        btnMode === "add" && setBtnModeColor('none')
                                     }}
                                     onClose={() => {
-                                        setBtnModeColor('none')
+                                        btnMode === "add" && setBtnModeColor('none')
                                     }}
                                     listItemLabelStyle={{
                                         color: globalStyles.primaryText.color,
@@ -381,8 +435,8 @@ const Settings = () => {
                                     cursorColor={globalStyles.primaryColor.color}
                                     value={hostTextInput}
                                     onChangeText={(text) => setHostTextInput(text.toLowerCase())}
-                                    onFocus={() => setBtnModeColor('none')}
-                                    onChange={() => setBtnModeColor('none')}
+                                    onFocus={() => btnMode === "add" && setBtnModeColor('none')}
+                                    onChange={() => btnMode === "add" && setBtnModeColor('none')}
                                 />
                             </View>
 
@@ -396,8 +450,8 @@ const Settings = () => {
                                     cursorColor={globalStyles.primaryColor.color}
                                     value={portTextInput}
                                     onChangeText={setPortTextInput}
-                                    onFocus={() => setBtnModeColor('none')}
-                                    onChange={() => setBtnModeColor('none')}
+                                    onFocus={() => btnMode === "add" && setBtnModeColor('none')}
+                                    onChange={() => btnMode === "add" && setBtnModeColor('none')}
                                 />
                             </View>
 
@@ -408,7 +462,7 @@ const Settings = () => {
 
                         {/* row 2 */}
                         <View style={styles.bodyTitle}>
-                            <Text style={{color: globalStyles.secondaryText.color, fontSize: 12}}>Sélectionner un URL</Text>
+                            <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12 }}>Sélectionner un URL</Text>
                         </View>
                         <View style={[styles.row_body, { padding: 0 }]}>
 
@@ -424,7 +478,7 @@ const Settings = () => {
                                         color={globalStyles.secondaryText.color} />
                                     <View>
                                         <Text style={{ color: globalStyles.primaryText.color }}>Serveur : {item.protocole}</Text>
-                                        <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12, letterSpacing: 0.5 }}>{item.host+":"+item.port}</Text>
+                                        <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12, letterSpacing: 0.5 }}>{item.host + ":" + item.port}</Text>
                                     </View>
                                     <View style={{ flexDirection: "row", gap: 10, marginLeft: "auto" }}>
                                         <TouchableOpacity
@@ -439,17 +493,23 @@ const Settings = () => {
                                             style={{ borderWidth: 1, borderColor: globalStyles.primaryColor.color, padding: 5, borderRadius: 5 }}>
                                             <Ionicons name="pencil" size={15} color={globalStyles.secondaryText.color} />
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPressOut={() => handleDelete(item.id)} style={{ borderWidth: 1, borderColor: globalStyles.primaryColor.color, padding: 5, borderRadius: 5 }}>
+                                        <TouchableOpacity
+                                            onPressOut={() => {
+                                                setIsVisibleSupprDialog(true);
+                                                setIdToDelete(item.id);
+                                            }}
+                                            style={{ borderWidth: 1, borderColor: globalStyles.primaryColor.color, padding: 5, borderRadius: 5 }}
+                                        >
                                             <Ionicons name="trash" size={15} color={globalStyles.secondaryText.color} />
                                         </TouchableOpacity>
                                     </View>
                                     <View>
                                         <RadioButton.Group
-                                            onValueChange={() => {selectedModal === 'api'? (activeForApiUrl(item.id)):(activeForWsUrl(item.id))}}
+                                            onValueChange={() => { selectedModal === 'api' ? (activeForApiUrl(item.id)) : (activeForWsUrl(item.id)) }}
                                             value={
                                                 selectedModal === 'api'
-                                                ? item.isActiveForApi ? String(item.id) : ""
-                                                : item.isActiveForWs ? String(item.id) : ""
+                                                    ? item.isActiveForApi ? String(item.id) : ""
+                                                    : item.isActiveForWs ? String(item.id) : ""
                                             }
                                         >
                                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -468,9 +528,8 @@ const Settings = () => {
                                     >
                                         <TouchableOpacity
                                             onPress={() => {
-                                                // setBtnModeColor('add');
-                                                // setBtnMode('add');
-                                                setIsVisibleConfirmDialog(true); // Show confirmation dialog
+                                                setBtnModeColor('add');
+                                                setBtnMode('add');
                                             }}>
                                             <Ionicons
                                                 name="add-circle-outline"
@@ -550,8 +609,8 @@ const styles = StyleSheet.create({
     },
     bodyTitle: {
         marginBottom: 5,
-        flexDirection: "row", 
-        alignItems: "center", 
+        flexDirection: "row",
+        alignItems: "center",
         gap: 5,
         padding: 5
     },
