@@ -286,7 +286,7 @@ const Settings = () => {
                     if (btnMode === "edit") {
                         setBtnMode('add');
                         setBtnModeColor('none');
-                        clearForms();
+                        // clearForms();
                     } else {
                         toggleModal()
                     }
@@ -340,12 +340,12 @@ const Settings = () => {
                     <View style={styles.bodyModal}>
                         {/* row 1 */}
                         <View style={styles.bodyTitle}>
-                            <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12 }}>{btnMode === "add" ? "Ajouter un URL" : "Modifier un URL"}</Text>
+                            <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12 }}>{btnMode === "add" ? "Ajouter un URL" : "Modifier l'URL"}</Text>
                             {(btnMode === "edit") && (
                                 <TouchableOpacity onPress={() => {
                                     setBtnMode('add')
                                     setBtnModeColor('none');
-                                    clearForms();
+                                    // clearForms();
                                 }
                                 }>
                                     <Ionicons name="close" size={20} color={globalStyles.blueColor.color} />
@@ -423,6 +423,7 @@ const Settings = () => {
                                     textStyle={{
                                         fontSize: 12,
                                     }}
+
                                 />
                             </View>
 

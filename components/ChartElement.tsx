@@ -1,10 +1,12 @@
 import globalStyles from "@/app/styles";
+import { useApiBaseUrl } from "@/hooks/useApiBaseUrl";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { getSevenLastCVDownloadStats, getSevenLastPortfolioDetailViewStats, getSevenLastVisitInfoStats } from "../api/visitorsDataApi";
 
 const Chart = () => {
+  let apiBaseUrl = useApiBaseUrl();
   const { width } = useWindowDimensions();
   const [timeFrame, setTimeFrame] = useState<'month' | 'week'>('month');
   const [chartData, setChartData] = useState({
@@ -19,9 +21,9 @@ const Chart = () => {
     const fetchData = async () => {
       try {
         setLoadingChartData(true);
-        const visitInfoResponse = await getSevenLastVisitInfoStats(timeFrame);
-        const cvDownloadResponse = await getSevenLastCVDownloadStats(timeFrame);
-        const portfolioDetailsResponse = await getSevenLastPortfolioDetailViewStats(timeFrame);
+        const visitInfoResponse = await getSevenLastVisitInfoStats(apiBaseUrl, timeFrame);
+        const cvDownloadResponse = await getSevenLastCVDownloadStats(apiBaseUrl, timeFrame);
+        const portfolioDetailsResponse = await getSevenLastPortfolioDetailViewStats(apiBaseUrl, timeFrame);
 
         if(visitInfoResponse.status === 200 || cvDownloadResponse.status === 200 || portfolioDetailsResponse.status === 200) {
           setChartData({
@@ -39,7 +41,7 @@ const Chart = () => {
     };
 
     fetchData();
-  },[timeFrame]);
+  },[apiBaseUrl, timeFrame]);
 
   return (
     <View style={styles.container}>

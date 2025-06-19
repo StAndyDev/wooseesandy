@@ -1,4 +1,5 @@
 import globalStyles from "@/app/styles";
+import { useApiBaseUrl } from "@/hooks/useApiBaseUrl";
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -6,7 +7,7 @@ import CircularProgress from "react-native-circular-progress-indicator";
 import { getBrowserStats } from "../api/visitorsDataApi";
 
 const ProgressRing = () => {
-
+  let apiBaseUrl = useApiBaseUrl();
   const [visitorData, setVisitorData] = useState([
     { browser: "Chrome", percentage: 0, color: globalStyles.primaryColor.color },
     { browser: "Firefox", percentage: 0, color: globalStyles.secondaryColor.color },
@@ -21,7 +22,7 @@ const ProgressRing = () => {
     const fetchBrowserData = async () => {
       setLoading(true);
       try {
-        const response = await getBrowserStats();
+        const response = await getBrowserStats(apiBaseUrl);
         if (response.status === 200) {
           setVisitorData(prevData =>
             prevData.map(item => {
@@ -38,7 +39,7 @@ const ProgressRing = () => {
       }
     }
     fetchBrowserData();
-  }, [refreshTrigger]);
+  }, [apiBaseUrl, refreshTrigger]);
 
   return (
     <View style={[styles.container, { alignItems: "center"}]}>

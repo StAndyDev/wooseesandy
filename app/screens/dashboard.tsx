@@ -33,35 +33,27 @@ import {
   fetchVisitorCount
 } from '../../api/visitorsDataApi';
 
+import { StatusMessage } from '@/components/StatusMessage';
 import {
   ScrollView,
   StyleSheet,
   Text,
   View
 } from 'react-native';
+import { useApiBaseUrl } from '../../hooks/useApiBaseUrl';
 import { calculateChangePercentage } from '../utils/stats';
 
-const histogramData = [
-  { page: "Home", visites: 100 },
-  { page: "About", visites: 80 },
-  { page: "Contact", visites: 50 },
-  { page: "Blog", visites: 30 },
-  { page: "Portfolio", visites: 20 },
-  { page: "Services", visites: 10 },
-  { page: "Testimonials", visites: 5 },
-  { page: "FAQ", visites: 2 },
-  { page: "Privacy Policy", visites: 1 },
-  { page: "Terms of Service", visites: 1 },
-  { page: "Sitemap", visites: 1 },
-  { page: "Careers", visites: 1 },
-];
-
 export default function Dashboard() {
+
+  let apiBaseUrl = useApiBaseUrl();
   /***** state *****/
   const [loadingVisitsCount, setLoadingVisitsCount] = useState(true);
   const [loadingPortfolioViews, setLoadingPortfolioViews] = useState(true);
   const [loadingCvDownloads, setLoadingCvDownloads] = useState(true);
   const [loadingVisitorCount, setLoadingVisitorCount] = useState(true);
+  // bar status
+  const [isVisibleStatusBar, setIsVisibleStatusBar] = useState(true);
+
   // visitinfo change percentage monthly
 
   const registeredOnlineVisitor = useSelector((state: RootState) => state.number_online.registered_visitor)
@@ -90,7 +82,7 @@ export default function Dashboard() {
   useEffect(() => {
     const loadStatNotification = async () => {
       // fetch unread notif
-      const res_unread = await fetchNotificationCount(false); // nbr notif non lu
+      const res_unread = await fetchNotificationCount(apiBaseUrl, false); // nbr notif non lu
       if (res_unread.status === 200) {
         const data_unread = {
           visitinfo_count: visitinfo_unread_count + res_unread.data.visitinfo_count,
@@ -101,7 +93,7 @@ export default function Dashboard() {
         setLoadingVisitsCount(false);
       }
       // fetch read notif
-      const res_read = await fetchNotificationCount(true); // nbr notif lu
+      const res_read = await fetchNotificationCount(apiBaseUrl, true); // nbr notif lu
       if (res_read.status === 200) {
         const data_read = {
           visitinfo_count : visitinfo_read_count + res_read.data.visitinfo_count,
@@ -111,25 +103,25 @@ export default function Dashboard() {
         dispatch(setReadNotificationCount(data_read));
       }
       // fecth visitor count
-      const visitor_nbr = await fetchVisitorCount();
+      const visitor_nbr = await fetchVisitorCount(apiBaseUrl);
       if (visitor_nbr.status === 200) {
         dispatch(addVisitorCount(visitor_nbr.data.visitor_count));
         setLoadingVisitorCount(false);
       }
       // fetch cv download count
-      const cv_download_nbr = await fetchCVDownloadsCount();
+      const cv_download_nbr = await fetchCVDownloadsCount(apiBaseUrl);
       if (cv_download_nbr.status === 200) {
         dispatch(addCvDownloadCount(cv_download_nbr.data.cv_download_count));
         setLoadingCvDownloads(false);
       }
       // fetch portfolio details view count
-      const portfolio_details_view_nbr = await fetchPortfolioDetailsViewCount();
+      const portfolio_details_view_nbr = await fetchPortfolioDetailsViewCount(apiBaseUrl);
       if (portfolio_details_view_nbr.status === 200) {
         dispatch(addVuesPortfolioDetailsCount(portfolio_details_view_nbr.data.portfolio_details_view_count));
         setLoadingPortfolioViews(false);
       }
       // fetch visit info stat monthly
-      const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly();
+      const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly(apiBaseUrl);
       if (visit_info_stat_monthly.status === 200) {
         const current_month_nbr = visit_info_stat_monthly.data.current_month;
         const last_month_nbr = visit_info_stat_monthly.data.last_month;
@@ -139,7 +131,7 @@ export default function Dashboard() {
         dispatch(addLastMonthVisits(last_month_nbr));
       }
       // fetch cv download stat monthly
-      const cv_download_stat_monthly = await fetchCvDownloadMonthly();
+      const cv_download_stat_monthly = await fetchCvDownloadMonthly(apiBaseUrl);
       if (cv_download_stat_monthly.status === 200) {
         const current_month_nbr = cv_download_stat_monthly.data.current_month;
         const last_month_nbr = cv_download_stat_monthly.data.last_month;
@@ -149,7 +141,7 @@ export default function Dashboard() {
         dispatch(addLastMonthCvDownload(last_month_nbr));
       }
       // fetch portfolio detail stat monthly
-      const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly();
+      const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly(apiBaseUrl);
       if (portfolio_detail_stat_monthly.status === 200) {
         const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
         const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;
@@ -160,11 +152,21 @@ export default function Dashboard() {
       }
     }
     loadStatNotification();
-  }, []);
+  }, [apiBaseUrl]);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.parent}>
+        {/* ------  CARD : 0 ----- */}
+        {isVisibleStatusBar && (
+          <StatusMessage
+          dialogType='error'
+          message="Bienvenue sur votre tableau de bord ! Suivez vos statistiques et vos notifications."
+          onClose={() => setIsVisibleStatusBar(false)}
+        />
+        )}
+        
+        
         {/* ------  CARD : 1 ----- */}
         {registeredOnlineVisitor > 0 && newOnlineVisitor > 0 ? (
           <MyDashboard

@@ -1,10 +1,10 @@
 import { Stack } from 'expo-router';
-import { Provider } from 'react-redux';
-import { store } from '../store/store';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
 import globalStyles from '../app/styles';
 import { WebSocketProvider } from '../contexts/WebSocketContext';
+import { store } from '../store/store';
 
 export default function Layout() {
   return (
@@ -24,6 +24,11 @@ export default function Layout() {
               name="Notification"
               options={{ animation: 'ios_from_right' }}
             />
+            <Stack.Screen
+              name="Settings"
+              options={{ animation: 'ios_from_right' }}
+            />
+
           </Stack>
         </SafeAreaView>
       </WebSocketProvider>

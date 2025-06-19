@@ -36,8 +36,11 @@ import { addDataAtBeginning, addDataAtEnd, deleteCVDownloadEE, deletePortfolioDe
 import Checkbox from 'expo-checkbox';
 import { MotiView } from 'moti'; // animationd
 import { setCVDownloadsApiOffset, setPortfolioDetailsViewApiOffset, setVisitorDataApiOffset } from '../features/apiOffset'; // set offset
+import { useApiBaseUrl } from '../hooks/useApiBaseUrl';
 import { calculateChangePercentage } from './utils/stats';
+
 const NotificationsScreen = () => {
+  let apiBaseUrl = useApiBaseUrl();
   /* --- store ---*/
   // notification data
   const notification_data = useSelector((state: RootState) => state.visitors_data.formData);
@@ -137,7 +140,7 @@ const NotificationsScreen = () => {
   const loadVisitorData = async () => {
     if (!hasMoreVisitorData) return;
     try {
-      const data = await fetchVisitorsData(limit, visitor_data_offset);
+      const data = await fetchVisitorsData(apiBaseUrl, limit, visitor_data_offset);
       if (data.results.length === 0) {
         setHasMoreVisitorData(false);
         return;
@@ -181,7 +184,7 @@ const NotificationsScreen = () => {
   const loadCVDownloadData = async () => {
     if (!hasMoreCVDownloadsData) return;
     try {
-      const data = await fetchCVDownloadsData(limit, cv_downloads_offset);
+      const data = await fetchCVDownloadsData(apiBaseUrl, limit, cv_downloads_offset);
       if (data.results.length === 0) {
         setHasMoreCVDownloadsData(false);
         return;
@@ -214,7 +217,7 @@ const NotificationsScreen = () => {
   const loadPortfolioDetailsViewData = async () => {
     if (!hasMorePortfolioDetailsViewData) return;
     try {
-      const data = await fetchPortfolioDetailsViewData(limit, portfolio_details_view_offset);
+      const data = await fetchPortfolioDetailsViewData(apiBaseUrl, limit, portfolio_details_view_offset);
       if (data.results.length === 0) {
         setHasMorePortfolioDetailsViewData(false);
         return;
@@ -302,7 +305,7 @@ const NotificationsScreen = () => {
         item.message_type === "connected_alert" ||
         item.message_type === "disconnected_alert") 
         {
-        const response = await deleteVisitInfo(item.unique_key);
+        const response = await deleteVisitInfo(apiBaseUrl, item.unique_key);
         if (response.status === 200) {
           dispatch(deleteVisitInfoEE({ unique_key: item.unique_key }));
           if(item.is_online){
@@ -313,7 +316,7 @@ const NotificationsScreen = () => {
           }
           // maj redux via api
           // fetch visit info stat monthly
-          const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly();
+          const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly(apiBaseUrl);
           if (visit_info_stat_monthly.status === 200) {
             const current_month_nbr = visit_info_stat_monthly.data.current_month;
             const last_month_nbr = visit_info_stat_monthly.data.last_month;
@@ -329,14 +332,14 @@ const NotificationsScreen = () => {
         }
         
       } else if (item.message_type === "cv_download_alert") {
-        const response = await deleteCVDownload(item.unique_key);
+        const response = await deleteCVDownload(apiBaseUrl, item.unique_key);
         if (response.status === 200) {
           dispatch(deleteCVDownloadEE({ unique_key: item.unique_key }))
           if(item.is_read == false){
             dispatch(removeUnreadCvDownload(1));
           }
           // fetch cv download stat monthly
-          const cv_download_stat_monthly = await fetchCvDownloadMonthly();
+          const cv_download_stat_monthly = await fetchCvDownloadMonthly(apiBaseUrl);
           if (cv_download_stat_monthly.status === 200) {
             const current_month_nbr = cv_download_stat_monthly.data.current_month;
             const last_month_nbr = cv_download_stat_monthly.data.last_month;
@@ -349,14 +352,14 @@ const NotificationsScreen = () => {
           setVisibleModal(false);
         }
       } else if (item.message_type === "portfolio_details_view_alert") {
-        const response = await deletePortfolioDetailView(item.unique_key);
+        const response = await deletePortfolioDetailView(apiBaseUrl, item.unique_key);
         if (response.status === 200) {
           dispatch(deletePortfolioDetailViewEE({ unique_key: item.unique_key }));
           if(item.is_read == false){
             dispatch(removeUnreadPortfolioDetailView(1));
           }
           // fetch portfolio detail stat monthly
-          const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly();
+          const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly(apiBaseUrl);
           if (portfolio_detail_stat_monthly.status === 200) {
             const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
             const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;

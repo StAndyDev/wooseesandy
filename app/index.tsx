@@ -5,10 +5,12 @@ import { MotiText, MotiView } from 'moti';
 import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useApiBaseUrl } from '../hooks/useApiBaseUrl';
 import globalStyles from './styles';
 // redux
 import { useDispatch } from 'react-redux';
 import { setUrl } from '../features/baseUrlConfigSlice';
+
 
 export default function Index() {
   const router = useRouter();
@@ -39,10 +41,17 @@ export default function Index() {
       }
     }
 
-    // fetch
+    // fetch : add to state Redux
     const fetchBaseUrl = async () => {
-      const data = await loadBaseUrlData('base_urls');
-      if (data) dispatch(setUrl(data));
+      const data = await loadBaseUrlData('base_urls')
+      .then((urls) => 
+        {
+          dispatch(setUrl(urls));
+          useApiBaseUrl();
+          console.log("\n\n ---- urls ----:", urls);
+        }
+      );
+      // if (data) dispatch(setUrl(data));
     }
 
     fetchBaseUrl()
