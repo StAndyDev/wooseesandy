@@ -34,7 +34,7 @@ import {
   fetchPortfolioDetailsViewCount,
   fetchVisitInfoStatsMonthly,
   fetchVisitorCount
-} from '../../api/visitorsDataApi';
+} from '../../services/backend';
 
 import { StatusMessage } from '@/components/StatusMessage';
 import { removeMessage } from '@/features/messageStatusSlice';
@@ -88,7 +88,7 @@ export default function Dashboard() {
     const loadStatNotification = async () => {
       // fetch unread notif
       const res_unread = await fetchNotificationCount(apiBaseUrl, false); // nbr notif non lu
-      if (res_unread.status === 200) {
+      if (res_unread && res_unread.status === 200) {
         const data_unread = {
           visitinfo_count: visitinfo_unread_count + res_unread.data.visitinfo_count,
           cvdownload_count: cvdownload_unread_count + res_unread.data.cvdownload_count,
@@ -99,7 +99,7 @@ export default function Dashboard() {
       }
       // fetch read notif
       const res_read = await fetchNotificationCount(apiBaseUrl, true); // nbr notif lu
-      if (res_read.status === 200) {
+      if (res_read && res_read.status === 200) {
         const data_read = {
           visitinfo_count : visitinfo_read_count + res_read.data.visitinfo_count,
           cvdownload_count : cvdownload_read_count + res_read.data.cvdownload_count,
@@ -109,25 +109,25 @@ export default function Dashboard() {
       }
       // fecth visitor count
       const visitor_nbr = await fetchVisitorCount(apiBaseUrl);
-      if (visitor_nbr.status === 200) {
+      if (visitor_nbr && visitor_nbr.status === 200) {
         dispatch(addVisitorCount(visitor_nbr.data.visitor_count));
         setLoadingVisitorCount(false);
       }
       // fetch cv download count
       const cv_download_nbr = await fetchCVDownloadsCount(apiBaseUrl);
-      if (cv_download_nbr.status === 200) {
+      if (cv_download_nbr && cv_download_nbr.status === 200) {
         dispatch(addCvDownloadCount(cv_download_nbr.data.cv_download_count));
         setLoadingCvDownloads(false);
       }
       // fetch portfolio details view count
       const portfolio_details_view_nbr = await fetchPortfolioDetailsViewCount(apiBaseUrl);
-      if (portfolio_details_view_nbr.status === 200) {
+      if (portfolio_details_view_nbr && portfolio_details_view_nbr.status === 200) {
         dispatch(addVuesPortfolioDetailsCount(portfolio_details_view_nbr.data.portfolio_details_view_count));
         setLoadingPortfolioViews(false);
       }
       // fetch visit info stat monthly
       const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly(apiBaseUrl);
-      if (visit_info_stat_monthly.status === 200) {
+      if (visit_info_stat_monthly && visit_info_stat_monthly.status === 200) {
         const current_month_nbr = visit_info_stat_monthly.data.current_month;
         const last_month_nbr = visit_info_stat_monthly.data.last_month;
         const visitInfoMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
@@ -137,7 +137,7 @@ export default function Dashboard() {
       }
       // fetch cv download stat monthly
       const cv_download_stat_monthly = await fetchCvDownloadMonthly(apiBaseUrl);
-      if (cv_download_stat_monthly.status === 200) {
+      if (cv_download_stat_monthly && cv_download_stat_monthly.status === 200) {
         const current_month_nbr = cv_download_stat_monthly.data.current_month;
         const last_month_nbr = cv_download_stat_monthly.data.last_month;
         const cvDownloadMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
@@ -147,7 +147,7 @@ export default function Dashboard() {
       }
       // fetch portfolio detail stat monthly
       const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly(apiBaseUrl);
-      if (portfolio_detail_stat_monthly.status === 200) {
+      if (portfolio_detail_stat_monthly && portfolio_detail_stat_monthly.status === 200) {
         const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
         const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;
         const portfolioDetailMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);

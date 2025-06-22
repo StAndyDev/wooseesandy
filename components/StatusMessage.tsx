@@ -42,8 +42,8 @@ export const StatusMessage = ({ dialogType, message, onClose }: Props) => {
                     <View style={[styles.leftContent, styles.centeredRow]}>
                         {dialogType === 'info' && (
                             <>
-                                <Ionicons name="information-circle" size={24} color="#2ecc71" />
-                                <Text style={[styles.message, {color: "#2ecc71"}]}>{message}</Text>
+                                <Ionicons name="information-circle" size={24} color="#7f8c8d" />
+                                <Text style={[styles.message, {color: "#7f8c8d"}]}>{message}</Text>
                             </>
                         )}
                         {dialogType === 'error' && (

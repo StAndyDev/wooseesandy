@@ -3,7 +3,7 @@ import { useApiBaseUrl } from "@/hooks/useApiBaseUrl";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { getSevenLastCVDownloadStats, getSevenLastPortfolioDetailViewStats, getSevenLastVisitInfoStats } from "../api/visitorsDataApi";
+import { getSevenLastCVDownloadStats, getSevenLastPortfolioDetailViewStats, getSevenLastVisitInfoStats } from "../services/backend";
 
 const Chart = () => {
   let apiBaseUrl = useApiBaseUrl();

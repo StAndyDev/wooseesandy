@@ -18,7 +18,7 @@ export default function Index() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.replace("/screens/Dashboard"); // une ecran blanc affiche momentanement si on utilise <Redirect href="/screens/ashboard" />;
-    }, 1500);
+    }, 1200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -50,7 +50,7 @@ export default function Index() {
       );
     }
 
-    fetchBaseUrl()
+    fetchBaseUrl();
   }, []);
 
   return (

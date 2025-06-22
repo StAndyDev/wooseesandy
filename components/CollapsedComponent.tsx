@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { useDispatch } from 'react-redux';
-import { markCVDownloadAsRead, markPortfolioDetailViewAsRead, markVisitInfoAsRead } from '../api/visitorsDataApi';
 import globalStyles from '../app/styles';
 import { markAsRead } from '../features/visitorsDataSlice';
+import { markCVDownloadAsRead, markPortfolioDetailViewAsRead, markVisitInfoAsRead } from '../services/backend';
 
 // reducers
 import { setUnreadNotificationCount } from '../features/numberNotificationSlice';

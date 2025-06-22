@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import CircularProgress from "react-native-circular-progress-indicator";
-import { getBrowserStats } from "../api/visitorsDataApi";
+import { getBrowserStats } from "../services/backend";
 
 const ProgressRing = () => {
   let apiBaseUrl = useApiBaseUrl();

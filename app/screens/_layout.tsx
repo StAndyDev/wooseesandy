@@ -23,8 +23,8 @@ export default function Layout() {
                     <Header
                         {...options}
                         headerStyle={{
-                            height: 80, // Définissez ici la hauteur du header
-                            backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
+                            height: 120, // Définissez ici la hauteur du header
+                            backgroundColor: "black",
                         }}
                         title="WooSeeAndy" // Définissez explicitement le titre ici
                     />
@@ -32,24 +32,22 @@ export default function Layout() {
                 headerTintColor: globalStyles.primaryText.color,
                 headerTitleAlign: 'left',
                 headerTitle: () => (
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{ alignItems: 'flex-start' }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={styles.logoContent}><LogoSitrakaAndy width={80} height={20} /></View>
-                                <Text style={{ fontSize: 20, fontWeight: 'bold', color: globalStyles.primaryText.color }}>
+                    <View style={styles.header_title}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 5 }}>
+                                <View style={styles.logoContent}><LogoSitrakaAndy height={45} /></View>
+                                <Text style={{ fontSize: 20, fontWeight: 'bold', color: globalStyles.primaryText.color}}>
                                     WooSeeAndy
                                 </Text>
                             </View>
-                            <Text style={{ fontSize: 10, fontWeight: 'bold', maxWidth: 190, color: globalStyles.secondaryText.color }}>
+                            <Text style={{ fontSize: 10, fontWeight: 'bold', maxWidth: 190, color: globalStyles.secondaryText.color, textAlign: 'justify' }}>
                                 statistiques détaillées en temps réel sur les visiteurs et de leurs interactions
                             </Text>
-                        </View>
                     </View>
                 ),
                 headerRight: () => (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 15 }}>
+                    <View style={styles.header_right}>
                         <TouchableOpacity onPress={() => router.push('/Notification')}>
-                            <View style={styles.container}>
+                            <View style={styles.containerNotif}>
                                 <FontAwesome name="bell-o" size={22} color={globalStyles.secondaryText.color} />
                                 {visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count > 0 && (
                                     <View style={styles.badge}>
@@ -68,23 +66,35 @@ export default function Layout() {
                 
             }}
         >
-            <Stack.Screen name="Dashboard" />
+            <Stack.Screen name="Dashboard"/>
         </Stack>
         
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    header_title: {
+        flexDirection: 'column',
+        rowGap: 5,
+        padding: 10,
+        alignItems: 'flex-start',
+    },
+    header_right: { 
+        flexDirection: 'row', 
+        padding: 10,
+        alignItems: 'center', 
+        gap: 10, 
+        marginRight: 15,
+    },
+    containerNotif: {
         padding: 5,
     },
     logoContent: {
         backgroundColor: globalStyles.tertiaryColor.color,
         borderRadius: 25,
-        borderWidth: 2,
-        marginRight: 2,
-        width: 30,
-        height: 30,
+        borderWidth: 1,
+        width: 40,
+        height: 40,
         display: "flex",
         alignItems: "center",   
         justifyContent: "center",
