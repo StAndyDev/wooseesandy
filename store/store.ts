@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import apiOffsetReducer from '../features/apiOffset'
 import baseUrlSlice from '../features/baseUrlConfigSlice'
 import countReducer from '../features/counterSlice'
+import messageStatusSlice from '../features/messageStatusSlice'
 import numberNotificationReducer from '../features/numberNotificationSlice'
 import numberOnlineReducer from '../features/numberOnlineSlice'
 import visitorsDataReducer from '../features/visitorsDataSlice'
@@ -15,6 +16,7 @@ export const store = configureStore({
     number_notification: numberNotificationReducer,
     counter: countReducer,
     base_url: baseUrlSlice,
+    messages_status: messageStatusSlice,
   },
 })
 

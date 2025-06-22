@@ -76,6 +76,7 @@ const ProgressRing = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     borderWidth: globalStyles.boxBorderWidth.borderWidth,
     borderColor: globalStyles.quaternaryColorWithOpacity.color,
     borderRadius: globalStyles.boxBorderRadius.borderRadius,

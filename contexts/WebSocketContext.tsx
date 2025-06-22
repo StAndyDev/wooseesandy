@@ -37,16 +37,18 @@ import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
 // utils
 import { calculateChangePercentage } from '../app/utils/stats';
+// base url
+import { useWsBaseUrl } from '@/hooks/useWsBaseUrl';
 
 // Crée un contexte pour stocker l'instance WebSocket
 const WebSocketContext = createContext<WebSocket | null>(null)
 
 // Provider
 export const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
-
-  const dispatch = useDispatch()
-  const socketRef = useRef<WebSocket | null>(null)
-  const [socketInstance, setSocketInstance] = useState<WebSocket | null>(null)
+  let wsBaseUrl = useWsBaseUrl();
+  const dispatch = useDispatch();
+  const socketRef = useRef<WebSocket | null>(null);
+  const [socketInstance, setSocketInstance] = useState<WebSocket | null>(null);
 
   // count
   const visitinfo_unread_count = useSelector((state: RootState) => state.number_notification.unread.visitinfo_count)
@@ -99,21 +101,18 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
     portfoliodetailview_unread_count, 
     visitinfo_read_count, 
     cvdownload_read_count, 
-    portfoliodetailview_read_count, 
-    current_month_visits, 
+    portfoliodetailview_read_count,
+    current_month_visits,
     last_month_visits,
     current_month_cv_download,
     last_month_cv_download,
     current_month_portfolio_detail,
-    last_month_portfolio_detail
+    last_month_portfolio_detail,
+    wsBaseUrl
   ]);
 
   useEffect(() => {
-    const wooseeandy_token = 'a3b7e8f9c2d4g5h6j0k1l2m3n9p8q7r'
-    // const wsUrl = `ws://127.0.0.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
-    const wsUrl = `ws://192.168.137.1:8000/ws/visitor-tracker/?token=${wooseeandy_token}`
-
-    const socket = new WebSocket(wsUrl)
+    const socket = new WebSocket(wsBaseUrl)
     socketRef.current = socket
     // ------------ on open --------------
     socket.onopen = () => {
@@ -293,7 +292,7 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
       socket.close()
       console.log('WebSocket déconnecté !')
     }
-  }, [dispatch])
+  }, [dispatch, wsBaseUrl])
 
   return (
     <WebSocketContext.Provider value={socketInstance}>

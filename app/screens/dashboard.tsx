@@ -5,8 +5,10 @@ import Chart from '../../components/ChartElement';
 import MyDashboard from '../../components/DashboardElement';
 import globalStyles from '../styles';
 // redux
-import { RootState } from '@/store/store';
 import { useDispatch, useSelector } from 'react-redux';
+// store
+import { RootState } from '@/store/store';
+
 // recuder
 import {
   addCurrentMonthCvDownload,
@@ -22,6 +24,7 @@ import {
   setVisitInfoPercentageMonthly
 } from '../../features/counterSlice';
 import { setReadNotificationCount, setUnreadNotificationCount } from '../../features/numberNotificationSlice';
+
 // api
 import {
   fetchCvDownloadMonthly,
@@ -34,6 +37,7 @@ import {
 } from '../../api/visitorsDataApi';
 
 import { StatusMessage } from '@/components/StatusMessage';
+import { removeMessage } from '@/features/messageStatusSlice';
 import {
   ScrollView,
   StyleSheet,
@@ -43,6 +47,7 @@ import {
 import { useApiBaseUrl } from '../../hooks/useApiBaseUrl';
 import { calculateChangePercentage } from '../utils/stats';
 
+
 export default function Dashboard() {
 
   let apiBaseUrl = useApiBaseUrl();
@@ -51,8 +56,6 @@ export default function Dashboard() {
   const [loadingPortfolioViews, setLoadingPortfolioViews] = useState(true);
   const [loadingCvDownloads, setLoadingCvDownloads] = useState(true);
   const [loadingVisitorCount, setLoadingVisitorCount] = useState(true);
-  // bar status
-  const [isVisibleStatusBar, setIsVisibleStatusBar] = useState(true);
 
   // visitinfo change percentage monthly
 
@@ -76,6 +79,8 @@ export default function Dashboard() {
   const visit_info_per_month_percentage = useSelector( (state: RootState) => state.counter.visit_info_per_month_percentage )
   const cv_download_per_month_percentage = useSelector( (state: RootState) => state.counter.cv_download_per_month_percentage )
   const portfolio_detail_per_month_percentage = useSelector ( (state: RootState) => state.counter.portfolio_detail_per_month_percentage )
+  // message status
+  const listMessageStatus = useSelector( (state: RootState)  => state.messages_status.messages );
 
   const dispatch = useDispatch()
 
@@ -156,16 +161,24 @@ export default function Dashboard() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.parent}>
-        {/* ------  CARD : 0 ----- */}
-        {isVisibleStatusBar && (
+
+      <View style={[styles.parent, {display: 'flex', flexDirection: 'column'}]}>
+
+        {listMessageStatus && listMessageStatus.map((item) => (
+
           <StatusMessage
-          dialogType='error'
-          message="Bienvenue sur votre tableau de bord ! Suivez vos statistiques et vos notifications."
-          onClose={() => setIsVisibleStatusBar(false)}
-        />
-        )}
-        
+            key={item.id}
+            dialogType={item.type}
+            message={item.content}
+            onClose={() => {
+              dispatch(removeMessage(item.id));
+            }}
+          />
+
+        ))}
+
+      </View>
+      <View style={styles.parent}>     
         
         {/* ------  CARD : 1 ----- */}
         {registeredOnlineVisitor > 0 && newOnlineVisitor > 0 ? (
@@ -281,7 +294,7 @@ export default function Dashboard() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    display: 'flex',
     backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
   },
   parent: {
@@ -289,8 +302,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 10,
-    columnGap: 15,
-    rowGap: 15,
+    marginHorizontal: 10,
+    paddingHorizontal: globalStyles.boxPadding.padding,
+    paddingVertical: 5,
+    columnGap: 10,
+    rowGap: 10,
   },
 });

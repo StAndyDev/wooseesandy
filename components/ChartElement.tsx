@@ -93,7 +93,7 @@ const Chart = () => {
             },
           ],
         }}
-        width={width - 50}
+        width={width - 72}
         height={250}
         withDots={true} // Affiche les points sur les courbes
         withShadow={false} // Désactive l'ombre sous les courbes
