@@ -36,6 +36,7 @@ import {
   fetchVisitorCount
 } from '../../services/backend';
 
+import LoaderSkeleton from '@/components/loader/LoaderSkeleton';
 import { StatusMessage } from '@/components/StatusMessage';
 import { removeMessage } from '@/features/messageStatusSlice';
 import {
@@ -46,8 +47,6 @@ import {
 } from 'react-native';
 import { useApiBaseUrl } from '../../hooks/useApiBaseUrl';
 import { calculateChangePercentage } from '../utils/stats';
-
-
 export default function Dashboard() {
 
   let apiBaseUrl = useApiBaseUrl();
@@ -81,84 +80,93 @@ export default function Dashboard() {
   const portfolio_detail_per_month_percentage = useSelector ( (state: RootState) => state.counter.portfolio_detail_per_month_percentage )
   // message status
   const listMessageStatus = useSelector( (state: RootState)  => state.messages_status.messages );
+  // etat de la connexion à l'API
+  const apiConnection = useSelector((state: RootState) => state.connection.apiConnected);
 
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const loadStatNotification = async () => {
-      // fetch unread notif
-      const res_unread = await fetchNotificationCount(apiBaseUrl, false); // nbr notif non lu
-      if (res_unread && res_unread.status === 200) {
-        const data_unread = {
-          visitinfo_count: visitinfo_unread_count + res_unread.data.visitinfo_count,
-          cvdownload_count: cvdownload_unread_count + res_unread.data.cvdownload_count,
-          portfoliodetailview_count: portfoliodetailview_unread_count + res_unread.data.portfoliodetailview_count,
-        }
-        dispatch(setUnreadNotificationCount(data_unread));
-        setLoadingVisitsCount(false);
-      }
-      // fetch read notif
-      const res_read = await fetchNotificationCount(apiBaseUrl, true); // nbr notif lu
-      if (res_read && res_read.status === 200) {
-        const data_read = {
-          visitinfo_count : visitinfo_read_count + res_read.data.visitinfo_count,
-          cvdownload_count : cvdownload_read_count + res_read.data.cvdownload_count,
-          portfoliodetailview_count : portfoliodetailview_read_count + res_read.data.portfoliodetailview_count,
-        }
-        dispatch(setReadNotificationCount(data_read));
-      }
-      // fecth visitor count
-      const visitor_nbr = await fetchVisitorCount(apiBaseUrl);
-      if (visitor_nbr && visitor_nbr.status === 200) {
-        dispatch(addVisitorCount(visitor_nbr.data.visitor_count));
-        setLoadingVisitorCount(false);
-      }
-      // fetch cv download count
-      const cv_download_nbr = await fetchCVDownloadsCount(apiBaseUrl);
-      if (cv_download_nbr && cv_download_nbr.status === 200) {
-        dispatch(addCvDownloadCount(cv_download_nbr.data.cv_download_count));
-        setLoadingCvDownloads(false);
-      }
-      // fetch portfolio details view count
-      const portfolio_details_view_nbr = await fetchPortfolioDetailsViewCount(apiBaseUrl);
-      if (portfolio_details_view_nbr && portfolio_details_view_nbr.status === 200) {
-        dispatch(addVuesPortfolioDetailsCount(portfolio_details_view_nbr.data.portfolio_details_view_count));
-        setLoadingPortfolioViews(false);
-      }
-      // fetch visit info stat monthly
-      const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly(apiBaseUrl);
-      if (visit_info_stat_monthly && visit_info_stat_monthly.status === 200) {
-        const current_month_nbr = visit_info_stat_monthly.data.current_month;
-        const last_month_nbr = visit_info_stat_monthly.data.last_month;
-        const visitInfoMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
-        dispatch(setVisitInfoPercentageMonthly(visitInfoMonthlyPercentage));
-        dispatch(addCurrentMonthVisits(current_month_nbr));
-        dispatch(addLastMonthVisits(last_month_nbr));
-      }
-      // fetch cv download stat monthly
-      const cv_download_stat_monthly = await fetchCvDownloadMonthly(apiBaseUrl);
-      if (cv_download_stat_monthly && cv_download_stat_monthly.status === 200) {
-        const current_month_nbr = cv_download_stat_monthly.data.current_month;
-        const last_month_nbr = cv_download_stat_monthly.data.last_month;
-        const cvDownloadMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
-        dispatch(setCvDownloadPercentageMonthly(cvDownloadMonthlyPercentage));
-        dispatch(addCurrentMonthCvDownload(current_month_nbr));
-        dispatch(addLastMonthCvDownload(last_month_nbr));
-      }
-      // fetch portfolio detail stat monthly
-      const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly(apiBaseUrl);
-      if (portfolio_detail_stat_monthly && portfolio_detail_stat_monthly.status === 200) {
-        const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
-        const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;
-        const portfolioDetailMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
-        dispatch(setPortfolioDetailPercentageMonthly(portfolioDetailMonthlyPercentage));
-        dispatch(addCurrentMonthPortfolioDetail(current_month_nbr));
-        dispatch(addCurrentMonthPortfolioDetail(last_month_nbr));
-      }
-    }
-    loadStatNotification();
-  }, [apiBaseUrl]);
+    if (apiConnection) loadStatNotification();
+  }, [apiBaseUrl, apiConnection]);
 
+
+  const loadStatNotification = async () => {
+    // fetch unread notif
+    const res_unread = await fetchNotificationCount(apiBaseUrl, false); // nbr notif non lu
+    if (res_unread && res_unread.status === 200) {
+      const data_unread = {
+        visitinfo_count: visitinfo_unread_count + res_unread.data.visitinfo_count,
+        cvdownload_count: cvdownload_unread_count + res_unread.data.cvdownload_count,
+        portfoliodetailview_count: portfoliodetailview_unread_count + res_unread.data.portfoliodetailview_count,
+      }
+      dispatch(setUnreadNotificationCount(data_unread));
+      setLoadingVisitsCount(false);
+    }
+    // fetch read notif
+    const res_read = await fetchNotificationCount(apiBaseUrl, true); // nbr notif lu
+    if (res_read && res_read.status === 200) {
+      const data_read = {
+        visitinfo_count : visitinfo_read_count + res_read.data.visitinfo_count,
+        cvdownload_count : cvdownload_read_count + res_read.data.cvdownload_count,
+        portfoliodetailview_count : portfoliodetailview_read_count + res_read.data.portfoliodetailview_count,
+      }
+      dispatch(setReadNotificationCount(data_read));
+    }
+    // fecth visitor count
+    const visitor_nbr = await fetchVisitorCount(apiBaseUrl);
+    if (visitor_nbr && visitor_nbr.status === 200) {
+      dispatch(addVisitorCount(visitor_nbr.data.visitor_count));
+      setLoadingVisitorCount(false);
+    }
+    // fetch cv download count
+    const cv_download_nbr = await fetchCVDownloadsCount(apiBaseUrl);
+    if (cv_download_nbr && cv_download_nbr.status === 200) {
+      dispatch(addCvDownloadCount(cv_download_nbr.data.cv_download_count));
+      setLoadingCvDownloads(false);
+    }
+    // fetch portfolio details view count
+    const portfolio_details_view_nbr = await fetchPortfolioDetailsViewCount(apiBaseUrl);
+    if (portfolio_details_view_nbr && portfolio_details_view_nbr.status === 200) {
+      dispatch(addVuesPortfolioDetailsCount(portfolio_details_view_nbr.data.portfolio_details_view_count));
+      setLoadingPortfolioViews(false);
+    }
+    // fetch visit info stat monthly
+    const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly(apiBaseUrl);
+    if (visit_info_stat_monthly && visit_info_stat_monthly.status === 200) {
+      const current_month_nbr = visit_info_stat_monthly.data.current_month;
+      const last_month_nbr = visit_info_stat_monthly.data.last_month;
+      const visitInfoMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+      dispatch(setVisitInfoPercentageMonthly(visitInfoMonthlyPercentage));
+      dispatch(addCurrentMonthVisits(current_month_nbr));
+      dispatch(addLastMonthVisits(last_month_nbr));
+    }
+    // fetch cv download stat monthly
+    const cv_download_stat_monthly = await fetchCvDownloadMonthly(apiBaseUrl);
+    if (cv_download_stat_monthly && cv_download_stat_monthly.status === 200) {
+      const current_month_nbr = cv_download_stat_monthly.data.current_month;
+      const last_month_nbr = cv_download_stat_monthly.data.last_month;
+      const cvDownloadMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+      dispatch(setCvDownloadPercentageMonthly(cvDownloadMonthlyPercentage));
+      dispatch(addCurrentMonthCvDownload(current_month_nbr));
+      dispatch(addLastMonthCvDownload(last_month_nbr));
+    }
+    // fetch portfolio detail stat monthly
+    const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly(apiBaseUrl);
+    if (portfolio_detail_stat_monthly && portfolio_detail_stat_monthly.status === 200) {
+      const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
+      const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;
+      const portfolioDetailMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+      dispatch(setPortfolioDetailPercentageMonthly(portfolioDetailMonthlyPercentage));
+      dispatch(addCurrentMonthPortfolioDetail(current_month_nbr));
+      dispatch(addCurrentMonthPortfolioDetail(last_month_nbr));
+    }
+  }
+
+  if (loadingPortfolioViews || loadingCvDownloads || loadingVisitorCount || loadingVisitsCount) {
+    return (
+      <LoaderSkeleton/>
+    )
+  }
   return (
     <ScrollView style={styles.container}>
 
@@ -242,7 +250,7 @@ export default function Dashboard() {
           <Text>
             <Text>Pour </Text>
               {
-                loadingVisitorCount ? (<ActivityIndicator color={globalStyles.secondaryText.color} size="small" />) : (
+                loadingVisitorCount? (<ActivityIndicator color={globalStyles.secondaryText.color} size="small" />) : (
                   <Text style={{ color: globalStyles.primaryColor.color }}>
                     {visitor_count}
                   </Text>
@@ -290,6 +298,7 @@ export default function Dashboard() {
       </View>
     </ScrollView>
   );
+  
 }
 
 const styles = StyleSheet.create({

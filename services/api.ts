@@ -13,7 +13,7 @@ api.interceptors.response.use(
   error => {
     if (error.message === 'Network Error' && !hasNetworkError) {
       hasNetworkError = true;
-      store.dispatch(addMessage('error','api','Connexion impossible. Vérifie ton réseau.'));
+      store.dispatch(addMessage("error","api","Impossible d'effectuer la requête. Vérifie ton réseau."));
       setTimeout(() => {
         hasNetworkError = false;
       }, 5000); // évite le spam pendant 5 sec

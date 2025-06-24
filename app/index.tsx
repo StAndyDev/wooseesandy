@@ -9,19 +9,17 @@ import globalStyles from './styles';
 // redux
 import { useDispatch } from 'react-redux';
 import { setUrl } from '../features/baseUrlConfigSlice';
+// hook
+import { useTestConnection } from "@/hooks/useTestConnection";
 
 
 export default function Index() {
+
   const router = useRouter();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace("/screens/Dashboard"); // une ecran blanc affiche momentanement si on utilise <Redirect href="/screens/ashboard" />;
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
-
+  // test de connexion à l'API
+  const { checkApiConnection } = useTestConnection();
 
   useEffect(() => {
     // Chargement des données de l'URL de base depuis AsyncStorage
@@ -35,23 +33,41 @@ export default function Index() {
           return []
         }
       } catch (e) {
-        console.error('Erreur lors du chargement des base_urls:', e)
+        console.error('Erreur lors du chargement des paramètres de connexion :', e)
         return []
       }
     }
 
     // fetch : add to state Redux
     const fetchBaseUrl = async () => {
-      const data = await loadBaseUrlData('base_urls')
-      .then((urls) => 
-        {
-          dispatch(setUrl(urls));
-        }
-      );
+      const urls = await loadBaseUrlData('base_urls');
+      dispatch(setUrl(urls));
+    };
+    
+    // redirection vers l'écran Dashboard après 11.3 secondes
+    const redirectToDashboard = async () => {
+      const timer = setTimeout(() => {
+        router.replace("/screens/Dashboard"); // une ecran blanc affiche momentanement si on utilise <Redirect href="/screens/ashboard" />;
+      }, 1200);
+      return () => clearTimeout(timer);
     }
 
+    // Vérification de la connexion à l'API
+    const testConnection = async () => {
+      const isConnected = await checkApiConnection();
+      if (isConnected) {
+        console.log('Connexion à l\'API réussie :'+isConnected);
+      } else {
+        console.log('Échec de la connexion à l\'API :' + isConnected);
+      }
+    };
+
     fetchBaseUrl();
-  }, []);
+    testConnection();
+    redirectToDashboard();
+
+
+  }, [checkApiConnection]);
 
   return (
     <SafeAreaView style={[styles.container, globalStyles.backgroundColorPrimary]}>

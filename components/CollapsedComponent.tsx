@@ -13,8 +13,11 @@ import { setUnreadNotificationCount } from '../features/numberNotificationSlice'
 // redux
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
+//hooks
+import { useApiBaseUrl } from "@/hooks/useApiBaseUrl";
 
 const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, icon_notif_name, children }: { title: string; id_key: any; is_read: boolean; notif_type: string; onLongPress?: () => void  ;  icon_notif_name: any; children: React.ReactNode }) => {
+  let apiBaseUrl = useApiBaseUrl();
   const [collapsed, setCollapsed] = useState(true);
   const dispatch = useDispatch()
   const sendMessage = useSendMessageToServer();
@@ -53,8 +56,8 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
     if (collapsed) {
 
       if (notif === "data_api") {
-        const response = await markVisitInfoAsRead(id);
-        (response.status === 200) ? dispatch(markAsRead({ unique_key: id })) : null;
+        const response = await markVisitInfoAsRead(apiBaseUrl, id);
+        (response) ? dispatch(markAsRead({ unique_key: id })) : null;
         // send update to the server
         sendMessage({
           data: {
@@ -68,8 +71,8 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
       } 
       
       else if (notif === "cv_download_alert") {
-        const response = await markCVDownloadAsRead(id);
-        (response.status === 200) ? dispatch(markAsRead({ unique_key: id })) : null;
+        const response = await markCVDownloadAsRead(apiBaseUrl, id);
+        (response) ? dispatch(markAsRead({ unique_key: id })) : null;
         // send update to the server
         sendMessage({
           data: {
@@ -81,8 +84,8 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
         });
 
       } else if (notif === "portfolio_details_view_alert") {
-        const response = await markPortfolioDetailViewAsRead(id);
-        (response.status === 200) ? dispatch(markAsRead({ unique_key: id })) : null;
+        const response = await markPortfolioDetailViewAsRead(apiBaseUrl, id);
+        (response) ? dispatch(markAsRead({ unique_key: id })) : null;
         // send update to the server
         sendMessage({
           data: {

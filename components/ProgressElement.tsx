@@ -5,8 +5,14 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import CircularProgress from "react-native-circular-progress-indicator";
 import { getBrowserStats } from "../services/backend";
+// redux
+import { useSelector } from 'react-redux';
+// store
+import { RootState } from '@/store/store';
 
 const ProgressRing = () => {
+    // etat de la connexion à l'API
+    const apiConnection = useSelector((state: RootState) => state.connection.apiConnected);
   let apiBaseUrl = useApiBaseUrl();
   const [visitorData, setVisitorData] = useState([
     { browser: "Chrome", percentage: 0, color: globalStyles.primaryColor.color },
@@ -19,27 +25,30 @@ const ProgressRing = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchBrowserData = async () => {
-      setLoading(true);
-      try {
-        const response = await getBrowserStats(apiBaseUrl);
-        if (response.status === 200) {
-          setVisitorData(prevData =>
-            prevData.map(item => {
-              const key = item.browser.toLowerCase();
-              const newPercentage = response.data[key] !== undefined ? response.data[key] : 0;
-              return { ...item, percentage: newPercentage };
-            })
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching browser stats:", error);
-      } finally {
-        setLoading(false);
+    if(apiConnection) fetchBrowserData();
+  }, [apiBaseUrl, refreshTrigger, apiConnection]);
+
+
+  const fetchBrowserData = async () => {
+    setLoading(true);
+    try {
+      const response = await getBrowserStats(apiBaseUrl);
+      if (response) {
+        setVisitorData(prevData =>
+          prevData.map(item => {
+            const key = item.browser.toLowerCase();
+            const newPercentage = response.data[key] !== undefined ? response.data[key] : 0;
+            return { ...item, percentage: newPercentage };
+          })
+        );
       }
+    } catch (error) {
+      console.error("Error fetching browser stats:", error);
+    } finally {
+      setLoading(false);
     }
-    fetchBrowserData();
-  }, [apiBaseUrl, refreshTrigger]);
+  }
+
 
   return (
     <View style={[styles.container, { alignItems: "center"}]}>

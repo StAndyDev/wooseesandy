@@ -4,8 +4,13 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { getSevenLastCVDownloadStats, getSevenLastPortfolioDetailViewStats, getSevenLastVisitInfoStats } from "../services/backend";
-
+// redux
+import { useSelector } from 'react-redux';
+// store
+import { RootState } from '@/store/store';
 const Chart = () => {
+  // etat de la connexion à l'API
+  const apiConnection = useSelector((state: RootState) => state.connection.apiConnected);
   let apiBaseUrl = useApiBaseUrl();
   const { width } = useWindowDimensions();
   const [timeFrame, setTimeFrame] = useState<'month' | 'week'>('month');
@@ -18,30 +23,32 @@ const Chart = () => {
   const [loadingChartData, setLoadingChartData] = useState(true);
 
   useEffect(() =>{
-    const fetchData = async () => {
-      try {
-        setLoadingChartData(true);
-        const visitInfoResponse = await getSevenLastVisitInfoStats(apiBaseUrl, timeFrame);
-        const cvDownloadResponse = await getSevenLastCVDownloadStats(apiBaseUrl, timeFrame);
-        const portfolioDetailsResponse = await getSevenLastPortfolioDetailViewStats(apiBaseUrl, timeFrame);
+    if (apiConnection) fetchData();
+  },[apiBaseUrl, timeFrame, apiConnection]);
 
-        if(visitInfoResponse.status === 200 || cvDownloadResponse.status === 200 || portfolioDetailsResponse.status === 200) {
-          setChartData({
-            labels: visitInfoResponse.data.labels,
-            visitInfoData: visitInfoResponse.data.visit_info,
-            cvDownloadData: cvDownloadResponse.data.cv_download,
-            portfolioDetailsData: portfolioDetailsResponse.data.portfolio_detail_view,
-          });
-          setLoadingChartData(false);
-        }
-      } catch (error) {
-        console.error("Error fetching chart data:", error);
-        return;
+
+  const fetchData = async () => {
+    try {
+      setLoadingChartData(true);
+      const visitInfoResponse = await getSevenLastVisitInfoStats(apiBaseUrl, timeFrame);
+      const cvDownloadResponse = await getSevenLastCVDownloadStats(apiBaseUrl, timeFrame);
+      const portfolioDetailsResponse = await getSevenLastPortfolioDetailViewStats(apiBaseUrl, timeFrame);
+
+      if(visitInfoResponse || cvDownloadResponse || portfolioDetailsResponse) {
+        setChartData({
+          labels: visitInfoResponse?.data.labels,
+          visitInfoData: visitInfoResponse?.data.visit_info,
+          cvDownloadData: cvDownloadResponse?.data.cv_download,
+          portfolioDetailsData: portfolioDetailsResponse?.data.portfolio_detail_view,
+        });
+        setLoadingChartData(false);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      return;
+    }
+  };
 
-    fetchData();
-  },[apiBaseUrl, timeFrame]);
 
   return (
     <View style={styles.container}>

@@ -23,7 +23,7 @@ export default function Layout() {
                     <Header
                         {...options}
                         headerStyle={{
-                            height: 120, // Définissez ici la hauteur du header
+                            height: 125, // Définissez ici la hauteur du header
                             backgroundColor: "black",
                         }}
                         title="WooSeeAndy" // Définissez explicitement le titre ici
@@ -39,7 +39,7 @@ export default function Layout() {
                                     WooSeeAndy
                                 </Text>
                             </View>
-                            <Text style={{ fontSize: 10, fontWeight: 'bold', maxWidth: 190, color: globalStyles.secondaryText.color, textAlign: 'justify' }}>
+                            <Text style={{ fontSize: 10, fontWeight: 'bold', maxWidth: 195, color: globalStyles.secondaryText.color, textAlign: 'left' }}>
                                 statistiques détaillées en temps réel sur les visiteurs et de leurs interactions
                             </Text>
                     </View>
@@ -75,7 +75,7 @@ export default function Layout() {
 const styles = StyleSheet.create({
     header_title: {
         flexDirection: 'column',
-        rowGap: 5,
+        rowGap: 2,
         padding: 10,
         alignItems: 'flex-start',
     },

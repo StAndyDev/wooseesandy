@@ -13,9 +13,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addUrl, setUrl } from '../features/baseUrlConfigSlice';
 // local storage
 import AsyncStorage from '@react-native-async-storage/async-storage'; // storage asynchrone
+// hook
+import { useTestConnection } from "@/hooks/useTestConnection";
 
 const Settings = () => {
-
+    // test de connexion à l'API
+    const { checkApiConnection } = useTestConnection();
     // State variables
     const baseUrlData = useSelector((state: RootState) => state.base_url.urls);
     const baseUrlCount = baseUrlData?.length ?? 0;
@@ -54,6 +57,10 @@ const Settings = () => {
     const [hostTextInput, setHostTextInput] = useState('');
     const [portTextInput, setPortTextInput] = useState('');
 
+    // pour déclancher useEffect pour le test de connex
+    const [triggerTest, setTriggerTest] = useState(false);
+
+
     // ---------------- UseEffect -----------------
     useEffect(() => {
         // Vérifier si le nombre d'URL de base dépasse 4
@@ -63,6 +70,13 @@ const Settings = () => {
             setIsBtnSaveDisabled(false);
         }
     }, [baseUrlData]);
+
+    useEffect(() => {
+        if (triggerTest) {
+            testConnection();
+            setTriggerTest(false); // reset
+        }
+    }, [baseUrlData, triggerTest]);
 
     // ------------- End UseEffect ----------
 
@@ -160,6 +174,7 @@ const Settings = () => {
         }));
         dispatch(setUrl(updatedUrls)); // Mise à jour dans Redux
         AsyncStorage.setItem("base_urls", JSON.stringify(updatedUrls)); // Mise à jour dans AsyncStorage
+        setTriggerTest(true); // demande de test (en useEffect)
     }
     const activeForWsUrl = (id: number) => {
         console.log(`Active WebSocket URL with ID: ${id}`);
@@ -171,6 +186,16 @@ const Settings = () => {
         dispatch(setUrl(updatedUrls)); // Mise à jour dans Redux
         AsyncStorage.setItem("base_urls", JSON.stringify(updatedUrls)); // Mise à jour dans AsyncStorage
     }
+    // Vérification de la connexion à l'API
+    const testConnection = async () => {
+        console.log("\n -------- Test micro ----- ")
+        const isConnected = await checkApiConnection();
+        if (isConnected) {
+            console.log('Connexion à l\'API réussie :' + isConnected);
+        } else {
+            console.log('Échec de la connexion à l\'API :' + isConnected);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -506,7 +531,10 @@ const Settings = () => {
                                     </View>
                                     <View>
                                         <RadioButton.Group
-                                            onValueChange={() => { selectedModal === 'api' ? (activeForApiUrl(item.id)) : (activeForWsUrl(item.id)) }}
+                                            onValueChange={() => 
+                                                { selectedModal === 'api' 
+                                                    ? (activeForApiUrl(item.id))
+                                                    : (activeForWsUrl(item.id)) }}
                                             value={
                                                 selectedModal === 'api'
                                                     ? item.isActiveForApi ? String(item.id) : ""

@@ -4,15 +4,15 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, BackHandler, FlatList, Modal, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import CollapsibleSection from "../components/CollapsedComponent";
 import {
-    deleteCVDownload,
-    deletePortfolioDetailView,
-    deleteVisitInfo,
-    fetchCvDownloadMonthly,
-    fetchCVDownloadsData,
-    fetchPortfolioDetailMonthly,
-    fetchPortfolioDetailsViewData,
-    fetchVisitInfoStatsMonthly,
-    fetchVisitorsData
+  deleteCVDownload,
+  deletePortfolioDetailView,
+  deleteVisitInfo,
+  fetchCvDownloadMonthly,
+  fetchCVDownloadsData,
+  fetchPortfolioDetailMonthly,
+  fetchPortfolioDetailsViewData,
+  fetchVisitInfoStatsMonthly,
+  fetchVisitorsData
 } from "../services/backend"; // api
 import globalStyles from "./styles";
 import { formatDateHeureFr, formatDateInterval, formatDurationISO } from "./utils/timeUtils";
@@ -20,14 +20,14 @@ import { formatDateHeureFr, formatDateInterval, formatDurationISO } from "./util
 import { RootState } from '@/store/store';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    setCurrentMonthCvDownload,
-    setCurrentMonthPortfolioDetail,
-    setCurrentMonthVisits,
-    setCvDownloadPercentageMonthly,
-    setLastMonthCvDownload,
-    setLastMonthVisits,
-    setPortfolioDetailPercentageMonthly,
-    setVisitInfoPercentageMonthly
+  setCurrentMonthCvDownload,
+  setCurrentMonthPortfolioDetail,
+  setCurrentMonthVisits,
+  setCvDownloadPercentageMonthly,
+  setLastMonthCvDownload,
+  setLastMonthVisits,
+  setPortfolioDetailPercentageMonthly,
+  setVisitInfoPercentageMonthly
 } from '../features/counterSlice';
 import { removeUnreadCvDownload, removeUnreadPortfolioDetailView, removeUnreadVisitorInfo } from "../features/numberNotificationSlice";
 import { removeNewVisitorOnline, removeRegisteredVisitorOnline } from '../features/numberOnlineSlice';
@@ -306,7 +306,7 @@ const NotificationsScreen = () => {
         item.message_type === "disconnected_alert") 
         {
         const response = await deleteVisitInfo(apiBaseUrl, item.unique_key);
-        if (response.status === 200) {
+        if (response) {
           dispatch(deleteVisitInfoEE({ unique_key: item.unique_key }));
           if(item.is_online){
             (item.is_new_visitor) ? dispatch(removeNewVisitorOnline(1)) : dispatch(removeRegisteredVisitorOnline(1));
@@ -317,7 +317,7 @@ const NotificationsScreen = () => {
           // maj redux via api
           // fetch visit info stat monthly
           const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly(apiBaseUrl);
-          if (visit_info_stat_monthly.status === 200) {
+          if (visit_info_stat_monthly) {
             const current_month_nbr = visit_info_stat_monthly.data.current_month;
             const last_month_nbr = visit_info_stat_monthly.data.last_month;
             const visitInfoMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
@@ -327,20 +327,20 @@ const NotificationsScreen = () => {
           }
           // showDeletedAlert();
           setVisibleModal(false);
-        } else if(response.status === 404){
+        } else if(response){
           alert("Not Found")
         }
         
       } else if (item.message_type === "cv_download_alert") {
         const response = await deleteCVDownload(apiBaseUrl, item.unique_key);
-        if (response.status === 200) {
+        if (response) {
           dispatch(deleteCVDownloadEE({ unique_key: item.unique_key }))
           if(item.is_read == false){
             dispatch(removeUnreadCvDownload(1));
           }
           // fetch cv download stat monthly
           const cv_download_stat_monthly = await fetchCvDownloadMonthly(apiBaseUrl);
-          if (cv_download_stat_monthly.status === 200) {
+          if (cv_download_stat_monthly) {
             const current_month_nbr = cv_download_stat_monthly.data.current_month;
             const last_month_nbr = cv_download_stat_monthly.data.last_month;
             const cvDownloadMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
@@ -353,14 +353,14 @@ const NotificationsScreen = () => {
         }
       } else if (item.message_type === "portfolio_details_view_alert") {
         const response = await deletePortfolioDetailView(apiBaseUrl, item.unique_key);
-        if (response.status === 200) {
+        if (response) {
           dispatch(deletePortfolioDetailViewEE({ unique_key: item.unique_key }));
           if(item.is_read == false){
             dispatch(removeUnreadPortfolioDetailView(1));
           }
           // fetch portfolio detail stat monthly
           const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly(apiBaseUrl);
-          if (portfolio_detail_stat_monthly.status === 200) {
+          if (portfolio_detail_stat_monthly) {
             const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
             const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;
             const portfolioDetailMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
