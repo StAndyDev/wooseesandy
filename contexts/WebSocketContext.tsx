@@ -33,7 +33,8 @@ import {
 // reducers
 import { setReadNotificationCount, setUnreadNotificationCount } from '../features/numberNotificationSlice';
 // redux
-import { addMessage } from '@/features/messageStatusSlice';
+import { setSocketConnection } from '@/features/connectionSlice'; // setters
+import { addMessage, clearMessagesByConnexion } from '@/features/messageStatusSlice';
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
 // utils
@@ -100,7 +101,7 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
     visitinfo_unread_count, 
     cvdownload_unread_count, 
     portfoliodetailview_unread_count, 
-    visitinfo_read_count, 
+    visitinfo_read_count,
     cvdownload_read_count, 
     portfoliodetailview_read_count,
     current_month_visits,
@@ -113,12 +114,20 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   ]);
 
   useEffect(() => {
-    const socket = new WebSocket(wsBaseUrl);
-    socketRef.current = socket;
+    initWebSocket();
+  }, [dispatch, wsBaseUrl])
 
+
+  // Fonction pour initialiser la connexion WebSocket
+  const initWebSocket = async () => {
+    try {
+      const socket = new WebSocket(wsBaseUrl);
+      socketRef.current = socket;
     // ------------ on open --------------
     socket.onopen = () => {
-      console.log('WebSocket connecté !')
+      dispatch(clearMessagesByConnexion('websocket'));
+      dispatch(setSocketConnection(true));
+      dispatch(addMessage('success', 'websocket', 'Socket bien connecté'));
       setSocketInstance(socket)
     }
     // --------- on message ------------
@@ -288,30 +297,36 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
 
     // on error
     socket.onerror = (event) => {
-      console.error('WebSocket error', event);
+      dispatch(clearMessagesByConnexion('websocket'));
+      dispatch(setSocketConnection(false));
       dispatch(addMessage('error', 'websocket', 'impossible de se connecter'));
-      // Empêcher l'affichage du message d'erreur par défaut
-      event.preventDefault();
     };
 
     // on close
     socket.onclose = (event) => {
       if (!event.wasClean) {
-        dispatch(addMessage('warning', 'websocket','Connexion WebSocket fermée de manière inattendue'));
-        // Empêcher l'affichage du message d'erreur par défaut
-        event.preventDefault();
+        dispatch(clearMessagesByConnexion('websocket'));
+        dispatch(setSocketConnection(false));
+        dispatch(addMessage('warning', 'websocket', 'Connexion perdue ! veuillez vérifier votre connexion internet'));
       } else {
-        console.log('WebSocket fermé proprement');
+        dispatch(clearMessagesByConnexion('websocket'));
+        dispatch(setSocketConnection(false));
+        dispatch(addMessage('info', 'websocket','Socket fermé proprement'));
       }
     };
     
     return () => {
       socket.close()
-      console.log('WebSocket déconnecté !')
-      dispatch(addMessage('info', 'websocket','WebSocket déconnecté !'));
+      dispatch(clearMessagesByConnexion('websocket'));
+      dispatch(setSocketConnection(false));
+      dispatch(addMessage('info', 'websocket','Socket déconnecté !'));
     }
-
-  }, [dispatch, wsBaseUrl])
+  } catch (error) {
+    dispatch(clearMessagesByConnexion('websocket'));
+    dispatch(setSocketConnection(false));
+    dispatch(addMessage('error', 'websocket','Socket fermée de manière inattendue :'+error));
+  }
+  }
 
   return (
     <WebSocketContext.Provider value={socketInstance}>

@@ -9,6 +9,9 @@ const globalStyles = StyleSheet.create({
     backgroundColorSecondary: {
         backgroundColor: "rgb(3, 7, 20)",
     },
+    backgroundColorTertiary: {
+        backgroundColor: "rgb(15, 20, 35)",
+    },
     // text
     primaryText: {
         color: "rgb(250, 250, 250)",

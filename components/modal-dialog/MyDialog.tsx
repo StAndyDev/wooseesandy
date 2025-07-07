@@ -170,7 +170,7 @@ const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onC
                     {titleState}
                 </Text>
 
-                <Text style={{ color: globalStyles.secondaryText.color }}>
+                <Text style={{ color: globalStyles.secondaryText.color, textAlign: 'center', maxWidth: 200 }}>
                     {dialogText}
                 </Text>
 

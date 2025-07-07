@@ -51,7 +51,7 @@ const NotificationsScreen = () => {
   const visitinfo_unred_count = useSelector((state: RootState) => state.number_notification.unread.visitinfo_count)
   const cvdownload_unred_count = useSelector((state: RootState) => state.number_notification.unread.cvdownload_count)
   const portfoliodetailview_unred_count = useSelector((state: RootState) => state.number_notification.unread.portfoliodetailview_count)
-  
+
   const navigation = useNavigation();
   const [date_now, setDateNow] = useState(new Date().toISOString());
 
@@ -130,7 +130,7 @@ const NotificationsScreen = () => {
       setIsDelDisabled(false);
     }
   }, [selectedItems]);
-  
+
 
   /************
   FONCTION 
@@ -268,7 +268,7 @@ const NotificationsScreen = () => {
   }
 
   // handleLongPress
-  const handleLongPress = (id: string, message_type: string, is_new_visitor: boolean, is_online: boolean, is_read: boolean ) => {
+  const handleLongPress = (id: string, message_type: string, is_new_visitor: boolean, is_online: boolean, is_read: boolean) => {
     setIsSelectionMode(true);
     toggleSelection({ message_type, unique_key: id, is_new_visitor: is_new_visitor, is_online, is_read }); // toggle selection
   };
@@ -289,29 +289,28 @@ const NotificationsScreen = () => {
     setIsSelectionMode(false);
   };
   // show delete alert
-    const showDeletedAlert = () => {
-      Alert.alert(
-        'Notification',
-        'Notification supprimée avec succès.',
-        [{ text: 'OK', style: 'default' }],
-        { cancelable: true }
-      );
-    };
-    
+  const showDeletedAlert = () => {
+    Alert.alert(
+      'Notification',
+      'Notification supprimée avec succès.',
+      [{ text: 'OK', style: 'default' }],
+      { cancelable: true }
+    );
+  };
+
   // suppression
   const handleDelete = () => {
     selectedItems.forEach(async item => {
       if (item.message_type === "data_api" ||
         item.message_type === "connected_alert" ||
-        item.message_type === "disconnected_alert") 
-        {
+        item.message_type === "disconnected_alert") {
         const response = await deleteVisitInfo(apiBaseUrl, item.unique_key);
         if (response) {
           dispatch(deleteVisitInfoEE({ unique_key: item.unique_key }));
-          if(item.is_online){
+          if (item.is_online) {
             (item.is_new_visitor) ? dispatch(removeNewVisitorOnline(1)) : dispatch(removeRegisteredVisitorOnline(1));
           }
-          if(item.is_read == false){
+          if (item.is_read == false) {
             dispatch(removeUnreadVisitorInfo(1));
           }
           // maj redux via api
@@ -327,15 +326,15 @@ const NotificationsScreen = () => {
           }
           // showDeletedAlert();
           setVisibleModal(false);
-        } else if(response){
+        } else if (response) {
           alert("Not Found")
         }
-        
+
       } else if (item.message_type === "cv_download_alert") {
         const response = await deleteCVDownload(apiBaseUrl, item.unique_key);
         if (response) {
           dispatch(deleteCVDownloadEE({ unique_key: item.unique_key }))
-          if(item.is_read == false){
+          if (item.is_read == false) {
             dispatch(removeUnreadCvDownload(1));
           }
           // fetch cv download stat monthly
@@ -355,7 +354,7 @@ const NotificationsScreen = () => {
         const response = await deletePortfolioDetailView(apiBaseUrl, item.unique_key);
         if (response) {
           dispatch(deletePortfolioDetailViewEE({ unique_key: item.unique_key }));
-          if(item.is_read == false){
+          if (item.is_read == false) {
             dispatch(removeUnreadPortfolioDetailView(1));
           }
           // fetch portfolio detail stat monthly
@@ -383,7 +382,7 @@ const NotificationsScreen = () => {
   const renderModal = () => {
     return (
       <View style={styles.modalContainer}>
-  
+
         {/* Boîte de dialogue flottante */}
         <Modal
           transparent={true}
@@ -397,9 +396,9 @@ const NotificationsScreen = () => {
           >
             <View style={styles.dialogBox}>
               {!isDelDisabled && (
-                <TouchableOpacity style={styles.menuItem} onPress={ () => handleDelete()} >
-                  <Ionicons name="trash-outline" size={20} color={globalStyles.backgroundColorPrimary.backgroundColor} />
-                  <Text style={{ color: globalStyles.backgroundColorPrimary.backgroundColor }}>Supprimer</Text>
+                <TouchableOpacity style={styles.menuItem} onPress={() => handleDelete()} >
+                  <Ionicons name="trash-outline" size={20} color={globalStyles.primaryColor.color} />
+                  <Text style={{ color: globalStyles.primaryColor.color }}>Supprimer</Text>
                 </TouchableOpacity>
               )}
 
@@ -412,32 +411,34 @@ const NotificationsScreen = () => {
                     setSelectedItems(
                       notification_data.map(
                         item => (
-                          { message_type: item.message_type, 
-                            unique_key: item.unique_key, 
-                            is_new_visitor: (item.alert_new_visitor != "")? true : false,
-                            is_online: (item.visit_duration != "")? true : false,
+                          {
+                            message_type: item.message_type,
+                            unique_key: item.unique_key,
+                            is_new_visitor: (item.alert_new_visitor != "") ? true : false,
+                            is_online: (item.visit_duration != "") ? true : false,
                             is_read: item.is_read,
-                           }
-                          )));
+                          }
+                        )));
                     setIsDelDisabled(false);
                   }
                 }}>
-                
+
                 {notification_data.length === selectedItems.length ? (
                   <>
-                    <Ionicons name="checkmark" size={20} color={globalStyles.backgroundColorPrimary.backgroundColor} />
-                    <Text style={{ color: globalStyles.backgroundColorPrimary.backgroundColor }}>Désélectionner tout</Text>
+                    <Ionicons name="checkmark" size={20} color={globalStyles.primaryColor.color} />
+                    <Text style={{ color: globalStyles.primaryColor.color }}>Désélectionner tout</Text>
                   </>
                 ) : (
                   <>
-                    <Ionicons name="checkmark-done" size={20} color={globalStyles.backgroundColorPrimary.backgroundColor} />
-                    <Text style={{ color: globalStyles.backgroundColorPrimary.backgroundColor }}>Sélectionner tout</Text>
+                    <Ionicons name="checkmark-done" size={20} color={globalStyles.primaryColor.color} />
+                    <Text style={{ color: globalStyles.primaryColor.color }}>Sélectionner tout</Text>
                   </>
                 )}
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
         </Modal>
+
       </View>
     );
   }
@@ -457,19 +458,19 @@ const NotificationsScreen = () => {
 
     if (item.message_type === "portfolio_details_view_alert") {
       return (
-        
+
         <MotiView
           from={{ opacity: 0, translateY: 20 }}
           animate={{ opacity: 1, translateY: 0 }}
           transition={{ delay: index * 100 }}
         >
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)}
+            onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)}
           >
-          {isSelectionMode && (
-            <Checkbox
+            {isSelectionMode && (
+              <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false, is_read : item.is_read })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "") ? true : false, is_online: (!item.visit_duration) ? true : false, is_read: item.is_read })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -480,7 +481,7 @@ const NotificationsScreen = () => {
               is_read={item.is_read}
               notif_type={"portfolio_details_view_alert"}
               icon_notif_name="information-circle-outline"
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)} // handle long press
             >
               <Text style={styles.message}>unique key: {item.unique_key}</Text>
               <Text style={styles.message}>project_name : {item.project_name}</Text>
@@ -501,12 +502,12 @@ const NotificationsScreen = () => {
           transition={{ delay: index * 100 }}
         >
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)}
+            onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)}
           >
             {isSelectionMode && (
               <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false, is_read: item.is_read })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "") ? true : false, is_online: (!item.visit_duration) ? true : false, is_read: item.is_read })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -517,7 +518,7 @@ const NotificationsScreen = () => {
               is_read={item.is_read}
               notif_type={"cv_download_alert"}
               icon_notif_name="download-outline"
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)} // handle long press
             >
               <Text style={styles.message}>unique key: {item.unique_key}</Text>
               <Text style={styles.message}>visitor id : {item.visitor_uuid}</Text>
@@ -541,12 +542,12 @@ const NotificationsScreen = () => {
         >
 
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
-          onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)}
+            onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)}
           >
             {isSelectionMode && (
               <Checkbox
                 // check if item is selected
-                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "")? true : false, is_online: (!item.visit_duration)? true : false, is_read: item.is_read })}
+                onValueChange={() => toggleSelection({ message_type: item.message_type, unique_key: item.unique_key, is_new_visitor: (item.alert_new_visitor != "") ? true : false, is_online: (!item.visit_duration) ? true : false, is_read: item.is_read })}
                 style={styles.checkboxStyle}
                 value={selectedItems.some(i => i.unique_key === item.unique_key)} // check if item is selected
               />
@@ -560,7 +561,7 @@ const NotificationsScreen = () => {
               id_key={item.unique_key}
               is_read={item.is_read}
               notif_type={"data_api"}
-              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "")? true : false, (!item.visit_duration)? true : false, item.is_read)} // handle long press
+              onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)} // handle long press
               icon_notif_name="eye-outline"
             >
 
@@ -602,44 +603,43 @@ const NotificationsScreen = () => {
 
   /* ************* 
   RETURN
+  NOTIFICATION
   ************** */
   return (
-    <View style={styles.container}>
+    <View style={styles.container} removeClippedSubviews={true}>
       <StatusBar barStyle="light-content" />
+
       {/* Header */}
       <View style={styles.header}>
 
         <View style={styles.first_header}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={20} color={globalStyles.primaryColor.color} />
+              <Ionicons name="arrow-back" size={24} color={globalStyles.primaryColor.color} />
             </TouchableOpacity>
-            <Text style={styles.title}>Notifications <Text>({visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count})</Text></Text>
+            <Text style={styles.title}>Notifications</Text>
           </View>
           {/* Selection mode */}
-          
+
           {isSelectionMode && (
             <View style={{ flexDirection: "row", gap: 20 }}>
               <TouchableOpacity onPress={() => clearSelection()}>
-                <Ionicons name="close" size={20} color={globalStyles.primaryColor.color} />
+                <Ionicons name="close" size={24} color={globalStyles.primaryColor.color} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setVisibleModal(true)}>
-                <Ionicons name="ellipsis-vertical" size={20} color={globalStyles.primaryColor.color} />
+                <Ionicons name="ellipsis-vertical" size={24} color={globalStyles.primaryColor.color} />
               </TouchableOpacity>
             </View>
           )}
-
-          
-
         </View>
         {/* Description */}
         <View>
           <Text style={styles.description}>
-            Notifications pour afficher les nouveaux ou anciens visiteurs traqués
+            {visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count} notifications non lues
           </Text>
         </View>
-
       </View>
+      {/* End header */}
 
       {/* if ntf empty or not */}
       {!hasMoreVisitorData && notification_data.length === 0 ? (
@@ -663,8 +663,9 @@ const NotificationsScreen = () => {
           contentContainerStyle={{ paddingBottom: 100 }}
           bounces={true}
           overScrollMode="always"
+          style={styles.notificationBody} // pour éviter le chevauchement du footer
         />
-        
+
       )}
       {renderModal()}
     </View>
@@ -680,8 +681,9 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "column",
-    alignItems: "center",
-    paddingVertical: globalStyles.headerPadding.padding,
+    justifyContent: "center",
+    height: 120,
+    paddingHorizontal: globalStyles.headerPadding.padding,
     gap: 10,
   },
   first_header: {
@@ -689,7 +691,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-
   },
   title: {
     color: globalStyles.primaryText.color,
@@ -700,17 +701,21 @@ const styles = StyleSheet.create({
   description: {
     color: globalStyles.secondaryText.color,
     fontSize: 14,
-    marginBottom: 20,
+  },
+  notificationBody: {
+    paddingHorizontal: globalStyles.boxPadding.padding,
   },
   notificationCard: {
-    backgroundColor: globalStyles.tertiaryColor.color, // non lu
+    backgroundColor: 'rgb(28, 28, 30)', // non lu
+    borderColor: globalStyles.primaryColor.color,
     padding: 12,
     borderRadius: 10,
     borderWidth: 1,
-    marginBottom: 5,
+    marginBottom: 10,
   },
   viewCard: {
-    backgroundColor: globalStyles.backgroundColorSecondary.backgroundColor,  // lu
+    backgroundColor: globalStyles.backgroundColorTertiary.backgroundColor,  // lu
+    borderColor: globalStyles.quaternaryColorWithOpacity.color,
   },
   status: {
     color: globalStyles.primaryColor.color,
@@ -751,9 +756,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.1)',
   },
   dialogBox: {
-    marginTop: 52,
+    marginTop: 62,
     marginRight: 10,
-    backgroundColor: globalStyles.secondaryColor.color,
+    backgroundColor: 'rgb(28, 28, 30)',
+    borderWidth: 1,
+    borderColor: globalStyles.secondaryTextWithOpacity.color,
     borderRadius: 10,
     padding: 8,
     elevation: 4, // Ombre sur Android
@@ -764,7 +771,7 @@ const styles = StyleSheet.create({
   menuItem: {
     padding: 10,
     flexDirection: 'row',
-    gap : 10,
+    gap: 10,
   },
 });
 

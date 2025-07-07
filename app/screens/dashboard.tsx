@@ -47,6 +47,7 @@ import {
 } from 'react-native';
 import { useApiBaseUrl } from '../../hooks/useApiBaseUrl';
 import { calculateChangePercentage } from '../utils/stats';
+
 export default function Dashboard() {
 
   let apiBaseUrl = useApiBaseUrl();
@@ -88,6 +89,20 @@ export default function Dashboard() {
   useEffect(() => {
     if (apiConnection) loadStatNotification();
   }, [apiBaseUrl, apiConnection]);
+
+
+
+
+  // timeout pour le chargement du skeleton
+  const [loadingTimeoutReached, setLoadingTimeoutReached] = useState(false);
+  const LOADING_TIMEOUT = 15000; // 15 secondes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingTimeoutReached(true);
+    }, LOADING_TIMEOUT);
+
+    return () => clearTimeout(timer);
+  }, []);
 
 
   const loadStatNotification = async () => {
@@ -162,7 +177,7 @@ export default function Dashboard() {
     }
   }
 
-  if (loadingPortfolioViews || loadingCvDownloads || loadingVisitorCount || loadingVisitsCount) {
+  if ((loadingPortfolioViews || loadingCvDownloads || loadingVisitorCount || loadingVisitsCount) && !loadingTimeoutReached) {
     return (
       <LoaderSkeleton/>
     )
@@ -172,8 +187,7 @@ export default function Dashboard() {
 
       <View style={[styles.parent, {display: 'flex', flexDirection: 'column'}]}>
 
-        {listMessageStatus && listMessageStatus.map((item) => (
-
+        {listMessageStatus && listMessageStatus.map((item, index) => (
           <StatusMessage
             key={item.id}
             dialogType={item.type}
@@ -181,6 +195,7 @@ export default function Dashboard() {
             onClose={() => {
               dispatch(removeMessage(item.id));
             }}
+            timeoutDuration={4000 + index *500}
           />
 
         ))}
@@ -256,7 +271,7 @@ export default function Dashboard() {
                   </Text>
                 )
               }
-            <Text> visites au total</Text>
+            <Text> visiteurs au total</Text>
         </Text>
         }
         />

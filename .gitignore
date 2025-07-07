@@ -37,3 +37,7 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# secrets
+google-services.json
+notifwooseeandyapp-391e07efa741.json

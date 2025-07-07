@@ -1,3 +1,4 @@
+import { sendUserToken } from '@/app/utils/sendUserToken';
 import { setApiConnection } from '@/features/connectionSlice'; // setters
 import { addMessage, clearMessagesByConnexion } from '@/features/messageStatusSlice';
 import { useCallback } from 'react';
@@ -9,12 +10,8 @@ export const useTestConnection = () => {
     const apiBaseUrl = useApiBaseUrl();
 
     const checkApiConnection = useCallback(async (): Promise<boolean> => {
-        console.log("\n ---- Anaty hook miteste connection ----");
         try {
             const res = await fetch(`${apiBaseUrl}/ping`, { method: 'GET' });
-            console.log(`\n----Testing API connection at ${apiBaseUrl}/ping`);
-            console.log(`Response status: ${res.status}`);
-            console.log(`Response ok: ${res.ok}`);
             if (!res.ok) {
                 dispatch(clearMessagesByConnexion('api'));
                 dispatch(setApiConnection(false));
@@ -24,6 +21,7 @@ export const useTestConnection = () => {
                 dispatch(clearMessagesByConnexion('api'));
                 dispatch(setApiConnection(true));
                 dispatch(addMessage('success', 'api', 'Connexion établie'));
+                sendUserToken(apiBaseUrl); // send user token to backend
             };
             
             const data = await res.json();

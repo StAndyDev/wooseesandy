@@ -13,30 +13,52 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/logo_sitraka_andy.png",
+        "backgroundColor": "#287E88"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.sitrakaandy.wooseeandy",
+      "googleServicesFile": "./google-services.json"
+    },
+    "notification": {
+      "androidMode": "default",
+      "androidCollapsedTitle": "Nouveau message",
+      "icon": "./assets/images/logo_sitraka_andy.png"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logo_sitraka_andy.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/logo_sitraka_andy.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c85505b4-9f57-4e66-ad5b-6c9d71e2181e"
+      }
+    },
+    "owner": "sitraka_andy",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c85505b4-9f57-4e66-ad5b-6c9d71e2181e"
     }
   }
 }

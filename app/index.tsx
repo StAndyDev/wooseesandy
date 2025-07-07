@@ -11,7 +11,8 @@ import { useDispatch } from 'react-redux';
 import { setUrl } from '../features/baseUrlConfigSlice';
 // hook
 import { useTestConnection } from "@/hooks/useTestConnection";
-
+// create or get user id
+// expo notif
 
 export default function Index() {
 
@@ -22,52 +23,50 @@ export default function Index() {
   const { checkApiConnection } = useTestConnection();
 
   useEffect(() => {
-    // Chargement des données de l'URL de base depuis AsyncStorage
-    const loadBaseUrlData = async (key: string) => {
-      try {
-        const jsonValue = await AsyncStorage.getItem(key)
-        if (jsonValue != null) {
-          return JSON.parse(jsonValue)
-        } else {
-          await AsyncStorage.setItem(key, JSON.stringify([]))
-          return []
-        }
-      } catch (e) {
-        console.error('Erreur lors du chargement des paramètres de connexion :', e)
-        return []
-      }
-    }
-
-    // fetch : add to state Redux
-    const fetchBaseUrl = async () => {
-      const urls = await loadBaseUrlData('base_urls');
-      dispatch(setUrl(urls));
-    };
-    
-    // redirection vers l'écran Dashboard après 11.3 secondes
-    const redirectToDashboard = async () => {
-      const timer = setTimeout(() => {
-        router.replace("/screens/Dashboard"); // une ecran blanc affiche momentanement si on utilise <Redirect href="/screens/ashboard" />;
-      }, 1200);
-      return () => clearTimeout(timer);
-    }
-
-    // Vérification de la connexion à l'API
-    const testConnection = async () => {
-      const isConnected = await checkApiConnection();
-      if (isConnected) {
-        console.log('Connexion à l\'API réussie :'+isConnected);
-      } else {
-        console.log('Échec de la connexion à l\'API :' + isConnected);
-      }
-    };
-
     fetchBaseUrl();
     testConnection();
     redirectToDashboard();
-
-
   }, [checkApiConnection]);
+
+  // Chargement des données de l'URL de base depuis AsyncStorage
+  const loadBaseUrlData = async (key: string) => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(key)
+      if (jsonValue != null) {
+        return JSON.parse(jsonValue)
+      } else {
+        await AsyncStorage.setItem(key, JSON.stringify([]))
+        return []
+      }
+    } catch (e) {
+      console.error('Erreur lors du chargement des paramètres de connexion :', e)
+      return []
+    }
+  }
+
+  // fetch : add to state Redux
+  const fetchBaseUrl = async () => {
+    const urls = await loadBaseUrlData('base_urls');
+    dispatch(setUrl(urls));
+  };
+
+  // redirection vers l'écran Dashboard après 11.3 secondes
+  const redirectToDashboard = async () => {
+    const timer = setTimeout(() => {
+      router.replace("/screens/Dashboard"); // une ecran blanc affiche momentanement si on utilise <Redirect href="/screens/ashboard" />;
+    }, 1200);
+    return () => clearTimeout(timer);
+  }
+
+  // Vérification de la connexion à l'API
+  const testConnection = async () => {
+    const isConnected = await checkApiConnection();
+    if (isConnected) {
+      console.log('Connexion à l\'API réussie :' + isConnected);
+    } else {
+      console.log('Échec de la connexion à l\'API :' + isConnected);
+    }
+  };
 
   return (
     <SafeAreaView style={[styles.container, globalStyles.backgroundColorPrimary]}>

@@ -1,17 +1,27 @@
 import globalStyles from "@/app/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { AnimatePresence, MotiView } from 'moti';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
     dialogType: 'info' | 'error' | 'warning' | 'success';
     message: string;
     onClose: () => void;
+    timeoutDuration: number; // Optionnel, pour personnaliser la durée du timeout
 };
 
-export const StatusMessage = ({ dialogType, message, onClose }: Props) => {
+export const StatusMessage = ({ dialogType, message, onClose, timeoutDuration }: Props) => {
     const [visible, setVisible] = useState(true);
+
+    // Ferme le message automatiquement pour les types 'info' et 'success'
+    useEffect( () => {
+        if (dialogType === 'info' || dialogType === 'success') {
+            setTimeout(() => {
+                handleClose();
+            }, timeoutDuration);
+        }
+    },[]);
 
     const handleClose = () => {
         setVisible(false);
@@ -33,8 +43,8 @@ export const StatusMessage = ({ dialogType, message, onClose }: Props) => {
                         scale: { type: 'spring', damping: 15, stiffness: 100 },
                     }}
                     exitTransition={{
-                        opacity: { type: 'timing', duration: 200 },
-                        translateY: { type: 'timing', duration: 200 },
+                        opacity: { type: 'timing', duration: 400 },
+                        translateY: { type: 'timing', duration: 1400 },
                         scale: { type: 'spring', damping: 10, stiffness: 80 },
                     }}
                     style={[styles.statusMessage, styles.centeredRow]}

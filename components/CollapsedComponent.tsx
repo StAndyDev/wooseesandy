@@ -1,7 +1,7 @@
 import { useSendMessageToServer } from '@/hooks/useWebSocket';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { useDispatch } from 'react-redux';
 import globalStyles from '../app/styles';
@@ -50,7 +50,7 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
     }
     
   }
-
+  
   // mark block as read
   const markAsReadBlock = async (id: any, notif: string) => {
     if (collapsed) {
@@ -111,7 +111,10 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
           }
         }}
         style={styles.header}
-        onLongPress={onLongPress}
+        onLongPress={() => {
+          Vibration.vibrate(50);
+          onLongPress?.(); // équivalent à : if (onLongPress) onLongPress();
+        } }
         delayLongPress={400}
         // android_ripple={{ color: '#ddd' }}
       >
@@ -166,7 +169,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 4,
     borderRadius: 5,
-    borderColor: globalStyles.primaryColor.color,
-    // borderColor: "#888",
+    borderColor: globalStyles.secondaryTextWithOpacity.color,
   }
 });

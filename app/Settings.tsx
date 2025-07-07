@@ -19,6 +19,9 @@ import { useTestConnection } from "@/hooks/useTestConnection";
 const Settings = () => {
     // test de connexion à l'API
     const { checkApiConnection } = useTestConnection();
+    // etat de la connexion
+    const isApiConnected = useSelector((state: RootState) => state.connection.apiConnected);
+    const isSocketConnected = useSelector((state: RootState) => state.connection.socketConnected);
     // State variables
     const baseUrlData = useSelector((state: RootState) => state.base_url.urls);
     const baseUrlCount = baseUrlData?.length ?? 0;
@@ -43,6 +46,7 @@ const Settings = () => {
     const [idToDelete, setIdToDelete] = useState<number | null>(null);  // pour stocker l'ID de l'URL à supprimer
     const [isVisibleEmptyDialog, setIsVisibleEmptyDialog] = useState(false); // pour le dialog d'erreur si les champs sont vides
     const [isVisibleMajDialog, setIsVisibleMajDialog] = useState(false); // pour le dialog de mise à jour des données
+    const [isVisibleInvalideProtocoleDialog, setIsVisibleInvalideProtocoleDialog] = useState(false); // pour le dialog d'erreur si le protocole n'est pas valide
 
     // forms
     const [openPicker, setOpenPicker] = useState(false);
@@ -64,12 +68,12 @@ const Settings = () => {
     // ---------------- UseEffect -----------------
     useEffect(() => {
         // Vérifier si le nombre d'URL de base dépasse 4
-        if (baseUrlCount > 3) {
+        if (baseUrlCount > 3 && btnMode === 'add') {
             setIsBtnSaveDisabled(true);
         } else {
             setIsBtnSaveDisabled(false);
         }
-    }, [baseUrlData]);
+    }, [baseUrlData, btnMode]);
 
     useEffect(() => {
         if (triggerTest) {
@@ -165,7 +169,11 @@ const Settings = () => {
         clearForms();
     }
     // radio buttons action
-    const activeForApiUrl = (id: number) => {
+    const activeForApiUrl = (id: number, protocole: string) => {
+        if (protocole !== 'http' && protocole !== 'https') {
+            setIsVisibleInvalideProtocoleDialog(true);
+            return;
+        }
         console.log(`Active API URL with ID: ${id}`);
         // Désactiver les autres URLs pour l'API
         const updatedUrls = baseUrlData.map(url => ({
@@ -176,7 +184,11 @@ const Settings = () => {
         AsyncStorage.setItem("base_urls", JSON.stringify(updatedUrls)); // Mise à jour dans AsyncStorage
         setTriggerTest(true); // demande de test (en useEffect)
     }
-    const activeForWsUrl = (id: number) => {
+    const activeForWsUrl = (id: number, protocole: string) => {
+        if (protocole !== 'ws' && protocole !== 'wss') {
+            setIsVisibleInvalideProtocoleDialog(true);
+            return;
+        }
         console.log(`Active WebSocket URL with ID: ${id}`);
         // Désactiver les autres URLs pour WebSocket
         const updatedUrls = baseUrlData.map(url => ({
@@ -243,12 +255,26 @@ const Settings = () => {
                 onBackdropPress={() => setIsVisibleSupprDialog(false)}
                 show={isVisibleSupprDialog}
             />
+            {/* Invalide protocole Dialog */}
+            <MyDialog
+                dialogType="error"
+                title="Protocole invalide"
+                dialogText="Le protocole sélectionné n'est pas valide avec ce type de serveur."
+                confirmBtnText="OK"
+                onConfirm={() => {
+                    setIsVisibleInvalideProtocoleDialog(false);
+                }}
+                onBackButtonPress={() => setIsVisibleInvalideProtocoleDialog(false)}
+                onBackdropPress={() => setIsVisibleInvalideProtocoleDialog(false)}
+                show={isVisibleInvalideProtocoleDialog}
+            />
+
 
             {/* Header */}
             <View style={styles.first_header}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={20} color={globalStyles.primaryColor.color} />
+                        <Ionicons name="arrow-back" size={24} color={globalStyles.primaryColor.color} />
                     </TouchableOpacity>
                     <Text style={styles.title}>Paramètres</Text>
                 </View>
@@ -264,7 +290,9 @@ const Settings = () => {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={{ color: globalStyles.primaryText.color }}>Serveur d'API</Text>
-                            <Text style={{ color: globalStyles.secondaryText.color }}>https://example.com</Text>
+                            <Text style={[isApiConnected?{ color: globalStyles.secondaryText.color }:{ color: globalStyles.secondaryTextWithOpacity.color }, { fontSize: 12}]}>
+                                {activeApiUrl?.protocole+"://"+activeApiUrl?.host+":"+activeApiUrl?.port}
+                            </Text>
                         </View>
                         <View>
                             <TouchableOpacity onPress={() => {
@@ -282,7 +310,9 @@ const Settings = () => {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={{ color: globalStyles.primaryText.color }}>Serveur WebSocket</Text>
-                            <Text style={{ color: globalStyles.secondaryText.color }}>wss://example.com</Text>
+                            <Text style={[isSocketConnected?{ color: globalStyles.secondaryText.color }:{ color: globalStyles.secondaryTextWithOpacity.color }, { fontSize: 12}]}>
+                                {activeWsUrl?.protocole+"://"+activeWsUrl?.host+":"+activeWsUrl?.port}
+                            </Text>
                         </View>
                         <View>
                             <TouchableOpacity onPress={() => {
@@ -299,6 +329,7 @@ const Settings = () => {
 
             {/* ------ Modal ------ */}
             <Modal
+                removeClippedSubviews={true} // le prop "removeClippedSubviews" est plus utile (View, etc..) pour les longues listes et scrolls (pour améliorer les performances)
                 isVisible={isModalVisible}
                 animationIn="slideInUp"
                 animationOut="slideOutDown"
@@ -321,8 +352,8 @@ const Settings = () => {
                 propagateSwipe={true}
                 style={{ justifyContent: 'flex-end', alignItems: 'flex-end', margin: 0 }}
             >
-                <View style={styles.modalContent}>
-
+                
+                <View style={styles.modalContent} >
                     {/* HEADER MODAL */}
                     <View style={styles.headerModal}>
                         <View style={styles.modalHandler}></View>
@@ -370,7 +401,6 @@ const Settings = () => {
                                 <TouchableOpacity onPress={() => {
                                     setBtnMode('add')
                                     setBtnModeColor('none');
-                                    // clearForms();
                                 }
                                 }>
                                     <Ionicons name="close" size={20} color={globalStyles.blueColor.color} />
@@ -481,7 +511,10 @@ const Settings = () => {
                                 />
                             </View>
 
-                            <TouchableOpacity onPress={btnMode === "add" ? handleSave : handleUpdate} style={[styles.button, isBtnSaveDisabled && { opacity: 0.2 }]} disabled={isBtnSaveDisabled}>
+                            <TouchableOpacity
+                                onPress={btnMode === "add" ? handleSave : handleUpdate}
+                                style={[styles.button, isBtnSaveDisabled && { opacity: 0.2 }]}
+                                disabled={isBtnSaveDisabled}>
                                 <Text style={styles.buttonText}>SAUVEGARDER</Text>
                             </TouchableOpacity>
                         </View>
@@ -515,6 +548,7 @@ const Settings = () => {
                                                 setPickerValue(item.protocole);
                                                 setHostTextInput(item.host);
                                                 setPortTextInput(item.port);
+                                                setIsBtnSaveDisabled(false);
                                             }}
                                             style={{ borderWidth: 1, borderColor: globalStyles.primaryColor.color, padding: 5, borderRadius: 5 }}>
                                             <Ionicons name="pencil" size={15} color={globalStyles.secondaryText.color} />
@@ -533,8 +567,8 @@ const Settings = () => {
                                         <RadioButton.Group
                                             onValueChange={() => 
                                                 { selectedModal === 'api' 
-                                                    ? (activeForApiUrl(item.id))
-                                                    : (activeForWsUrl(item.id)) }}
+                                                    ? (activeForApiUrl(item.id, item.protocole))
+                                                    : (activeForWsUrl(item.id, item.protocole)) }}
                                             value={
                                                 selectedModal === 'api'
                                                     ? item.isActiveForApi ? String(item.id) : ""
@@ -585,22 +619,23 @@ const styles = StyleSheet.create({
         backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
         paddingHorizontal: globalStyles.boxPadding.padding,
     },
+    first_header: {
+        marginTop: 20,
+        width: "100%",
+        flexDirection: "row",
+        paddingVertical: globalStyles.headerPadding.padding,
+        paddingLeft: 5,
+    },
     title: {
         color: globalStyles.primaryText.color,
         fontSize: 20,
         fontWeight: "bold",
         marginLeft: 15,
     },
-    first_header: {
-        width: "100%",
-        flexDirection: "row",
-        paddingVertical: globalStyles.headerPadding.padding,
-        marginLeft: 5
-    },
+
     contentTitle: {
         color: globalStyles.primaryColor.color,
-        marginLeft: 10,
-        marginBottom: 10,
+        padding: 10,
     },
     contentItem: {
         display: "flex",
@@ -611,13 +646,13 @@ const styles = StyleSheet.create({
         borderBottomColor: globalStyles.quaternaryColorWithOpacity.color,
         borderTopColor: globalStyles.quaternaryColorWithOpacity.color,
         paddingVertical: 10,
-        paddingHorizontal: 10,
+        paddingHorizontal: 20,
         gap: 10,
     },
     // Modal
     modalContent: {
         width: "100%",
-        height: "93%",
+        height: "91%",
         backgroundColor: globalStyles.backgroundColorSecondary.backgroundColor,
         borderWidth: globalStyles.boxBorderWidth.borderWidth,
         borderColor: globalStyles.secondaryTextWithOpacity.color,

@@ -16,7 +16,7 @@ const LoaderSkeleton = ({ count = 3 }: { count?: number }) => {
             transition={{
               opacity: {
                 type: 'timing',
-                duration: 800,
+                duration: 600,
                 loop: true,
               },
             }}
@@ -30,11 +30,11 @@ const LoaderSkeleton = ({ count = 3 }: { count?: number }) => {
             transition={{
               opacity: {
                 type: 'timing',
-                duration: 800,
+                duration: 600,
                 loop: true,
               },
             }}
-            style={[styles.shimmerBlock, { height: 20, width: '70%', marginBottom: 8 }]}
+            style={[styles.shimmerBlock, { height: 15, width: '70%', marginBottom: 8 }]}
           />
 
           {/* Ligne 3 (ex: description) */}
@@ -44,11 +44,11 @@ const LoaderSkeleton = ({ count = 3 }: { count?: number }) => {
             transition={{
               opacity: {
                 type: 'timing',
-                duration: 800,
+                duration: 600,
                 loop: true,
               },
             }}
-            style={[styles.shimmerBlock, { height: 16, width: '90%' }]}
+            style={[styles.shimmerBlock, { height: 15, width: '90%' }]}
           />
         </View>
       ))}
@@ -58,6 +58,7 @@ const LoaderSkeleton = ({ count = 3 }: { count?: number }) => {
 
 const styles = StyleSheet.create({
   card: {
+    flex: 1,
     backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
     padding: 20,
     width: width,
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
   },
   shimmerBlock: {
     backgroundColor: '#333',
-    borderRadius: 5,
+    borderRadius: 4,
   },
 });
 
