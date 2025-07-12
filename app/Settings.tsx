@@ -15,6 +15,7 @@ import { addUrl, setUrl } from '../features/baseUrlConfigSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // storage asynchrone
 // hook
 import { useTestConnection } from "@/hooks/useTestConnection";
+import { ScrollView } from "moti";
 
 const Settings = () => {
     // test de connexion à l'API
@@ -67,8 +68,8 @@ const Settings = () => {
 
     // ---------------- UseEffect -----------------
     useEffect(() => {
-        // Vérifier si le nombre d'URL de base dépasse 4
-        if (baseUrlCount > 3 && btnMode === 'add') {
+        // Vérifier si le nombre d'URL de base dépasse 5
+        if (baseUrlCount > 4 && btnMode === 'add') {
             setIsBtnSaveDisabled(true);
         } else {
             setIsBtnSaveDisabled(false);
@@ -90,7 +91,7 @@ const Settings = () => {
     };
 
     const handleSave = async () => {
-        if (!pickerValue || !hostTextInput || !portTextInput) {
+        if (!pickerValue || !hostTextInput) {
             setIsVisibleEmptyDialog(true);
             return;
         }
@@ -122,7 +123,7 @@ const Settings = () => {
         }
     };
     const handleUpdate = () => {
-        if (!pickerValue || !hostTextInput || !portTextInput) {
+        if (!pickerValue || !hostTextInput) {
             setIsVisibleEmptyDialog(true);
             return;
         }
@@ -290,8 +291,8 @@ const Settings = () => {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={{ color: globalStyles.primaryText.color }}>Serveur d'API</Text>
-                            <Text style={[isApiConnected?{ color: globalStyles.secondaryText.color }:{ color: globalStyles.secondaryTextWithOpacity.color }, { fontSize: 12}]}>
-                                {activeApiUrl?.protocole+"://"+activeApiUrl?.host+":"+activeApiUrl?.port}
+                            <Text style={[isApiConnected ? { color: globalStyles.secondaryText.color } : { color: globalStyles.secondaryTextWithOpacity.color }, { fontSize: 12 }]}>
+                                {(activeApiUrl?.port)? activeApiUrl?.protocole + "://" + activeApiUrl?.host + ":" + activeApiUrl?.port : activeApiUrl?.protocole + "://" + activeApiUrl?.host + "/api"}
                             </Text>
                         </View>
                         <View>
@@ -310,8 +311,8 @@ const Settings = () => {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={{ color: globalStyles.primaryText.color }}>Serveur WebSocket</Text>
-                            <Text style={[isSocketConnected?{ color: globalStyles.secondaryText.color }:{ color: globalStyles.secondaryTextWithOpacity.color }, { fontSize: 12}]}>
-                                {activeWsUrl?.protocole+"://"+activeWsUrl?.host+":"+activeWsUrl?.port}
+                            <Text style={[isSocketConnected ? { color: globalStyles.secondaryText.color } : { color: globalStyles.secondaryTextWithOpacity.color }, { fontSize: 12 }]}>
+                                {(activeWsUrl?.port)? activeWsUrl?.protocole + "://" + activeWsUrl?.host + ":" + activeWsUrl?.port : activeWsUrl?.protocole + "://" + activeWsUrl?.host + "/ws/visitor-tracker/"}
                             </Text>
                         </View>
                         <View>
@@ -352,7 +353,7 @@ const Settings = () => {
                 propagateSwipe={true}
                 style={{ justifyContent: 'flex-end', alignItems: 'flex-end', margin: 0 }}
             >
-                
+
                 <View style={styles.modalContent} >
                     {/* HEADER MODAL */}
                     <View style={styles.headerModal}>
@@ -381,10 +382,10 @@ const Settings = () => {
                                 <Text style={{ color: globalStyles.secondaryText.color, letterSpacing: 0.5 }}>
                                     {selectedModal === 'api'
                                         ? activeApiUrl
-                                            ? `${activeApiUrl.protocole}://${activeApiUrl.host}:${activeApiUrl.port}:/api`
+                                            ? (activeApiUrl.port)? `${activeApiUrl.protocole}://${activeApiUrl.host}:${activeApiUrl.port}:/api` : `${activeApiUrl.protocole}://${activeApiUrl.host}/api`
                                             : 'Aucune URL API active'
                                         : activeWsUrl
-                                            ? `${activeWsUrl.protocole}://${activeWsUrl.host}:${activeWsUrl.port}:/ws/visitor-tracker/`
+                                            ? (activeWsUrl.port)? `${activeWsUrl.protocole}://${activeWsUrl.host}:${activeWsUrl.port}:/ws/visitor-tracker/` : `${activeWsUrl.protocole}://${activeWsUrl.host}/ws/visitor-tracker/`
                                             : 'Aucune URL WS active'}
                                 </Text>
                             </View>
@@ -523,10 +524,13 @@ const Settings = () => {
                         <View style={styles.bodyTitle}>
                             <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12 }}>Sélectionner un URL</Text>
                         </View>
-                        <View style={[styles.row_body, { padding: 0 }]}>
 
+
+
+
+                        <ScrollView style={[styles.row_body, { padding: 0 }]}>
                             {baseUrlData && baseUrlData.map(item => (
-                                <View key={item.id} style={styles.list_child}>
+                                <TouchableOpacity key={item.id} style={styles.list_child}>
                                     <Ionicons
                                         name={
                                             selectedModal === 'api'
@@ -535,9 +539,11 @@ const Settings = () => {
                                         }
                                         size={20}
                                         color={globalStyles.secondaryText.color} />
-                                    <View>
+                                    <View style={{ maxWidth: "50%" }}>
                                         <Text style={{ color: globalStyles.primaryText.color }}>Serveur : {item.protocole}</Text>
-                                        <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12, letterSpacing: 0.5 }}>{item.host + ":" + item.port}</Text>
+                                        <Text style={{ color: globalStyles.secondaryText.color, fontSize: 12, letterSpacing: 0.5 }}>
+                                            {item.port? (item.host + ":" + item.port) : (item.host)}
+                                        </Text>
                                     </View>
                                     <View style={{ flexDirection: "row", gap: 10, marginLeft: "auto" }}>
                                         <TouchableOpacity
@@ -565,10 +571,11 @@ const Settings = () => {
                                     </View>
                                     <View>
                                         <RadioButton.Group
-                                            onValueChange={() => 
-                                                { selectedModal === 'api' 
-                                                    ? (activeForApiUrl(item.id, item.protocole))
-                                                    : (activeForWsUrl(item.id, item.protocole)) }}
+                                            onValueChange={() => {
+                                                selectedModal === 'api'
+                                                ? (activeForApiUrl(item.id, item.protocole))
+                                                : (activeForWsUrl(item.id, item.protocole))
+                                            }}
                                             value={
                                                 selectedModal === 'api'
                                                     ? item.isActiveForApi ? String(item.id) : ""
@@ -580,11 +587,11 @@ const Settings = () => {
                                             </View>
                                         </RadioButton.Group>
                                     </View>
-                                </View>
+                                </TouchableOpacity>
                             ))}
 
-                            {baseUrlCount < 4 &&
-                                Array.from({ length: 4 - baseUrlCount }).map((_, index) => (
+                            {baseUrlCount < 5 &&
+                                Array.from({ length: 5 - baseUrlCount }).map((_, index) => (
                                     <View
                                         key={`placeholder-${index}`}
                                         style={[styles.list_child, { justifyContent: 'center', alignItems: 'center' }]}
@@ -602,7 +609,7 @@ const Settings = () => {
                                         </TouchableOpacity>
                                     </View>
                                 ))}
-                        </View>
+                        </ScrollView>
 
 
                     </View>

@@ -2,12 +2,12 @@ import { createSlice } from '@reduxjs/toolkit'
 
 interface BaseUrlState {
     urls: Array<{
-        id: number,
-        protocole: string,
-        host: string,
-        port: string,
-        isActiveForApi: boolean,
-        isActiveForWs: boolean
+      id: number,
+      protocole: string,
+      host: string,
+      port: string,
+      isActiveForApi: boolean,
+      isActiveForWs: boolean
     }>
     }
 const initialState: BaseUrlState = {

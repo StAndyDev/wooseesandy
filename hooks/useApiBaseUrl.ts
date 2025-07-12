@@ -7,7 +7,7 @@ export const useApiBaseUrl = () => {
       state.base_url?.urls?.find(url => url.isActiveForApi)
     )
     return activeApiUrl
-      ? `${activeApiUrl.protocole}://${activeApiUrl.host}:${activeApiUrl.port}/api`
+      ? (activeApiUrl.port)? `${activeApiUrl.protocole}://${activeApiUrl.host}:${activeApiUrl.port}/api` : `${activeApiUrl.protocole}://${activeApiUrl.host}/api`
       : 'http://localhost:8000/api';
   }
   
