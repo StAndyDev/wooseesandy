@@ -373,13 +373,14 @@ const Settings = () => {
                                     )
                             }
 
-                            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5 }}>
+                            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingVertical: 5, paddingHorizontal: 25 }}>
                                 {
                                     selectedModal === "api" ?
                                         (activeApiUrl && (<View style={styles.point}></View>))
                                         : (activeWsUrl && (<View style={styles.point}></View>))
                                 }
-                                <Text style={{ color: globalStyles.secondaryText.color, letterSpacing: 0.5 }}>
+                                
+                                <Text style={{ color: globalStyles.secondaryText.color, letterSpacing: 0.5, fontSize: 12, textAlign: "center", maxWidth: 200 }}>
                                     {selectedModal === 'api'
                                         ? activeApiUrl
                                             ? (activeApiUrl.port)? `${activeApiUrl.protocole}://${activeApiUrl.host}:${activeApiUrl.port}:/api` : `${activeApiUrl.protocole}://${activeApiUrl.host}/api`
@@ -592,6 +593,7 @@ const Settings = () => {
 
                             {baseUrlCount < 5 &&
                                 Array.from({ length: 5 - baseUrlCount }).map((_, index) => (
+                                    <TouchableOpacity activeOpacity={0.8}>
                                     <View
                                         key={`placeholder-${index}`}
                                         style={[styles.list_child, { justifyContent: 'center', alignItems: 'center' }]}
@@ -608,6 +610,7 @@ const Settings = () => {
                                             />
                                         </TouchableOpacity>
                                     </View>
+                                    </TouchableOpacity>
                                 ))}
                         </ScrollView>
 

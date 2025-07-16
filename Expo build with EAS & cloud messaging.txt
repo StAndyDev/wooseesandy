@@ -1,0 +1,88 @@
+--------------------- Expo build with EAS & cloud messaging ---------------------
+====================================================================
+
+
+1 - https://console.firebase.google.com/
+2 - créer/selectionnner un projet android, ajouter le nom du package (ex: com.sitrakaandy.dev)
+3 - cliquer sur l'icone paramètre du projet
+4 - selectionner cloud messaging
+5 - API FCM(v1) - cliquer sur "gérer les comptes de service"
+6 - compte de service - clés - le clé apparu est le clé de serveur legacy(dépréciée) donc
+7 - il faut créer un nouveau clés - puis choisir json, ajouter le dans le racine du projet
+8 - ajouter à expo via eas cli :
+	- eas credentials - Android - dev/preview/prod - google service account - gsc for notif push (FCM v1)
+
+9 --- ajouter google-services-json--- 
+ - créer un environnement eas :
+	eas env:create --name GOOGLE_SERVICES_JSON --type file --value ./chemin/vers/google-services.json
+ - et dans eas.json :
+	"production": {
+  	"env": {
+    	   "GOOGLE_SERVICES_JSON": "GOOGLE_SERVICES_JSON"
+  	  }
+	}
+
+
+
+10 - builder l'app (npm install -g eas-cli : si ce n'est pas encore fait):
+
+
+  - pour le format apk (eas.json):
+{
+  "build": {
+    "apk-dev": {
+      "android": {
+        "buildType": "apk"
+      },
+      "developmentClient": true
+    }
+  }
+}
+
+--- build ---
+ - n'ajoute pas google-services.json dans .gitignore (temporairement pour le build):
+	git add .
+	git commit -m "add firebase config for EAS build"
+ - puis build, mais après ce build n'oublie pas d'ecraser le commit :
+	git reset HEAD~1
+
+Buid CLI :
+	- eas build -p android (format aab par defaut) (le format exigé par google play : aab)
+	- eas build --profile development --platform android (en mode dev, android)
+
+NB :les ficheir google-services.json et notifwooseeandyapp-391e07efa741.json :...(sont éssentiel pour le notfi push)
+
+NB : build en mode "dev" , cette bibliothèque doit être installée : npx expo install expo-dev-client : conséquence :
+expo ne se lance pas sans cette application installé.
+
+
+NB : pour eviter le warning channel profil value null (invalid EAS Update configuration) en build
+eas.json :
+{
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview"
+    },
+    "production": {
+      "channel": "production"
+    }
+  }
+}
+
+
+NB :--- résolution connexion n'est pas établie en mode preview / production :
+- npx expo install expo-build-properties
+- Dans app.json ou app.config.js :
+	"plugins": [
+  [
+    "expo-build-properties",
+    {
+      "android": {
+        "usesCleartextTraffic": true
+      }
+    }
+  ]
+]
+- puis build
+
