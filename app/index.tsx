@@ -53,8 +53,8 @@ export default function Index() {
   // redirection vers l'écran Dashboard après 11.3 secondes
   const redirectToDashboard = async () => {
     const timer = setTimeout(() => {
-      router.replace("/screens/Dashboard"); // une ecran blanc affiche momentanement si on utilise <Redirect href="/screens/ashboard" />;
-    }, 1200);
+      router.replace("/screens/dashboard"); // une ecran blanc affiche momentanement si on utilise <Redirect href="/screens/dashboard" />;
+    }, 500);
     return () => clearTimeout(timer);
   }
 
