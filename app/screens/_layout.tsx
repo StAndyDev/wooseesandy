@@ -46,7 +46,7 @@ export default function Layout() {
                 ),
                 headerRight: () => (
                     <View style={styles.header_right}>
-                        <TouchableOpacity onPress={() => router.push('/Notification')}>
+                        <TouchableOpacity onPress={() => router.push('/notification')}>
                             <View style={styles.containerNotif}>
                                 <FontAwesome name="bell-o" size={22} color={globalStyles.secondaryText.color} />
                                 {visitinfo_unred_count + cvdownload_unred_count + portfoliodetailview_unred_count > 0 && (

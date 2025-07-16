@@ -2,7 +2,7 @@ import ProgressRing from '@/components/ProgressElement';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import Chart from '../../components/ChartElement';
-import MyDashboard from '../../components/DashboardElement';
+import MyDashboard from '../../components/dashboardElement';
 import globalStyles from '../styles';
 // redux
 import { useDispatch, useSelector } from 'react-redux';
@@ -95,7 +95,7 @@ export default function Dashboard() {
 
   // timeout pour le chargement du skeleton
   const [loadingTimeoutReached, setLoadingTimeoutReached] = useState(false);
-  const LOADING_TIMEOUT = 15000; // 15 secondes
+  const LOADING_TIMEOUT = 500; // 5 secondes
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoadingTimeoutReached(true);
