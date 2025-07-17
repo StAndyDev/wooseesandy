@@ -24,7 +24,7 @@ export default function Layout() {
                         {...options}
                         headerStyle={{
                             height: 125, // Définissez ici la hauteur du header
-                            backgroundColor: "black",
+                            backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor,
                         }}
                         title="WooSeeAndy" // Définissez explicitement le titre ici
                     />

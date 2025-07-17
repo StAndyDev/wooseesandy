@@ -11,7 +11,7 @@ export default function Layout() {
     <Provider store={store}>
       <WebSocketProvider>
         <SafeAreaView style={{ flex: 1, backgroundColor: globalStyles.backgroundColorPrimary.backgroundColor }}>
-          <StatusBar style="light" backgroundColor={globalStyles.backgroundColorPrimary.backgroundColor} />
+          <StatusBar style="light"/>
           <Stack
             initialRouteName="index"
             screenOptions={{ headerShown: false }}

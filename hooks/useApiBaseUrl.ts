@@ -8,5 +8,5 @@ export const useApiBaseUrl = () => {
     )
     return activeApiUrl
       ? (activeApiUrl.port)? `${activeApiUrl.protocole}://${activeApiUrl.host}:${activeApiUrl.port}/api` : `${activeApiUrl.protocole}://${activeApiUrl.host}/api`
-      : 'http://localhost:8000/api';
+      : 'https://wooseeandy-backend.onrender.com/api';
   }

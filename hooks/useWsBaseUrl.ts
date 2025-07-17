@@ -9,5 +9,5 @@ export const useWsBaseUrl = () => {
     )
     return activeWsUrl
       ? (activeWsUrl.port)? `${activeWsUrl.protocole}://${activeWsUrl.host}:${activeWsUrl.port}/ws/visitor-tracker/?token=${wooseeandy_token}` : `${activeWsUrl.protocole}://${activeWsUrl.host}/ws/visitor-tracker/?token=${wooseeandy_token}`
-      : `ws://localhost:8000/ws/visitor-tracker/?token=${wooseeandy_token}`;
+      : `wws://wooseeandy-backend.onrender.com/ws/visitor-tracker/?token=${wooseeandy_token}`;
   }

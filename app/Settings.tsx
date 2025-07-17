@@ -649,6 +649,7 @@ const styles = StyleSheet.create({
     contentItem: {
         display: "flex",
         alignSelf: 'center',
+        alignItems: "center",
         flexDirection: "row",
         borderBottomWidth: 1,
         borderTopWidth: 1,
@@ -656,6 +657,7 @@ const styles = StyleSheet.create({
         borderTopColor: globalStyles.quaternaryColorWithOpacity.color,
         paddingVertical: 10,
         paddingHorizontal: 20,
+        minHeight: 65,
         gap: 10,
     },
     // Modal
