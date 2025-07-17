@@ -1,8 +1,8 @@
 import LogoSitrakaAndy from "@/components/logoStk";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // storage asynchrone
 import { useRouter } from "expo-router";
-import { MotiText, MotiView } from 'moti';
-import { useEffect } from "react";
+import { AnimatePresence, MotiText, MotiView } from 'moti';
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import globalStyles from './styles';
@@ -11,8 +11,9 @@ import { useDispatch } from 'react-redux';
 import { setUrl } from '../features/baseUrlConfigSlice';
 // hook
 import { useTestConnection } from "@/hooks/useTestConnection";
-// create or get user id
-// expo notif
+
+import { Easing } from 'react-native-reanimated';
+
 
 export default function Index() {
 
@@ -21,22 +22,48 @@ export default function Index() {
 
   // test de connexion à l'API
   const { checkApiConnection } = useTestConnection();
+  const [showLogo, setShowLogo] = useState(true); // ici
 
-  useEffect(() => {
-    fetchBaseUrl();
-    testConnection();
+useEffect(() => {
+  const init = async () => {
+    await fetchBaseUrl(); // attendre que le state Redux soit bien rempli
+    await testConnection(); // puis tester la connexion
+    setTimeout(() => {
+      setShowLogo(false);
+    }, 4400);
     redirectToDashboard();
-  }, [checkApiConnection]);
+  };
+
+  init(); // appel immédiat de la fonction async interne
+}, [checkApiConnection]);
 
   // Chargement des données de l'URL de base depuis AsyncStorage
   const loadBaseUrlData = async (key: string) => {
     try {
       const jsonValue = await AsyncStorage.getItem(key)
-      if (jsonValue != null) {
+      if (jsonValue != null && jsonValue !== '[]') {
         return JSON.parse(jsonValue)
       } else {
-        await AsyncStorage.setItem(key, JSON.stringify([]))
-        return []
+        const defaultUrl = [
+          {
+            id: 1,
+            isActiveForApi: true,
+            isActiveForWs: false,
+            protocole: "https",
+            host: "wooseeandy-backend.onrender.com",
+            port: null,
+          },
+          {
+            id: 2,
+            isActiveForApi: false,
+            isActiveForWs: true,
+            protocole: "wss",
+            host: "wooseeandy-backend.onrender.com",
+            port: null,
+          }
+        ];
+        await AsyncStorage.setItem(key, JSON.stringify(defaultUrl))
+        return defaultUrl;
       }
     } catch (e) {
       console.error('Erreur lors du chargement des paramètres de connexion :', e)
@@ -50,11 +77,11 @@ export default function Index() {
     dispatch(setUrl(urls));
   };
 
-  // redirection vers l'écran Dashboard après 11.3 secondes
+  // redirection vers l'écran Dashboard après qlq secondes
   const redirectToDashboard = async () => {
     const timer = setTimeout(() => {
       router.replace("/screens/dashboard"); // une ecran blanc affiche momentanement si on utilise <Redirect href="/screens/dashboard" />;
-    }, 1500);
+    }, 4500);
     return () => clearTimeout(timer);
   }
 
@@ -87,23 +114,56 @@ export default function Index() {
           <Text style={styles.textSubtitle}> v.1.0</Text>
 
         </MotiText>
-        <MotiView
-          from={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{
-            translateY: {
-              type: 'spring',
-              damping: 10,
-              mass: 1,
-            },
-          }}
-        >
-          <View style={{ alignItems: "center", marginTop: 10 }}>
-            <LogoSitrakaAndy width={140} height={100} />
-            <Text style={styles.textSubtitle}>Solution professionnelle de tracking et d'analyse des visiteurs de portfolio de sitraka andy</Text>
-          </View>
 
-        </MotiView>
+
+        <View style={{ alignItems: "center", marginTop: 10 }}>
+          <AnimatePresence>
+            {showLogo && (
+              <MotiView
+                from={{
+                  opacity: 0,
+                  scale: 0.5,
+                  translateY: -40,
+                  rotateZ: '-5deg',
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  translateY: 0,
+                  rotateZ: '0deg',
+                }}
+                exit={{
+                  opacity: 0.5,
+                  scale: 3.2,
+                  rotateZ: '5deg',
+                }}
+                transition={{
+                  // Entrée rapide et fluide
+                  animate: {
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 20,
+                    mass: 0.8,
+                  },
+                  // Sortie retardée, lente et élégante
+                  exit: {
+                    type: 'timing',
+                    duration: 2000,
+                    delay: 600,
+                    easing: Easing.out(Easing.cubic),
+                  },
+                }}
+              >
+                <LogoSitrakaAndy width={140} height={100} />
+              </MotiView>
+            )}
+          </AnimatePresence>
+          <Text style={styles.textSubtitle}>
+            Solution professionnelle de tracking et d'analyse des visiteurs de portfolio de sitraka andy
+          </Text>
+        </View>
+
+
 
       </View>
     </SafeAreaView>

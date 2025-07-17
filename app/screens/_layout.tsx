@@ -66,7 +66,7 @@ export default function Layout() {
                 
             }}
         >
-            <Stack.Screen name="Dashboard"/>
+            <Stack.Screen name="dashboard"/>
         </Stack>
         
     );

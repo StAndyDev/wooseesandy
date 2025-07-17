@@ -5,7 +5,7 @@ interface BaseUrlState {
       id: number,
       protocole: string,
       host: string,
-      port: string,
+      port: string | null,
       isActiveForApi: boolean,
       isActiveForWs: boolean
     }>

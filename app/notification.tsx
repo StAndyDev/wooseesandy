@@ -2,32 +2,32 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, BackHandler, FlatList, Modal, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { formatDateHeureFr, formatDateInterval, formatDurationISO } from "../_utils/timeUtils";
 import CollapsibleSection from "../components/CollapsedComponent";
 import {
-  deleteCVDownload,
-  deletePortfolioDetailView,
-  deleteVisitInfo,
-  fetchCvDownloadMonthly,
-  fetchCVDownloadsData,
-  fetchPortfolioDetailMonthly,
-  fetchPortfolioDetailsViewData,
-  fetchVisitInfoStatsMonthly,
-  fetchVisitorsData
+    deleteCVDownload,
+    deletePortfolioDetailView,
+    deleteVisitInfo,
+    fetchCvDownloadMonthly,
+    fetchCVDownloadsData,
+    fetchPortfolioDetailMonthly,
+    fetchPortfolioDetailsViewData,
+    fetchVisitInfoStatsMonthly,
+    fetchVisitorsData
 } from "../services/backend"; // api
 import globalStyles from "./styles";
-import { formatDateHeureFr, formatDateInterval, formatDurationISO } from "./utils/timeUtils";
 // redux
 import { RootState } from '@/store/store';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  setCurrentMonthCvDownload,
-  setCurrentMonthPortfolioDetail,
-  setCurrentMonthVisits,
-  setCvDownloadPercentageMonthly,
-  setLastMonthCvDownload,
-  setLastMonthVisits,
-  setPortfolioDetailPercentageMonthly,
-  setVisitInfoPercentageMonthly
+    setCurrentMonthCvDownload,
+    setCurrentMonthPortfolioDetail,
+    setCurrentMonthVisits,
+    setCvDownloadPercentageMonthly,
+    setLastMonthCvDownload,
+    setLastMonthVisits,
+    setPortfolioDetailPercentageMonthly,
+    setVisitInfoPercentageMonthly
 } from '../features/counterSlice';
 import { removeUnreadCvDownload, removeUnreadPortfolioDetailView, removeUnreadVisitorInfo } from "../features/numberNotificationSlice";
 import { removeNewVisitorOnline, removeRegisteredVisitorOnline } from '../features/numberOnlineSlice';
@@ -35,9 +35,9 @@ import { addDataAtBeginning, addDataAtEnd, deleteCVDownloadEE, deletePortfolioDe
 
 import Checkbox from 'expo-checkbox';
 import { MotiView } from 'moti'; // animationd
+import { calculateChangePercentage } from '../_utils/stats';
 import { setCVDownloadsApiOffset, setPortfolioDetailsViewApiOffset, setVisitorDataApiOffset } from '../features/apiOffset'; // set offset
 import { useApiBaseUrl } from '../hooks/useApiBaseUrl';
-import { calculateChangePercentage } from './utils/stats';
 
 const NotificationsScreen = () => {
   let apiBaseUrl = useApiBaseUrl();

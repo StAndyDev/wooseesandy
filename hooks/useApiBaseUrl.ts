@@ -10,4 +10,3 @@ export const useApiBaseUrl = () => {
       ? (activeApiUrl.port)? `${activeApiUrl.protocole}://${activeApiUrl.host}:${activeApiUrl.port}/api` : `${activeApiUrl.protocole}://${activeApiUrl.host}/api`
       : 'http://localhost:8000/api';
   }
-  

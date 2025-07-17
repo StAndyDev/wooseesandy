@@ -554,7 +554,7 @@ const Settings = () => {
                                                 setDataToEdit({ id: item.id, isActiveForApi: item.isActiveForApi, isActiveForWs: item.isActiveForWs });
                                                 setPickerValue(item.protocole);
                                                 setHostTextInput(item.host);
-                                                setPortTextInput(item.port);
+                                                setPortTextInput(item?.port?.toString() ?? '');
                                                 setIsBtnSaveDisabled(false);
                                             }}
                                             style={{ borderWidth: 1, borderColor: globalStyles.primaryColor.color, padding: 5, borderRadius: 5 }}>
@@ -593,9 +593,8 @@ const Settings = () => {
 
                             {baseUrlCount < 5 &&
                                 Array.from({ length: 5 - baseUrlCount }).map((_, index) => (
-                                    <TouchableOpacity activeOpacity={0.8}>
+                                    <TouchableOpacity key={`placeholder-${index}`} activeOpacity={0.8}>
                                     <View
-                                        key={`placeholder-${index}`}
                                         style={[styles.list_child, { justifyContent: 'center', alignItems: 'center' }]}
                                     >
                                         <TouchableOpacity

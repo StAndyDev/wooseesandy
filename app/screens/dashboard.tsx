@@ -11,42 +11,42 @@ import { RootState } from '@/store/store';
 
 // recuder
 import {
-  addCurrentMonthCvDownload,
-  addCurrentMonthPortfolioDetail,
-  addCurrentMonthVisits,
-  addCvDownloadCount,
-  addLastMonthCvDownload,
-  addLastMonthVisits,
-  addVisitorCount,
-  addVuesPortfolioDetailsCount,
-  setCvDownloadPercentageMonthly,
-  setPortfolioDetailPercentageMonthly,
-  setVisitInfoPercentageMonthly
+    addCurrentMonthCvDownload,
+    addCurrentMonthPortfolioDetail,
+    addCurrentMonthVisits,
+    addCvDownloadCount,
+    addLastMonthCvDownload,
+    addLastMonthVisits,
+    addVisitorCount,
+    addVuesPortfolioDetailsCount,
+    setCvDownloadPercentageMonthly,
+    setPortfolioDetailPercentageMonthly,
+    setVisitInfoPercentageMonthly
 } from '../../features/counterSlice';
 import { setReadNotificationCount, setUnreadNotificationCount } from '../../features/numberNotificationSlice';
 
 // api
 import {
-  fetchCvDownloadMonthly,
-  fetchCVDownloadsCount,
-  fetchNotificationCount,
-  fetchPortfolioDetailMonthly,
-  fetchPortfolioDetailsViewCount,
-  fetchVisitInfoStatsMonthly,
-  fetchVisitorCount
+    fetchCvDownloadMonthly,
+    fetchCVDownloadsCount,
+    fetchNotificationCount,
+    fetchPortfolioDetailMonthly,
+    fetchPortfolioDetailsViewCount,
+    fetchVisitInfoStatsMonthly,
+    fetchVisitorCount
 } from '../../services/backend';
 
 import LoaderSkeleton from '@/components/loader/LoaderSkeleton';
 import { StatusMessage } from '@/components/StatusMessage';
 import { removeMessage } from '@/features/messageStatusSlice';
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
+    ScrollView,
+    StyleSheet,
+    Text,
+    View
 } from 'react-native';
+import { calculateChangePercentage } from '../../_utils/stats';
 import { useApiBaseUrl } from '../../hooks/useApiBaseUrl';
-import { calculateChangePercentage } from '../utils/stats';
 
 export default function Dashboard() {
 

@@ -1,4 +1,4 @@
-import { sendUserToken } from '@/app/utils/sendUserToken';
+import { sendUserToken } from '@/_utils/sendUserToken';
 import { setApiConnection } from '@/features/connectionSlice'; // setters
 import { addMessage, clearMessagesByConnexion } from '@/features/messageStatusSlice';
 import { useCallback } from 'react';

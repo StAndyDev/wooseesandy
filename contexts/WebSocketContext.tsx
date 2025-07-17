@@ -38,7 +38,7 @@ import { addMessage, clearMessagesByConnexion } from '@/features/messageStatusSl
 import { RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
 // utils
-import { calculateChangePercentage } from '../app/utils/stats';
+import { calculateChangePercentage } from '../_utils/stats';
 // base url
 import { useWsBaseUrl } from '@/hooks/useWsBaseUrl';
 
