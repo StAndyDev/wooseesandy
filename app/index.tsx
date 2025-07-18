@@ -12,11 +12,12 @@ import { setUrl } from '../features/baseUrlConfigSlice';
 // hook
 import { useTestConnection } from "@/hooks/useTestConnection";
 
+import useNotificationsPermission from "@/hooks/useNotificationsPermission";
 import { Easing } from 'react-native-reanimated';
 
 
 export default function Index() {
-
+  useNotificationsPermission(); // hook pour les permissions de notifications
   const router = useRouter();
   const dispatch = useDispatch();
 

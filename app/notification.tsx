@@ -374,8 +374,10 @@ const NotificationsScreen = () => {
         }
       });
       setDelWithSuccess(true);
+      console.log("\n\n delete with success!!");
       setIsDelConfirmDialogVisible(false);
     } catch (error) {
+      console.log("\n\n failed delete!!", error);
       setDelWithSuccess(false);
       setIsDelConfirmDialogVisible(false);
     }
@@ -398,7 +400,7 @@ const NotificationsScreen = () => {
           dialogText="êtes-vous sûr de vouloir supprimer cette notification ?"
           successTitle="Notification supprimée"
           failedTitle="Erreur de suppression"
-          hideDialogWithSuccès={delWithSuccess}
+          hideDialogWithSuccess={delWithSuccess}
           confirmBtnText="Supprimer"
           cancelBtnText="Annuler"
           onConfirm={() => { handleDelete(); }}

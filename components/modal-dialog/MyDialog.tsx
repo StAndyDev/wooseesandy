@@ -18,10 +18,10 @@ type Props = {
     onBackButtonPress: () => void
     onBackdropPress: () => void
     show: boolean
-    hideDialogWithSuccès?: boolean
+    hideDialogWithSuccess?: boolean
 }
 
-const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onConfirm, onCancel, confirmBtnText = "OK", cancelBtnText = "Annuler", onBackButtonPress, onBackdropPress, show = false, hideDialogWithSuccès }: Props) => {
+const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onConfirm, onCancel, confirmBtnText = "OK", cancelBtnText = "Annuler", onBackButtonPress, onBackdropPress, show = false, hideDialogWithSuccess }: Props) => {
 
     const [changeIconToSucces, setChangeIconToSucces] = useState(false);
     const [changeIconToFailed, setChangeIconToFailed] = useState(false);
@@ -60,7 +60,7 @@ const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onC
                 useNativeDriver: true,
             }),
         ]).start();
-        hideDialogWithSuccès
+        hideDialogWithSuccess
         ? ( setChangeIconToSucces(true),
             (dialogType === "confirm") && setTitleState(successTitle) 
         )
@@ -71,7 +71,7 @@ const MyDialog = ({ dialogType, title,dialogText, successTitle, failedTitle, onC
             onConfirm();
         }, (dialogType === "confirm")? 500 : 0);
         // mettre par defaut
-        hideDialogWithSuccès
+        hideDialogWithSuccess
         ? (setTimeout(() => {setChangeIconToSucces(false); setTitleState(title)}, 1500))
         : (setTimeout(() => {setChangeIconToFailed(false); setTitleState(title)}, 1500))
     };

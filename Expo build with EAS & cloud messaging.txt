@@ -40,6 +40,8 @@
 }
 
 --- build ---
+ - fait toujours un petit analyse avec expo doctor :
+        - npx expo doctor (ou expo doctor si expo-cli installé globalement)
  - n'ajoute pas google-services.json dans .gitignore (temporairement pour le build):
 	git add .
 	git commit -m "add firebase config for EAS build"

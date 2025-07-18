@@ -245,7 +245,7 @@ const Settings = () => {
                 dialogText="êtes-vous sûr ?"
                 successTitle="Suppression effectuée"
                 failedTitle="Echec"
-                hideDialogWithSuccès={true}
+                hideDialogWithSuccess={true}
                 confirmBtnText="Oui"
                 cancelBtnText="Non"
                 onConfirm={() => {
