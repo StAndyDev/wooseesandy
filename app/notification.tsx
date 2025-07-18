@@ -5,29 +5,29 @@ import { ActivityIndicator, Alert, BackHandler, FlatList, Modal, Pressable, Stat
 import { formatDateHeureFr, formatDateInterval, formatDurationISO } from "../_utils/timeUtils";
 import CollapsibleSection from "../components/CollapsedComponent";
 import {
-    deleteCVDownload,
-    deletePortfolioDetailView,
-    deleteVisitInfo,
-    fetchCvDownloadMonthly,
-    fetchCVDownloadsData,
-    fetchPortfolioDetailMonthly,
-    fetchPortfolioDetailsViewData,
-    fetchVisitInfoStatsMonthly,
-    fetchVisitorsData
+  deleteCVDownload,
+  deletePortfolioDetailView,
+  deleteVisitInfo,
+  fetchCvDownloadMonthly,
+  fetchCVDownloadsData,
+  fetchPortfolioDetailMonthly,
+  fetchPortfolioDetailsViewData,
+  fetchVisitInfoStatsMonthly,
+  fetchVisitorsData
 } from "../services/backend"; // api
 import globalStyles from "./styles";
 // redux
 import { RootState } from '@/store/store';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    setCurrentMonthCvDownload,
-    setCurrentMonthPortfolioDetail,
-    setCurrentMonthVisits,
-    setCvDownloadPercentageMonthly,
-    setLastMonthCvDownload,
-    setLastMonthVisits,
-    setPortfolioDetailPercentageMonthly,
-    setVisitInfoPercentageMonthly
+  setCurrentMonthCvDownload,
+  setCurrentMonthPortfolioDetail,
+  setCurrentMonthVisits,
+  setCvDownloadPercentageMonthly,
+  setLastMonthCvDownload,
+  setLastMonthVisits,
+  setPortfolioDetailPercentageMonthly,
+  setVisitInfoPercentageMonthly
 } from '../features/counterSlice';
 import { removeUnreadCvDownload, removeUnreadPortfolioDetailView, removeUnreadVisitorInfo } from "../features/numberNotificationSlice";
 import { removeNewVisitorOnline, removeRegisteredVisitorOnline } from '../features/numberOnlineSlice';
@@ -38,9 +38,15 @@ import { MotiView } from 'moti'; // animationd
 import { calculateChangePercentage } from '../_utils/stats';
 import { setCVDownloadsApiOffset, setPortfolioDetailsViewApiOffset, setVisitorDataApiOffset } from '../features/apiOffset'; // set offset
 import { useApiBaseUrl } from '../hooks/useApiBaseUrl';
+// dialog
+import MyDialog from "@/components/modal-dialog/MyDialog";
 
 const NotificationsScreen = () => {
   let apiBaseUrl = useApiBaseUrl();
+  // del confirm dialog
+  const [isDelConfirmDialogVisible, setIsDelConfirmDialogVisible] = useState(false);
+  const [delWithSuccess, setDelWithSuccess] = useState(false);
+
   /* --- store ---*/
   // notification data
   const notification_data = useSelector((state: RootState) => state.visitors_data.formData);
@@ -300,78 +306,80 @@ const NotificationsScreen = () => {
 
   // suppression
   const handleDelete = () => {
-    selectedItems.forEach(async item => {
-      if (item.message_type === "data_api" ||
-        item.message_type === "connected_alert" ||
-        item.message_type === "disconnected_alert") {
-        const response = await deleteVisitInfo(apiBaseUrl, item.unique_key);
-        if (response) {
-          dispatch(deleteVisitInfoEE({ unique_key: item.unique_key }));
-          if (item.is_online) {
-            (item.is_new_visitor) ? dispatch(removeNewVisitorOnline(1)) : dispatch(removeRegisteredVisitorOnline(1));
-          }
-          if (item.is_read == false) {
-            dispatch(removeUnreadVisitorInfo(1));
-          }
-          // maj redux via api
-          // fetch visit info stat monthly
-          const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly(apiBaseUrl);
-          if (visit_info_stat_monthly) {
-            const current_month_nbr = visit_info_stat_monthly.data.current_month;
-            const last_month_nbr = visit_info_stat_monthly.data.last_month;
-            const visitInfoMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
-            dispatch(setVisitInfoPercentageMonthly(visitInfoMonthlyPercentage));
-            dispatch(setCurrentMonthVisits(current_month_nbr));
-            dispatch(setLastMonthVisits(last_month_nbr));
-          }
-          // showDeletedAlert();
-          setVisibleModal(false);
-        } else if (response) {
-          alert("Not Found")
-        }
 
-      } else if (item.message_type === "cv_download_alert") {
-        const response = await deleteCVDownload(apiBaseUrl, item.unique_key);
-        if (response) {
-          dispatch(deleteCVDownloadEE({ unique_key: item.unique_key }))
-          if (item.is_read == false) {
-            dispatch(removeUnreadCvDownload(1));
+    try {
+      selectedItems.forEach(async item => {
+        if (item.message_type === "data_api" ||
+          item.message_type === "connected_alert" ||
+          item.message_type === "disconnected_alert") {
+          const response = await deleteVisitInfo(apiBaseUrl, item.unique_key);
+          if (response) {
+            dispatch(deleteVisitInfoEE({ unique_key: item.unique_key }));
+            if (item.is_online) {
+              (item.is_new_visitor) ? dispatch(removeNewVisitorOnline(1)) : dispatch(removeRegisteredVisitorOnline(1));
+            }
+            if (item.is_read == false) {
+              dispatch(removeUnreadVisitorInfo(1));
+            }
+            // maj redux via api
+            // fetch visit info stat monthly
+            const visit_info_stat_monthly = await fetchVisitInfoStatsMonthly(apiBaseUrl);
+            if (visit_info_stat_monthly) {
+              const current_month_nbr = visit_info_stat_monthly.data.current_month;
+              const last_month_nbr = visit_info_stat_monthly.data.last_month;
+              const visitInfoMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+              dispatch(setVisitInfoPercentageMonthly(visitInfoMonthlyPercentage));
+              dispatch(setCurrentMonthVisits(current_month_nbr));
+              dispatch(setLastMonthVisits(last_month_nbr));
+            }
           }
-          // fetch cv download stat monthly
-          const cv_download_stat_monthly = await fetchCvDownloadMonthly(apiBaseUrl);
-          if (cv_download_stat_monthly) {
-            const current_month_nbr = cv_download_stat_monthly.data.current_month;
-            const last_month_nbr = cv_download_stat_monthly.data.last_month;
-            const cvDownloadMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
-            dispatch(setCvDownloadPercentageMonthly(cvDownloadMonthlyPercentage));
-            dispatch(setCurrentMonthCvDownload(current_month_nbr));
-            dispatch(setLastMonthCvDownload(last_month_nbr));
+
+        } else if (item.message_type === "cv_download_alert") {
+          const response = await deleteCVDownload(apiBaseUrl, item.unique_key);
+          if (response) {
+            dispatch(deleteCVDownloadEE({ unique_key: item.unique_key }))
+            if (item.is_read == false) {
+              dispatch(removeUnreadCvDownload(1));
+            }
+            // fetch cv download stat monthly
+            const cv_download_stat_monthly = await fetchCvDownloadMonthly(apiBaseUrl);
+            if (cv_download_stat_monthly) {
+              const current_month_nbr = cv_download_stat_monthly.data.current_month;
+              const last_month_nbr = cv_download_stat_monthly.data.last_month;
+              const cvDownloadMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+              dispatch(setCvDownloadPercentageMonthly(cvDownloadMonthlyPercentage));
+              dispatch(setCurrentMonthCvDownload(current_month_nbr));
+              dispatch(setLastMonthCvDownload(last_month_nbr));
+            }
           }
-          // showDeletedAlert();
-          setVisibleModal(false);
+        } else if (item.message_type === "portfolio_details_view_alert") {
+          const response = await deletePortfolioDetailView(apiBaseUrl, item.unique_key);
+          if (response) {
+            dispatch(deletePortfolioDetailViewEE({ unique_key: item.unique_key }));
+            if (item.is_read == false) {
+              dispatch(removeUnreadPortfolioDetailView(1));
+            }
+            // fetch portfolio detail stat monthly
+            const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly(apiBaseUrl);
+            if (portfolio_detail_stat_monthly) {
+              const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
+              const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;
+              const portfolioDetailMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
+              dispatch(setPortfolioDetailPercentageMonthly(portfolioDetailMonthlyPercentage));
+              dispatch(setCurrentMonthPortfolioDetail(current_month_nbr));
+              dispatch(setCurrentMonthPortfolioDetail(last_month_nbr));
+            }
+
+          }
         }
-      } else if (item.message_type === "portfolio_details_view_alert") {
-        const response = await deletePortfolioDetailView(apiBaseUrl, item.unique_key);
-        if (response) {
-          dispatch(deletePortfolioDetailViewEE({ unique_key: item.unique_key }));
-          if (item.is_read == false) {
-            dispatch(removeUnreadPortfolioDetailView(1));
-          }
-          // fetch portfolio detail stat monthly
-          const portfolio_detail_stat_monthly = await fetchPortfolioDetailMonthly(apiBaseUrl);
-          if (portfolio_detail_stat_monthly) {
-            const current_month_nbr = portfolio_detail_stat_monthly.data.current_month;
-            const last_month_nbr = portfolio_detail_stat_monthly.data.last_month;
-            const portfolioDetailMonthlyPercentage = calculateChangePercentage(current_month_nbr, last_month_nbr);
-            dispatch(setPortfolioDetailPercentageMonthly(portfolioDetailMonthlyPercentage));
-            dispatch(setCurrentMonthPortfolioDetail(current_month_nbr));
-            dispatch(setCurrentMonthPortfolioDetail(last_month_nbr));
-          }
-          // showDeletedAlert();
-          setVisibleModal(false);
-        }
-      }
-    });
+      });
+      setDelWithSuccess(true);
+      setIsDelConfirmDialogVisible(false);
+    } catch (error) {
+      setDelWithSuccess(false);
+      setIsDelConfirmDialogVisible(false);
+    }
+
 
   }
 
@@ -381,7 +389,24 @@ const NotificationsScreen = () => {
   // render Modal
   const renderModal = () => {
     return (
+
       <View style={styles.modalContainer}>
+        {/* Del Confirm modal */}
+        <MyDialog
+          dialogType="confirm"
+          title="Supprimer la notification"
+          dialogText="êtes-vous sûr de vouloir supprimer cette notification ?"
+          successTitle="Notification supprimée"
+          failedTitle="Erreur de suppression"
+          hideDialogWithSuccès={delWithSuccess}
+          confirmBtnText="Supprimer"
+          cancelBtnText="Annuler"
+          onConfirm={() => { handleDelete(); }}
+          onCancel={() => { setIsDelConfirmDialogVisible(false); }}
+          onBackButtonPress={() => setIsDelConfirmDialogVisible(false)}
+          onBackdropPress={() => setIsDelConfirmDialogVisible(false)}
+          show={isDelConfirmDialogVisible}
+        />
 
         {/* Boîte de dialogue flottante */}
         <Modal
@@ -394,48 +419,72 @@ const NotificationsScreen = () => {
             activeOpacity={1}
             onPressOut={() => setVisibleModal(false)}
           >
-            <View style={styles.dialogBox}>
-              {!isDelDisabled && (
-                <TouchableOpacity style={styles.menuItem} onPress={() => handleDelete()} >
-                  <Ionicons name="trash-outline" size={20} color={globalStyles.primaryColor.color} />
-                  <Text style={{ color: globalStyles.primaryColor.color }}>Supprimer</Text>
-                </TouchableOpacity>
-              )}
 
-              <TouchableOpacity style={styles.menuItem}
-                onPress={() => {
-                  if (selectedItems.length === notification_data.length) {
-                    setSelectedItems([]);
-                    setIsDelDisabled(true);
-                  } else {
-                    setSelectedItems(
-                      notification_data.map(
-                        item => (
-                          {
-                            message_type: item.message_type,
-                            unique_key: item.unique_key,
-                            is_new_visitor: (item.alert_new_visitor != "") ? true : false,
-                            is_online: (item.visit_duration != "") ? true : false,
-                            is_read: item.is_read,
-                          }
-                        )));
-                    setIsDelDisabled(false);
-                  }
-                }}>
-
-                {notification_data.length === selectedItems.length ? (
-                  <>
-                    <Ionicons name="checkmark" size={20} color={globalStyles.primaryColor.color} />
-                    <Text style={{ color: globalStyles.primaryColor.color }}>Désélectionner tout</Text>
-                  </>
-                ) : (
-                  <>
-                    <Ionicons name="checkmark-done" size={20} color={globalStyles.primaryColor.color} />
-                    <Text style={{ color: globalStyles.primaryColor.color }}>Sélectionner tout</Text>
-                  </>
+            <MotiView
+              from={{
+                opacity: 0,
+                scale: 0.9,
+                translateY: -30,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                translateY: 0,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.9,
+                translateY: 20,
+              }}
+            >
+              <View style={styles.dialogBox}>
+                {!isDelDisabled && (
+                  <TouchableOpacity style={styles.menuItem}
+                    onPress={() => {
+                      setVisibleModal(false);
+                      setIsDelConfirmDialogVisible(true);
+                    }} >
+                    <Ionicons name="trash-outline" size={20} color={globalStyles.primaryColor.color} />
+                    <Text style={{ color: globalStyles.primaryColor.color }}>Supprimer</Text>
+                  </TouchableOpacity>
                 )}
-              </TouchableOpacity>
-            </View>
+
+                <TouchableOpacity style={styles.menuItem}
+                  onPress={() => {
+                    if (selectedItems.length === notification_data.length) {
+                      setSelectedItems([]);
+                      setIsDelDisabled(true);
+                    } else {
+                      setSelectedItems(
+                        notification_data.map(
+                          item => (
+                            {
+                              message_type: item.message_type,
+                              unique_key: item.unique_key,
+                              is_new_visitor: (item.alert_new_visitor != "") ? true : false,
+                              is_online: (item.visit_duration != "") ? true : false,
+                              is_read: item.is_read,
+                            }
+                          )));
+                      setIsDelDisabled(false);
+                    }
+                  }}>
+
+                  {notification_data.length === selectedItems.length ? (
+                    <>
+                      <Ionicons name="checkmark" size={20} color={globalStyles.primaryColor.color} />
+                      <Text style={{ color: globalStyles.primaryColor.color }}>Désélectionner tout</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Ionicons name="checkmark-done" size={20} color={globalStyles.primaryColor.color} />
+                      <Text style={{ color: globalStyles.primaryColor.color }}>Sélectionner tout</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </MotiView>
+
           </TouchableOpacity>
         </Modal>
 
@@ -464,6 +513,7 @@ const NotificationsScreen = () => {
           animate={{ opacity: 1, translateY: 0 }}
           transition={{ delay: index * 100 }}
         >
+
           <Pressable key={item.unique_key} style={[styles.notificationCard, item.is_read == true ? styles.viewCard : null]}
             onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)}
           >
@@ -491,6 +541,7 @@ const NotificationsScreen = () => {
           </Pressable>
 
         </MotiView>
+
       );
     }
 
@@ -607,6 +658,7 @@ const NotificationsScreen = () => {
   ************** */
   return (
     <View style={styles.container} removeClippedSubviews={true}>
+
       <StatusBar barStyle="light-content" />
 
       {/* Header */}
@@ -668,7 +720,9 @@ const NotificationsScreen = () => {
 
       )}
       {renderModal()}
+
     </View>
+
   );
 
 };

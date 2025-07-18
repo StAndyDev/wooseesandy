@@ -44,6 +44,9 @@ const globalStyles = StyleSheet.create({
     dangerColor: {
         color: "rgb(230, 11, 66)",
     },
+    warningColor: {
+        color: "#f39c12",
+    },
     blueColor: {
         color: "rgb(50, 130, 242)",
     },

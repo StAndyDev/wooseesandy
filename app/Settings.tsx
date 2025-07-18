@@ -363,11 +363,11 @@ const Settings = () => {
                         <View>
                             {
                                 selectedModal === "api" ?
-                                    (activeApiUrl
+                                    (activeApiUrl && isApiConnected
                                         ? (<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.primaryColor.color }}>Connecté à l'adresse</Text>)
                                         : (<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.dangerColor.color }}>Non Connecté</Text>)
                                     )
-                                    : (activeWsUrl
+                                    : (activeWsUrl && isSocketConnected
                                         ? (<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.primaryColor.color }}>Connecté à l'adresse</Text>)
                                         : (<Text style={{ alignSelf: "center", marginBottom: 2, color: globalStyles.dangerColor.color }}>Non Connecté</Text>)
                                     )
@@ -375,9 +375,9 @@ const Settings = () => {
 
                             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingVertical: 5, paddingHorizontal: 25 }}>
                                 {
-                                    selectedModal === "api" ?
-                                        (activeApiUrl && (<View style={styles.point}></View>))
-                                        : (activeWsUrl && (<View style={styles.point}></View>))
+                                    selectedModal === "api"
+                                        ? (activeApiUrl && (<View style={isApiConnected? styles.succes_point : styles.failed_point}></View>))
+                                        : (activeWsUrl && (<View style={isSocketConnected? styles.succes_point : styles.failed_point}></View>))
                                 }
                                 
                                 <Text style={{ color: globalStyles.secondaryText.color, letterSpacing: 0.5, fontSize: 12, textAlign: "center", maxWidth: 200 }}>
@@ -721,10 +721,16 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginBottom: 10,
     },
-    point: {
+    succes_point: {
         width: 8,
         height: 8,
         backgroundColor: globalStyles.primaryColor.color,
+        borderRadius: 5,
+    },
+    failed_point: {
+        width: 8,
+        height: 8,
+        backgroundColor: globalStyles.dangerColor.color,
         borderRadius: 5,
     },
     // forms modal
