@@ -57,7 +57,10 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
 
       if (notif === "data_api") {
         const response = await markVisitInfoAsRead(apiBaseUrl, id);
-        (response) ? dispatch(markAsRead({ unique_key: id })) : null;
+        if (response) {
+          dispatch(markAsRead({ unique_key: id }));
+          updateNotificationCount(notif); // update notification count in redux
+        }
         // send update to the server
         sendMessage({
           data: {
@@ -72,7 +75,10 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
       
       else if (notif === "cv_download_alert") {
         const response = await markCVDownloadAsRead(apiBaseUrl, id);
-        (response) ? dispatch(markAsRead({ unique_key: id })) : null;
+        if (response) {
+          dispatch(markAsRead({ unique_key: id }));
+          updateNotificationCount(notif); // update notification count in redux
+        }
         // send update to the server
         sendMessage({
           data: {
@@ -85,7 +91,10 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
 
       } else if (notif === "portfolio_details_view_alert") {
         const response = await markPortfolioDetailViewAsRead(apiBaseUrl, id);
-        (response) ? dispatch(markAsRead({ unique_key: id })) : null;
+        if (response) {
+          dispatch(markAsRead({ unique_key: id }));
+          updateNotificationCount(notif); // update notification count in redux
+        }
         // send update to the server
         sendMessage({
           data: {
@@ -96,8 +105,7 @@ const CollapsibleSection = ({ title, id_key, is_read, notif_type, onLongPress, i
           },
         });
       }
-      // update state
-      updateNotificationCount(notif);
+
 
     }
   };
