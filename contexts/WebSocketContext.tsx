@@ -127,7 +127,7 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
     socket.onopen = () => {
       dispatch(clearMessagesByConnexion('websocket'));
       dispatch(setSocketConnection(true));
-      dispatch(addMessage('success', 'websocket', 'Socket bien connecté'));
+      dispatch(addMessage('success', 'websocket', 'Connexion socket établie'));
       setSocketInstance(socket)
     }
     // --------- on message ------------
@@ -308,6 +308,10 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
         dispatch(clearMessagesByConnexion('websocket'));
         dispatch(setSocketConnection(false));
         dispatch(addMessage('warning', 'websocket', 'Connexion perdue ! veuillez vérifier votre connexion internet'));
+        // reconnect
+        setTimeout(() => {
+          initWebSocket();
+        }, 10000); // Reconnect after 10 seconds
       } else {
         dispatch(clearMessagesByConnexion('websocket'));
         dispatch(setSocketConnection(false));

@@ -12,6 +12,10 @@
       "supportsTablet": true
     },
     "android": {
+      "splash": {
+        "backgroundColor": "#01040F",
+        "resizeMode": "contain"
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo_sitraka_andy.png",
         "backgroundColor": "#287E88"
