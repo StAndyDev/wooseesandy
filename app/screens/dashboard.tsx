@@ -11,39 +11,39 @@ import { RootState } from '@/store/store';
 
 // recuder
 import {
-    addCurrentMonthCvDownload,
-    addCurrentMonthPortfolioDetail,
-    addCurrentMonthVisits,
-    addCvDownloadCount,
-    addLastMonthCvDownload,
-    addLastMonthVisits,
-    addVisitorCount,
-    addVuesPortfolioDetailsCount,
-    setCvDownloadPercentageMonthly,
-    setPortfolioDetailPercentageMonthly,
-    setVisitInfoPercentageMonthly
+  addCurrentMonthCvDownload,
+  addCurrentMonthPortfolioDetail,
+  addCurrentMonthVisits,
+  addCvDownloadCount,
+  addLastMonthCvDownload,
+  addLastMonthVisits,
+  addVisitorCount,
+  addVuesPortfolioDetailsCount,
+  setCvDownloadPercentageMonthly,
+  setPortfolioDetailPercentageMonthly,
+  setVisitInfoPercentageMonthly
 } from '../../features/counterSlice';
 import { setReadNotificationCount, setUnreadNotificationCount } from '../../features/numberNotificationSlice';
 
 // api
 import {
-    fetchCvDownloadMonthly,
-    fetchCVDownloadsCount,
-    fetchNotificationCount,
-    fetchPortfolioDetailMonthly,
-    fetchPortfolioDetailsViewCount,
-    fetchVisitInfoStatsMonthly,
-    fetchVisitorCount
+  fetchCvDownloadMonthly,
+  fetchCVDownloadsCount,
+  fetchNotificationCount,
+  fetchPortfolioDetailMonthly,
+  fetchPortfolioDetailsViewCount,
+  fetchVisitInfoStatsMonthly,
+  fetchVisitorCount
 } from '../../services/backend';
 
 import LoaderSkeleton from '@/components/loader/LoaderSkeleton';
 import { StatusMessage } from '@/components/StatusMessage';
 import { removeMessage } from '@/features/messageStatusSlice';
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    View
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
 import { calculateChangePercentage } from '../../_utils/stats';
 import { useApiBaseUrl } from '../../hooks/useApiBaseUrl';
@@ -109,10 +109,20 @@ export default function Dashboard() {
     // fetch unread notif
     const res_unread = await fetchNotificationCount(apiBaseUrl, false); // nbr notif non lu
     if (res_unread && res_unread.status === 200) {
-      const data_unread = {
-        visitinfo_count: visitinfo_unread_count + res_unread.data.visitinfo_count,
-        cvdownload_count: cvdownload_unread_count + res_unread.data.cvdownload_count,
-        portfoliodetailview_count: portfoliodetailview_unread_count + res_unread.data.portfoliodetailview_count,
+      // pour eviter de doubler les visiteurs en ligne causé par l'appel de l'API et le connexion websocket
+      let data_unread;
+      if (registeredOnlineVisitor > 0 || newOnlineVisitor > 0) {
+        data_unread = {
+          visitinfo_count: (visitinfo_unread_count + res_unread.data.visitinfo_count) - (registeredOnlineVisitor + newOnlineVisitor),
+          cvdownload_count: cvdownload_unread_count + res_unread.data.cvdownload_count,
+          portfoliodetailview_count: portfoliodetailview_unread_count + res_unread.data.portfoliodetailview_count,
+        }
+      } else {
+        data_unread = {
+          visitinfo_count: visitinfo_unread_count + res_unread.data.visitinfo_count,
+          cvdownload_count: cvdownload_unread_count + res_unread.data.cvdownload_count,
+          portfoliodetailview_count: portfoliodetailview_unread_count + res_unread.data.portfoliodetailview_count,
+        }
       }
       dispatch(setUnreadNotificationCount(data_unread));
       setLoadingVisitsCount(false);
