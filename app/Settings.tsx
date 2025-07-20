@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 10,
         gap: 10,
-        minHeight: 54,
+        minHeight: 65,
     },
     modalHandler: {
         width: 40,
