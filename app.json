@@ -12,10 +12,6 @@
       "supportsTablet": true
     },
     "android": {
-      "splash": {
-        "backgroundColor": "#01040F",
-        "resizeMode": "contain"
-      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo_sitraka_andy.png",
         "backgroundColor": "#287E88"
@@ -37,7 +33,16 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/logo_sitraka_andy.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#01040F"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
