@@ -400,7 +400,7 @@ const NotificationsScreen = () => {
           dialogText="êtes-vous sûr de vouloir supprimer cette notification ?"
           successTitle="Notification supprimée"
           failedTitle="Erreur de suppression"
-          hideDialogWithSuccess={delWithSuccess}
+          hideDialogWithSuccess={true}
           confirmBtnText="Supprimer"
           cancelBtnText="Annuler"
           onConfirm={() => { handleDelete(); }}
