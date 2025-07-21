@@ -157,7 +157,7 @@ export default CollapsibleSection;
 
 const styles = StyleSheet.create({
   container: {
-    // marginVertical: 10,
+    flex: 1,    
   },
   header: {
     flexDirection: 'row',
@@ -166,9 +166,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   title: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     color: globalStyles.primaryText.color,
+    maxWidth: '80%',
   },
   content: {
     paddingVertical: 10,

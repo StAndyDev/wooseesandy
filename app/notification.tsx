@@ -528,18 +528,18 @@ const NotificationsScreen = () => {
               />
             )}
             <CollapsibleSection
-              title={"Un visiteur voir votre projet"}
+              title={"Votre travail suscite de l’intérêt : un projet a été vu"}
               id_key={item.unique_key}
               is_read={item.is_read}
               notif_type={"portfolio_details_view_alert"}
               icon_notif_name="information-circle-outline"
               onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)} // handle long press
             >
-              <Text style={styles.message}>unique key: {item.unique_key}</Text>
-              <Text style={styles.message}>project_name : {item.project_name}</Text>
-              <Text style={styles.message}>project_type : {item.project_type}</Text>
+              {/* <Text style={styles.message}>unique key: {item.unique_key}</Text> */}
+              <Text style={styles.message}>titre du projet : {item.project_name}</Text>
+              <Text style={styles.message}>type du projet : {item.project_type}</Text>
             </CollapsibleSection>
-            <Text style={styles.status}>view_datetime : {formatDateHeureFr(item.view_datetime)}</Text>
+            <Text style={styles.status}>date de visite : {formatDateHeureFr(item.view_datetime)}</Text>
           </Pressable>
 
         </MotiView>
@@ -566,18 +566,18 @@ const NotificationsScreen = () => {
               />
             )}
             <CollapsibleSection
-              title={"Un visiteur a téléchargé votre CV"}
+              title={"Votre CV a été téléchargé"}
               id_key={item.unique_key}
               is_read={item.is_read}
               notif_type={"cv_download_alert"}
               icon_notif_name="download-outline"
               onLongPress={() => handleLongPress(item.unique_key, item.message_type, (item.alert_new_visitor != "") ? true : false, (!item.visit_duration) ? true : false, item.is_read)} // handle long press
             >
-              <Text style={styles.message}>unique key: {item.unique_key}</Text>
-              <Text style={styles.message}>visitor id : {item.visitor_uuid}</Text>
-              <Text style={styles.message}>download_datetime : {item.download_datetime}</Text>
+              {/* <Text style={styles.message}>unique key: {item.unique_key}</Text>
+              <Text style={styles.message}>visitor id : {item.visitor_uuid}</Text> */}
+              <Text style={styles.message}>fichier téléchargé le : {formatDateHeureFr(item.download_datetime)}</Text>
             </CollapsibleSection>
-            <Text style={styles.status}>download_datetime : {formatDateHeureFr(item.download_datetime)}</Text>
+            <Text style={styles.status}>date de téléchargement : {formatDateHeureFr(item.download_datetime)}</Text>
           </Pressable>
         </MotiView>
       );
@@ -608,8 +608,8 @@ const NotificationsScreen = () => {
             <CollapsibleSection
               title={
                 item.alert_new_visitor === ""
-                  ? "Un visiteur récurrent revisite votre portfolio"
-                  : "Un nouveau visiteur découvre votre portfolio"
+                  ? "Une personne ayant déjà visité votre portfolio est de retour"
+                  : "Un nouveau visiteur vient de découvrir votre portfolio"
               }
               id_key={item.unique_key}
               is_read={item.is_read}
@@ -618,13 +618,13 @@ const NotificationsScreen = () => {
               icon_notif_name="eye-outline"
             >
 
-              <Text style={styles.message}>unique key: {item.unique_key}</Text>
+              {/* <Text style={styles.message}>unique key: {item.unique_key}</Text>
               <Text style={styles.message}>visitor id : {item.visitor_uuid}</Text>
-              <Text style={styles.message}>uuid de la visite : {item.visit_info_uuid}</Text>
+              <Text style={styles.message}>uuid de la visite : {item.visit_info_uuid}</Text> */}
               <Text style={styles.message}>adresse ip : {item.ip_address}</Text>
-              <Text style={styles.message}>date de début : {item.visit_start_datetime}</Text>
+              <Text style={styles.message}>date de début : {formatDateHeureFr(item.visit_start_datetime)}</Text>
               <Text style={styles.message}>
-                date de fin : {item.visit_end_datetime ? item.visit_end_datetime : "N/A"}
+                date de fin : {item.visit_end_datetime ? formatDateHeureFr(item.visit_end_datetime) : "N/A"}
               </Text>
               <Text style={styles.message}>
                 durée de visite :{" "}
@@ -638,10 +638,10 @@ const NotificationsScreen = () => {
             </CollapsibleSection>
 
             {item.visit_end_datetime && item.visit_end_datetime.trim() === "" || item.visit_end_datetime === undefined ? (
-              <Text style={styles.status}>[status : en ligne]</Text>
+              <Text style={styles.statusEnligne}>Status : en ligne maintenant...</Text>
             ) : (
               <Text style={styles.delai}>
-                il y a {formatDateInterval(date_now, item.visit_end_datetime)}
+                Il y a {formatDateInterval(date_now, item.visit_end_datetime)}
               </Text>
             )}
           </Pressable>
@@ -698,7 +698,7 @@ const NotificationsScreen = () => {
       {/* if ntf empty or not */}
       {!hasMoreVisitorData && notification_data.length === 0 ? (
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text style={{ color: globalStyles.secondaryText.color }}>Aucune notification</Text>
+          <Text style={{ color: globalStyles.secondaryText.color }}>Pas de notification pour le moment</Text>
         </View>
       ) : (
         <FlatList
@@ -774,6 +774,12 @@ const styles = StyleSheet.create({
     borderColor: globalStyles.quaternaryColorWithOpacity.color,
   },
   status: {
+    color: globalStyles.secondaryText.color,
+    fontSize: 12,
+    fontWeight: "bold",
+    marginTop: 5,
+  },
+  statusEnligne: {
     color: globalStyles.primaryColor.color,
     fontSize: 12,
     fontWeight: "bold",
