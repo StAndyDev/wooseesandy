@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'; // storage
 import { useRouter } from "expo-router";
 import { AnimatePresence, MotiText, MotiView } from 'moti';
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import globalStyles from './styles';
 // redux
@@ -24,19 +24,22 @@ export default function Index() {
   // test de connexion à l'API
   const { checkApiConnection } = useTestConnection();
   const [showLogo, setShowLogo] = useState(true); // ici
+  const [loading, setLoading] = useState(true); // pour gérer le chargement initial
 
-useEffect(() => {
-  const init = async () => {
-    await fetchBaseUrl(); // attendre que le state Redux soit bien rempli
-    await testConnection(); // puis tester la connexion
-    setTimeout(() => {
-      setShowLogo(false);
-    }, 4400);
-    redirectToDashboard();
-  };
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await fetchBaseUrl(); // attendre que le state Redux soit bien rempli
+      await testConnection(); // puis tester la connexion
+      setTimeout(() => {
+        setShowLogo(false);
+        setLoading(false);
+      }, 4400);
+      redirectToDashboard();
+    };
 
-  init(); // appel immédiat de la fonction async interne
-}, [checkApiConnection]);
+    init(); // appel immédiat de la fonction async interne
+  }, [checkApiConnection]);
 
   // Chargement des données de l'URL de base depuis AsyncStorage
   const loadBaseUrlData = async (key: string) => {
@@ -136,7 +139,7 @@ useEffect(() => {
                 exit={{
                   opacity: 0.5,
                   scale: 3.2,
-                  rotateZ: '5deg',
+                  // rotateZ: '5deg',
                 }}
                 transition={{
                   // Entrée rapide et fluide
@@ -162,9 +165,10 @@ useEffect(() => {
           <Text style={styles.textSubtitle}>
             Solution professionnelle de tracking et d'analyse des visiteurs de portfolio de sitraka andy
           </Text>
+          <View style={{ marginTop: 20 }}>
+            {loading && (<ActivityIndicator color={globalStyles.primaryColor.color} size="small" />)}
+          </View>
         </View>
-
-
 
       </View>
     </SafeAreaView>
