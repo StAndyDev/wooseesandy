@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'; // storage
 import { useRouter } from "expo-router";
 import { AnimatePresence, MotiText, MotiView } from 'moti';
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import globalStyles from './styles';
 // redux
@@ -114,7 +114,15 @@ export default function Index() {
           }}
           style={styles.text}
         >
-          <Text>Wooseeandy</Text>
+          <Text
+            style={{
+              fontSize: 30,
+              letterSpacing: 3,
+              color: "#fff",
+              textAlign: "center",
+              fontWeight: "bold",
+              }}
+          >Wooseeandy</Text>
           <Text style={styles.textSubtitle}> v.1.0</Text>
 
         </MotiText>
@@ -158,16 +166,44 @@ export default function Index() {
                   },
                 }}
               >
-                <LogoSitrakaAndy width={140} height={100} />
+
+
+                <MotiView
+                  from={{ translateY: 0 }}
+                  animate={{ translateY: -10 }}
+                  transition={{
+                    translateY: {
+                      type: 'timing',
+                      duration: 500,
+                      easing: Easing.inOut(Easing.ease),
+                      repeat: Infinity,
+                      repeatReverse: true,
+                    },
+                  }}
+                >
+                  <LogoSitrakaAndy width={140} height={100} />
+                </MotiView>
               </MotiView>
             )}
+
           </AnimatePresence>
           <Text style={styles.textSubtitle}>
             Solution professionnelle de tracking et d'analyse des visiteurs de portfolio de sitraka andy
           </Text>
-          <View style={{ marginTop: 20 }}>
-            {loading && (<ActivityIndicator color={globalStyles.primaryColor.color} size="small" />)}
-          </View>
+            {loading && (
+            <Text
+              style={{
+              marginTop: 30,
+              fontSize: 12,
+              letterSpacing: 3,
+              color: "#fff",
+              textAlign: "center",
+              fontWeight: "bold",
+              }}
+            >
+              CHARGEMENT...
+            </Text>
+            )}
         </View>
 
       </View>

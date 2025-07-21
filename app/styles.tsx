@@ -36,10 +36,10 @@ const globalStyles = StyleSheet.create({
         color: "rgb(50, 120, 80)",
     },
     quaternaryColor: {
-        color: "rgb(30, 80, 50)",
+        color: 'rgb(40, 126, 136)',
     },
     quaternaryColorWithOpacity: {
-        color: "rgba(30, 80, 50, 0.4)",
+        color: "rgba(40, 126, 136, 0.4)",
     },
     dangerColor: {
         color: "rgb(230, 11, 66)",

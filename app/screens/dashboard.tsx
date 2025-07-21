@@ -213,6 +213,7 @@ export default function Dashboard() {
       </View>
       <View style={styles.parent}>     
         
+        
         {/* ------  CARD : 1 ----- */}
         {registeredOnlineVisitor > 0 && newOnlineVisitor > 0 ? (
           <MyDashboard
@@ -225,6 +226,7 @@ export default function Dashboard() {
                 <Text style={{ color: globalStyles.primaryColor.color }}> {newOnlineVisitor}</Text> nouveau(x) visiteur(s) connecté(s)
               </Text>
             }
+            indexAnimation={1}
           />
         ) : registeredOnlineVisitor > 0 && newOnlineVisitor === 0 ? (
           <MyDashboard
@@ -236,6 +238,7 @@ export default function Dashboard() {
               <Text style={{ color: globalStyles.primaryColor.color }}>{registeredOnlineVisitor}</Text> récurrent(s) visiteur(s) connecté(s)
               </>
             }
+            indexAnimation={2}
           />
         ) : registeredOnlineVisitor === 0 && newOnlineVisitor > 0 ? (
           <MyDashboard
@@ -247,6 +250,7 @@ export default function Dashboard() {
               <Text style={{ color: globalStyles.primaryColor.color }}>{newOnlineVisitor}</Text> nouveau(x) visiteur(s) connecté(s)
               </>
             }
+            indexAnimation={3}
           />
         )
          : (
@@ -255,8 +259,11 @@ export default function Dashboard() {
             ioniconsElementName="information-circle-outline"
             numbers={0}
             content="Aucun visiteur connecté pour le moment"
+            indexAnimation={4}
           />
         )}
+
+
         {/* ---------- CARD : 2 -------- */}
         <MyDashboard 
         title="Métriques de visites" 
@@ -273,7 +280,7 @@ export default function Dashboard() {
         textPercentage="de visites depuis le mois dernier"
         content={
           <Text>
-            <Text>Pour </Text>
+            <Text>pour </Text>
               {
                 loadingVisitorCount? (<ActivityIndicator color={globalStyles.secondaryText.color} size="small" />) : (
                   <Text style={{ color: globalStyles.primaryColor.color }}>
@@ -284,26 +291,29 @@ export default function Dashboard() {
             <Text> visiteurs au total</Text>
         </Text>
         }
+        indexAnimation={5}
         />
 
         {/* --------- CARD : 3 -------- */}
         <MyDashboard 
-        title="Vues du portfolio-détails" 
+        title="Vues des projets"
         ioniconsElementName="eye" 
         numbers={portfolio_details_view_count}
         loadingNumbers={loadingPortfolioViews}
-        content="Total des vues de pages sur le portfolio"
+        content="vues de projets sur le site au total"
         ioniconsName={(portfolio_detail_per_month_percentage > 0)
           ? "arrow-up"
           : (portfolio_detail_per_month_percentage === 0)
             ? "remove"
             : "arrow-down"}
         percentage={`${Math.abs(portfolio_detail_per_month_percentage)}%`}
-        textPercentage=" depuis le mois dernier" />
+        textPercentage=" depuis le mois dernier"
+        indexAnimation={6}
+        />
 
         {/* --------- CARD : 4 --------- */}
         <MyDashboard 
-        title="CV download" 
+        title="CV téléchargés" 
         ioniconsElementName="download" 
         numbers={cv_download_count}
         loadingNumbers={loadingCvDownloads}
@@ -314,7 +324,9 @@ export default function Dashboard() {
             ? "remove"
             : "arrow-down"}
         percentage={`${Math.abs(cv_download_per_month_percentage)}%`}
-        textPercentage=" depuis le mois dernier" />
+        textPercentage=" depuis le mois dernier" 
+        indexAnimation={7}
+        />
       </View>
       <View style={styles.parent}>
         <Chart />
