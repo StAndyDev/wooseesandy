@@ -641,7 +641,7 @@ const NotificationsScreen = () => {
               <Text style={styles.statusEnligne}>Status : en ligne maintenant...</Text>
             ) : (
               <Text style={styles.delai}>
-                Il y a {formatDateInterval(date_now, item.visit_end_datetime)}
+                En ligne il y a {formatDateInterval(date_now, item.visit_end_datetime)}
               </Text>
             )}
           </Pressable>
