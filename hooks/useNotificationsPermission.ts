@@ -13,7 +13,6 @@ export default function useNotificationsPermission() {
     // Ce handler s'exécute quand une notif arrive en foreground
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowAlert: true,     // Android
         shouldShowBanner: true,    // iOS (nouveau)
         shouldShowList: true,      // iOS (nouveau)
         shouldPlaySound: true,
